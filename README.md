@@ -3,6 +3,9 @@
 ## Table of Contents
   - [About the Project](#about-the-project)
   - [References to explore](#references-to-explore)
+    - [Existing Tools](#existing-tools)
+    - [Videos](#videos)
+    - [Concepts and Papers](#concepts-and-papers)
   - [Initial Ideas and Code Design](#initial-ideas-and-code-design)
   - [Getting Started](#getting-started)
   - [Installation](#installation)
@@ -47,7 +50,7 @@ exclusively for rapid development of 3D landscapes for visualization, multimedia
 
 ### Concepts and Papers
 
-* [Artifical Terrain Generation](http://vterrain.org/Elevation/Artificial/) - Outlines details for many types of generation including information on [caves](http://vterrain.org/Elevation/Caves/). Also contains loads of links to papers on terrain generation:
+* [Artificial Terrain Generation](http://vterrain.org/Elevation/Artificial/) - Outlines details for many types of generation including information on [caves](http://vterrain.org/Elevation/Caves/). Also contains loads of links to papers on terrain generation:
   * [Terrain generation using procedural models based on hydrology](https://dl.acm.org/doi/abs/10.1145/2461912.2461996)
   * [Terrain Synthesis from Digital Elevation Models](http://www.howardzzh.com/research/terrain/)
   * [Real-Time Editing, Synthesis, and Rendering of Infinite Landscapes on GPUs](https://www.researchgate.net/profile/Jens_Schneider/publication/228909493_Real-Time_Editing_Synthesis_and_Rendering_of_Infinite_Landscapes_on_GPUs/links/0fcfd50a2c4bacf8fb000000/Real-Time-Editing-Synthesis-and-Rendering-of-Infinite-Landscapes-on-GPUs.pdf)
@@ -64,6 +67,31 @@ exclusively for rapid development of 3D landscapes for visualization, multimedia
 * [Inside ’no man’s sky,’ the most innovative game in years](https://time.com/no-mans-sky/) - TIME article on how No Man's Sky does terrain generation.
 
 ## Initial Ideas and Code Design
+
+Some initial classes that could be needed and their description/potential options are as follows (**ClassName** - Desc *(Options)*):
+
+* **Scene** - The scene displayed to the screen
+  * **Aerial** - The UV terrain painter scene
+  * **3D** - The 3D world view scene
+* **Terrain** - The mesh of primitives that represents the terrain
+* **TerrainObject** - Objects that exist on the terrain (rocks, vegetation, buildings)
+* **Brush** - A mouse based tool to modify the underlying mesh of the terrain
+  * **Painter** - A brush that changes the colour of the terrain
+    * **TexturePainter** - A brush that changes the texture used on the terrain
+  * **Builder** - A brush that modifies the shape of the terrain by adding
+    * **SandDuneBuilder** - A brush that can be used to create sand dune hills
+    * **MountainRangeBuilder** - A brush that can be used to create mountain ranges *(start, end, height, variation, texture, snowCapped)*
+    * **VegetationBuilder** - A brush that adds vegetation
+      * **ForestBuilder** - A brush that adds forests or jungles *(density, treeVariety, forestAge)*
+  * **Excavator** - A brush that modifies the terrain by removing
+    * **CaveExcavator** - A brush that digs caves *(maxDepth, branchingFactor)*
+    * **RiverExcavator** - A brush that digs rivers *(start, end, width, depth, useNaturalHydrology)*
+
+The terrain will need to be tessellated to help with the realtime part of the program. The underlying mesh will be relatively simple but using a tesselation control shader, different parts of the model will have different levels of detail depending on how vital it is that the object looks smooth. For example, a sheer mountain face will not need as much detail (and will not have as many nooks and crannies) as a cave which would look relatively smooth or have distinct shapes that need a higher level of detail.
+
+I'm keen on the idea of trying to use (or at least a simulation of) real geology  to generate mountains, rivers, and caves as I feel it will create more realistic looking terrain.
+
+Further research into whether this would be a single-pass render or multi-pass, I can see benefits to both methods presently.
 
 ## Getting Started
 
