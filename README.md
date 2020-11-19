@@ -123,7 +123,7 @@ Further research into whether this would be a single-pass render or multi-pass, 
 
 ### UML Diagram
 
-[UML class diagram](img/ase_class_diagram.svg)
+![UML class diagram](img/ase_class_diagram.svg)
 
 ## Getting Started
 
