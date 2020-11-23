@@ -17,7 +17,7 @@
 
 Creating large scale, realistic terrains for VFX is both a time and resource heavy task, with the need for many departments to iterate and adapt a design to suit the desired use.
 
-This tool can *(will be able to)* be used by a user to build, sculpt, texture, interact, modify and iterate existing terrain geometry without the need of a fullscale team. The tool is *(will be)* fully interactive and allows the user to modify lots of terrain properties and also offers brush tools to either dig (adding holes, rivers, caves, or road tunnels) or add terrain (mountains, hills, buildings, or vegetation).
+This tool can *(will be able to)* be used by a user to build, sculpt, texture, interact, modify and iterate existing terrain geometry without the need of a full-scale team. The tool is *(will be)* fully interactive and allows the user to modify lots of terrain properties and also offers brush tools to either dig (adding holes, rivers, caves, or road tunnels) or add terrain (mountains, hills, buildings, or vegetation).
 
 Once a terrain has been created, it can be *(will be)* saved to an either OBJ, FBX or USD file and can be loaded into Maya.
 
@@ -34,7 +34,7 @@ Your system should ensure correct geometry, UVs and normals at all times and sho
 ### Existing Tools
 
 - [Terragen](https://planetside.co.uk/) - a powerful solution for building, rendering, and animating realistic natural environments.
-- [Daylon Leveller](http://hme.sourceforge.net/) - combines intuitive pixel sculpting with the accuracy of georeferencing and vector shapes.
+- [Daylon Leveller](http://hme.sourceforge.net/) - combines intuitive pixel sculpting with the accuracy of geo-referencing and vector shapes.
 - [Height Map Editor](http://hme.sourceforge.net/) - 2D program for creating, manipulating, and viewing height maps.
 - [Advanced Landscape Editor](http://www.dyvision.co.uk/ale.htm) - Create large scale landscapes and edit textures with direct painting.
 - [Kashmir 3D](https://www.kashmir3d.com/index-e.html) - Old tool for making 3D landscapes
@@ -98,7 +98,7 @@ Controller:
     - Colour changer - interactive colour wheel, brush size, shape, paint by elevation
     - Load texture
     - Load/save object - file types
-    - Load/save height map
+    - Load height map
     - Interactive help (tooltips?)
     - View modes
       - Wire frame
@@ -120,6 +120,20 @@ The terrain will need to be tessellated to help with the realtime part of the pr
 I'm keen on the idea of trying to use (or at least a simulation of) real geology  to generate mountains, rivers, and caves as I feel it will create more realistic looking terrain.
 
 Further research into whether this would be a single-pass render or multi-pass, I can see benefits to both methods presently.
+
+Ideas/scratch pad:
+
+- Terrain texturing could be done based on height/slope (If above certain level texture as snow, if cliff then texture as cliff face not grass). Could have biome selection to change what the texturing does (no snow and texture as sand if desert)
+- Research into different view modes for items based on distance to camera - higher resolution if close to camera and low resolution in distance to improve speed/performance.
+- Sun/light direction
+- Skybox texture
+- texture readback?
+- staging textures?
+- linear interpolation between colours to colour vertices
+- procedural brushes
+- using gpu for rendering and brush work
+- Geometric mip mapping
+- texture splatting
 
 ### UML Diagram
 

@@ -46,3 +46,9 @@ _deps
 
 # Build
 build
+
+# Docs
+docs/*
+!*.tex
+!*.bib
+!*.pdf
