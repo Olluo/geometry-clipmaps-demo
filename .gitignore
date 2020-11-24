@@ -52,3 +52,6 @@ docs/*
 !*.tex
 !*.bib
 !*.pdf
+
+# VS Code
+.vscode

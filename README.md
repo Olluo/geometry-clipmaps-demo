@@ -138,6 +138,8 @@ Ideas/scratch pad:
 - using gpu for rendering and brush work
 - Geometric mip mapping
 - texture splatting
+- contours?
+- Lock mouse to height
 
 ### UML Diagram
 
