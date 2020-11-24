@@ -9,6 +9,10 @@
     - [Concepts and Papers](#concepts-and-papers)
   - [Initial Ideas and Code Design](#initial-ideas-and-code-design)
     - [UML Diagram](#uml-diagram)
+    - [Plan](#plan)
+      - [Representation](#representation)
+      - [Modification](#modification)
+      - [Creation](#creation)
   - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [Usage](#usage)
@@ -138,6 +142,47 @@ Ideas/scratch pad:
 ### UML Diagram
 
 ![UML class diagram](img/ase_class_diagram.svg)
+
+### Plan
+
+Representation - Modification - Creation
+
+#### Representation
+
+This step of the plan will rely on loading in a predefined heightmap. Basic **saving** and **loading** will also be used at this stage.
+
+Main Goal: Trying to get a terrain grid shown to the screen
+
+- How to represent data?
+- How to use level of detail (LOD) to improve performance?
+- How to minimise the amount of data sent between CPU and GPU?
+- How large a terrain should the tool be able to show?
+- How will the performance be measured?
+
+Do a similar process to [Scape Rendering](https://www.decarpentier.nl/scape-render) and [Geomipmapping](https://www.flipcode.com/archives/article_geomipmaps.pdf) - having XZ vertex buffer (vertex points of a single tile, using a vertex shader to transform into world space, and having all vertices at same LOD level use shared vertex representation), Y vertex buffer (unique per tile), and a final buffer for dealing with stitching LOD regions together.
+
+Secondary Goal: Texturing terrain
+
+- How to texture based on height?
+- Is it possible for users to define own textures?
+- Can you simulate biomes/different texturing approaches?
+- Having sun position, setting a skybox texture?
+
+Could use scape rendering's way of projecting textures onto steep surfaces using a horizontal texture map.
+
+#### Modification
+
+This step I am splitting from creation as this will handle basic brushes (excavator, builder) and other modifications that don't require procedurally generating parts of the terrain.
+
+- How to modify the height of existing terrain in a user-friendly way?
+- How to change colours of terrain sections?
+- How to set certain areas' biome? (want to deliver at least 2 maybe 3 different biomes)
+
+#### Creation
+
+This step will cover all the procedural generation brushes and only be done if time permits.
+
+- What algorithms to use for building mountains, rivers, caves, chasms, oceans etc.?
 
 ## Getting Started
 
