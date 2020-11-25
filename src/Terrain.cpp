@@ -9,6 +9,7 @@ namespace terraindeformer
                    size_t _widthZ)
       : m_widthX{_widthX},
         m_widthZ{_widthZ},
+        m_yValues(m_widthX * m_widthZ, 0.0f),
         m_colours(m_widthX * m_widthZ, ngl::Vec3(0.9f))
   {
     // Center the grid on (0, 0, 0) by making the initial xz values start at -w/2 + 0.5
@@ -20,7 +21,6 @@ namespace terraindeformer
       for (int x = 0; x < m_widthX; x++)
       {
         m_xzValues.push_back(ngl::Vec2(xPos, zPos));
-        m_yValues.push_back(0.0f);
 
         // Increment x position by 1
         xPos++;
