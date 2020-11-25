@@ -11,7 +11,7 @@ basic OpenGL demo modified from http://qt-project.org/doc/qt-5.0/qtgui/openglwin
 
 int main(int argc, char **argv)
 {
-  Terrain t = Terrain();
+  // Terrain t = Terrain();
   QGuiApplication app(argc, argv);
   // create an OpenGL format specifier
   QSurfaceFormat format;

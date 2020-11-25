@@ -1,5 +1,4 @@
-# CMakeLists.txt based on NGL
-# TODO This only works for Windows for now
+# CMakeLists.txt based on NGL TODO This only works for Windows for now
 cmake_minimum_required(VERSION 3.12)
 
 # Try to find toolchain file of vcpkg
@@ -120,8 +119,7 @@ include(GoogleTest)
 enable_testing()
 
 # Files needed for the test executable
-target_sources(${TESTS_NAME} PRIVATE tests/TerrainDeformerTests.cpp
-                                     tests/TerrainTest.cpp)
+target_sources(${TESTS_NAME} PRIVATE tests/TerrainTests.cpp)
 gtest_discover_tests(${TESTS_NAME})
 
 # Libraries needed for the test executable, our library at the top
