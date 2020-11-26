@@ -7,9 +7,20 @@
 namespace terraindeformer
 {
 
+  const float DEFAULT_HEIGHT = 0.0f;
+  const float DEFAULT_COLOUR = 0.9f;
+  const size_t TILE_SIZE = 16;
+
   class Terrain
   {
   private:
+    /**
+     * @brief Calculate the adjusted width which is the width when scaled to fit in TILE_SIZE tiles + 1
+     * 
+     * @param _width The width to scale
+     * @return size_t 
+     */
+    size_t calculateAdjustedWidth(size_t _width) const;
     size_t m_widthX;
     size_t m_widthZ;
     std::vector<float> m_yValues;
@@ -102,6 +113,7 @@ namespace terraindeformer
      * @return false If the colour wasn't set successfully
      */
     bool resetColour(int _x, int _z);
+    void print();
   };
 
 } // end namespace terraindeformer

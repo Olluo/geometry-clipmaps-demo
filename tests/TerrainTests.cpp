@@ -1,13 +1,13 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "Terrain.h"
 
 namespace terraindeformer
 {
-  TEST(TerrainTest, ctor_widthX_widthZ)
+  TEST(TerrainTest, ctor_widthX_widthZ_tilesizeplus1)
   {
-    size_t widthX = 64;
-    size_t widthZ = 64;
+    size_t widthX = TILE_SIZE + 1;
+    size_t widthZ = TILE_SIZE + 1;
     Terrain t(widthX, widthZ);
 
     EXPECT_EQ(t.widthX(), widthX);
@@ -25,29 +25,112 @@ namespace terraindeformer
     }
   }
 
+  TEST(TerrainTest, ctor_widthX_widthZ_tilesize)
+  {
+    size_t widthX = TILE_SIZE;
+    size_t widthZ = TILE_SIZE;
+    Terrain t(widthX, widthZ);
+
+    EXPECT_EQ(t.widthX(), widthX + 1);
+    EXPECT_EQ(t.widthZ(), widthZ + 1);
+
+    for (int z = 0; z < t.widthZ(); z++)
+    {
+      for (int x = 0; x < t.widthX(); x++)
+      {
+        auto height = t.height(x, z);
+        auto colour = t.colour(x, z);
+        EXPECT_EQ(height, 0.0f);
+        EXPECT_EQ(colour, ngl::Vec3(0.9f));
+      }
+    }
+  }
+
+  TEST(TerrainTest, ctor_widthX_widthZ_tilesizelower)
+  {
+    size_t widthX = TILE_SIZE - 1;
+    size_t widthZ = TILE_SIZE - 1;
+    Terrain t(widthX, widthZ);
+
+    EXPECT_EQ(t.widthX(), widthX + 2);
+    EXPECT_EQ(t.widthZ(), widthZ + 2);
+
+    for (int z = 0; z < t.widthZ(); z++)
+    {
+      for (int x = 0; x < t.widthX(); x++)
+      {
+        auto height = t.height(x, z);
+        auto colour = t.colour(x, z);
+        EXPECT_EQ(height, 0.0f);
+        EXPECT_EQ(colour, ngl::Vec3(0.9f));
+      }
+    }
+  }
+
+  TEST(TerrainTest, ctor_widthX_widthZ_nonsquare)
+  {
+    size_t widthX = TILE_SIZE - 1;
+    size_t widthZ = TILE_SIZE + 2;
+    Terrain t(widthX, widthZ);
+
+    EXPECT_EQ(t.widthX(), widthX + 2);
+    EXPECT_EQ(t.widthZ(), 2 * TILE_SIZE + 1);
+
+    for (int z = 0; z < t.widthZ(); z++)
+    {
+      for (int x = 0; x < t.widthX(); x++)
+      {
+        auto height = t.height(x, z);
+        auto colour = t.colour(x, z);
+        EXPECT_EQ(height, 0.0f);
+        EXPECT_EQ(colour, ngl::Vec3(0.9f));
+      }
+    }
+  }
+
   TEST(TerrainTest, ctor_heightmap)
   {
     std::vector<ngl::Vec3> heightMap{
-      ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0), ngl::Vec3(0, 2, 0), ngl::Vec3(0, 3, 0),
-      ngl::Vec3(0, 4, 0), ngl::Vec3(0, 5, 0), ngl::Vec3(0, 6, 0), ngl::Vec3(0, 7, 0),
-      ngl::Vec3(0, 8, 0), ngl::Vec3(0, 9, 0), ngl::Vec3(0, 10, 0), ngl::Vec3(0, 11, 0),
-      ngl::Vec3(0, 12, 0), ngl::Vec3(0, 13, 0), ngl::Vec3(0, 14, 0), ngl::Vec3(0, 15, 0),
+        ngl::Vec3(0, 0, 0),
+        ngl::Vec3(1, 0, 0),
+        ngl::Vec3(2, 0, 0),
+        ngl::Vec3(3, 0, 0),
+        ngl::Vec3(4, 0, 0),
+        ngl::Vec3(5, 0, 0),
+        ngl::Vec3(6, 0, 0),
+        ngl::Vec3(7, 0, 0),
+        ngl::Vec3(8, 0, 0),
+        ngl::Vec3(9, 0, 0),
+        ngl::Vec3(10, 0, 0),
+        ngl::Vec3(11, 0, 0),
+        ngl::Vec3(12, 0, 0),
+        ngl::Vec3(13, 0, 0),
+        ngl::Vec3(14, 0, 0),
+        ngl::Vec3(15, 0, 0),
     };
     size_t hmWidth = 4;
     size_t hmHeight = 4;
     Terrain t(hmWidth, hmHeight, heightMap);
 
-    EXPECT_EQ(t.widthX(), hmWidth);
-    EXPECT_EQ(t.widthZ(), hmHeight);
+    EXPECT_EQ(t.widthX(), TILE_SIZE + 1);
+    EXPECT_EQ(t.widthZ(), TILE_SIZE + 1);
 
-    for (int z = 0; z < hmWidth; z++)
+    for (int z = 0; z < TILE_SIZE + 1; z++)
     {
-      for (int x = 0; x < hmHeight; x++)
+      for (int x = 0; x < TILE_SIZE + 1; x++)
       {
         auto height = t.height(x, z);
         auto colour = t.colour(x, z);
-        EXPECT_EQ(height, heightMap[z * hmWidth + x].m_r);
-        EXPECT_EQ(colour, ngl::Vec3(0.9f));
+        if (x < hmWidth && z < hmHeight)
+        {
+          EXPECT_EQ(height, heightMap[z * hmWidth + x].m_r);
+          EXPECT_EQ(colour, heightMap[z * hmWidth + x]);
+        }
+        else
+        {
+          EXPECT_EQ(height, DEFAULT_HEIGHT);
+          EXPECT_EQ(colour, ngl::Vec3(DEFAULT_COLOUR));
+        }
       }
     }
   }
