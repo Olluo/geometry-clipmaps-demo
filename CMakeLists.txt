@@ -54,8 +54,15 @@ link_directories($ENV{HOMEDRIVE}/$ENV{HOMEPATH}/NGL/lib)
 # -----------------------------------------------------------------------------
 
 # Files needed for this library
-add_library(${LIBRARY_NAME} STATIC ${CMAKE_SOURCE_DIR}/src/Terrain.cpp
-                                   ${CMAKE_SOURCE_DIR}/include/Terrain.h)
+add_library(
+  ${LIBRARY_NAME} STATIC
+  ${CMAKE_SOURCE_DIR}/src/Terrain.cpp
+  ${CMAKE_SOURCE_DIR}/src/Clipmap.cpp
+  ${CMAKE_SOURCE_DIR}/src/Footprint.cpp
+  ${CMAKE_SOURCE_DIR}/include/Constants.h
+  ${CMAKE_SOURCE_DIR}/include/Terrain.h
+  ${CMAKE_SOURCE_DIR}/include/Clipmap.h
+  ${CMAKE_SOURCE_DIR}/include/Footprint.h)
 
 set_target_properties(
   ${LIBRARY_NAME} PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME
@@ -85,8 +92,8 @@ target_sources(
           ${CMAKE_SOURCE_DIR}/src/NGLScene.cpp
           ${CMAKE_SOURCE_DIR}/src/NGLSceneMouseControls.cpp
           ${CMAKE_SOURCE_DIR}/include/NGLScene.h
-          ${CMAKE_SOURCE_DIR}/shaders/Vertex.glsl
-          ${CMAKE_SOURCE_DIR}/shaders/Fragment.glsl)
+          ${CMAKE_SOURCE_DIR}/shaders/terrain.vert.glsl
+          ${CMAKE_SOURCE_DIR}/shaders/terrain.frag.glsl)
 
 # Libraries needed for the executable, our library at the top
 target_link_libraries(
@@ -108,6 +115,14 @@ add_custom_command(
     ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders
     $<TARGET_FILE_DIR:${TARGET_NAME}>/shaders)
 
+# Copy the images for testing from the root directory to the build directory
+add_custom_command(
+  TARGET ${TARGET_NAME}
+  PRE_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/img/tests
+    $<TARGET_FILE_DIR:${TARGET_NAME}>/img)
+
 # -----------------------------------------------------------------------------
 # Test
 # -----------------------------------------------------------------------------
@@ -119,7 +134,9 @@ include(GoogleTest)
 enable_testing()
 
 # Files needed for the test executable
-target_sources(${TESTS_NAME} PRIVATE tests/TerrainTests.cpp)
+target_sources(
+  ${TESTS_NAME} PRIVATE tests/TerrainTests.cpp tests/ClipmapTests.cpp
+                        tests/FootprintTests.cpp)
 gtest_discover_tests(${TESTS_NAME})
 
 # Libraries needed for the test executable, our library at the top

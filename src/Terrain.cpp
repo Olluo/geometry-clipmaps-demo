@@ -1,87 +1,118 @@
 #include <iostream>
 
+#include "Constants.h"
 #include "Terrain.h"
 
 namespace terraindeformer
 {
-
-  size_t Terrain::calculateAdjustedWidth(size_t _width) const
+  void Terrain::generateFootprints()
   {
-    // This formula rounds up the width to the nearest tile size then adds 1
-    // e.g. TILE_SIZE = 16, _width = 7, m_width = 7 + 16 - (7 % 16) + 1 = 7 + 16 - 7 + 1 = 17
-    // 2 other cases are when the width is the tile size already (return width + 1), or width is
-    // tile size + 1 already (return width)
-    size_t remainder = _width % TILE_SIZE;
-    switch (remainder)
+    m_footprints[static_cast<int>(FootprintType::Block)] = new Footprint(CLIPMAP_M, CLIPMAP_M);
+    m_footprints[static_cast<int>(FootprintType::FixupHorizontal)] = new Footprint(CLIPMAP_M, 3);
+    m_footprints[static_cast<int>(FootprintType::FixupVertical)] = new Footprint(3, CLIPMAP_M);
+    m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)] = new Footprint((2 * CLIPMAP_M) + 1, 2);
+    m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)] = new Footprint(2, (2 * CLIPMAP_M) + 1);
+    m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)] = new Footprint((4 * CLIPMAP_M) - 1);
+  }
+
+  void Terrain::generateLocations()
+  {
+    // This is used for the bottom left corner displacement
+    int neg2M = static_cast<int>(-2 * (CLIPMAP_M) + 1);
+    int m = static_cast<int>(CLIPMAP_M);
+
+    // See https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems2/elementLinks/02_clipmaps_05.jpg
+    // Bottom left blocks
+    m_locations.push_back(new FootprintLocation(neg2M, -m, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(neg2M, neg2M, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(-m, neg2M, m_footprints[static_cast<int>(FootprintType::Block)]));
+
+    // Bottom right blocks
+    m_locations.push_back(new FootprintLocation(1, neg2M, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(m, neg2M, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(m, -m, m_footprints[static_cast<int>(FootprintType::Block)]));
+
+    // Top right blocks
+    m_locations.push_back(new FootprintLocation(1, m, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(m, m, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(m, 1, m_footprints[static_cast<int>(FootprintType::Block)]));
+
+    // Top left blocks
+    m_locations.push_back(new FootprintLocation(neg2M, 1, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(neg2M, m, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(-m, m, m_footprints[static_cast<int>(FootprintType::Block)]));
+
+    // Inner blocks (only used in finest level)
+    m_locations.push_back(new FootprintLocation(0, 0, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(1 - m, 0, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(0, 1 - m, m_footprints[static_cast<int>(FootprintType::Block)]));
+    m_locations.push_back(new FootprintLocation(1 - m, 1 - m, m_footprints[static_cast<int>(FootprintType::Block)]));
+
+    // Fix-up footprints (l, r, t, b)
+    m_locations.push_back(new FootprintLocation(neg2M, -1, m_footprints[static_cast<int>(FootprintType::FixupHorizontal)]));
+    m_locations.push_back(new FootprintLocation(m, -1, m_footprints[static_cast<int>(FootprintType::FixupHorizontal)]));
+    m_locations.push_back(new FootprintLocation(-1, m, m_footprints[static_cast<int>(FootprintType::FixupVertical)]));
+    m_locations.push_back(new FootprintLocation(-1, neg2M, m_footprints[static_cast<int>(FootprintType::FixupVertical)]));
+
+    // Interior trims (l, r, t, b)
+    m_locations.push_back(new FootprintLocation(-m, -m, m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)]));
+    m_locations.push_back(new FootprintLocation(m - 1, -m, m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)]));
+    m_locations.push_back(new FootprintLocation(-m, m - 1, m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)]));
+    m_locations.push_back(new FootprintLocation(-m, -m, m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)]));
+
+    // Outer degenerated ring
+    m_locations.push_back(new FootprintLocation(neg2M, neg2M, m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)]));
+  }
+
+  void Terrain::generateClipmaps()
+  {
+    Clipmap *parent = nullptr;
+    for (int l = CLIPMAP_L - 1; l >= 0; l--)
     {
-    case 0:
-      return _width + 1;
-    case 1:
-      return _width;
-    default:
-      return _width + TILE_SIZE - remainder + 1;
+      m_clipmaps[l] = new Clipmap(l, m_widthX, m_widthZ, m_yValues, parent);
+      parent = m_clipmaps[l];
     }
   }
 
-  Terrain::Terrain(size_t _widthX,
-                   size_t _widthZ)
-      : m_widthX{calculateAdjustedWidth(_widthX)},
-        m_widthZ{calculateAdjustedWidth(_widthZ)},
-        m_yValues(m_widthX * m_widthZ, DEFAULT_HEIGHT),
-        m_colours(m_widthX * m_widthZ, ngl::Vec3(DEFAULT_COLOUR))
+  Terrain::Terrain(size_t _widthX, size_t _widthZ) : m_widthX{_widthX},
+                                                     m_widthZ{_widthZ},
+                                                     m_yValues(m_widthX * m_widthZ, DEFAULT_HEIGHT),
+                                                     m_colours(m_widthX * m_widthZ, ngl::Vec3(DEFAULT_COLOUR)),
+                                                     m_footprints(6),
+                                                     m_clipmaps(CLIPMAP_L)
   {
-    // Center the grid on (0, 0, 0) by making the initial xz values start at -w/2 + 0.5
-    float xPos = -(m_widthX / 2.0f) + 0.5f;
-    float zPos = -(m_widthZ / 2.0f) + 0.5f;
-
-    for (int z = 0; z < m_widthZ; z++)
-    {
-      for (int x = 0; x < m_widthX; x++)
-      {
-        m_xzValues.push_back(ngl::Vec2(xPos, zPos));
-
-        // Increment x position by 1
-        xPos++;
-      }
-      // Increment z position by 1
-      zPos++;
-      // Reset x position to initial
-      xPos = -(m_widthX / 2.0f);
-    }
   }
 
-  Terrain::Terrain(size_t _hmWidth, size_t _hmHeight, std::vector<ngl::Vec3> _heightMap)
-      : m_widthX{calculateAdjustedWidth(_hmWidth)},
-        m_widthZ{calculateAdjustedWidth(_hmHeight)}
+  void Terrain::initialize()
   {
-    // Center the grid on (0, 0, 0) by making the initial xz values start at -w/2 + 0.5
-    float xPos = -(m_widthX / 2.0f) + 0.5f;
-    float zPos = -(m_widthZ / 2.0f) + 0.5f;
+    generateFootprints();
+    generateLocations();
+    generateClipmaps();
+  }
 
-    for (int z = 0; z < m_widthZ; z++)
+  Terrain::Terrain(size_t _hmWidth, size_t _hmHeight, std::vector<ngl::Vec3> _heightMap) : Terrain(_hmWidth, _hmHeight)
+  {
+    loadHeightMap(_hmWidth, _hmHeight, _heightMap);
+  }
+
+  bool Terrain::loadHeightMap(size_t _hmWidth, size_t _hmHeight, std::vector<ngl::Vec3> _heightMap)
+  {
+    if (_hmWidth > m_widthX || _hmHeight > m_widthZ)
     {
-      for (int x = 0; x < m_widthX; x++)
-      {
-        m_xzValues.push_back(ngl::Vec2(xPos, zPos));
-        if (x < _hmWidth && z < _hmHeight)
-        {
-          m_yValues.push_back(_heightMap[z * _hmWidth + x].m_r);
-          m_colours.push_back(_heightMap[z * _hmWidth + x]);
-        }
-        else
-        {
-          m_yValues.push_back(DEFAULT_HEIGHT);
-          m_colours.push_back(DEFAULT_COLOUR);
-        }
-
-        // Increment x position by 1
-        xPos++;
-      }
-      // Increment z position by 1
-      zPos++;
-      // Reset x position to initial
-      xPos = -(m_widthX / 2.0f);
+      return false;
     }
+
+    for (int z = 0; z < _hmHeight; z++)
+    {
+      for (int x = 0; x < _hmWidth; x++)
+      {
+        auto pixel = _heightMap[z * _hmWidth + x];
+        m_yValues[z * _hmWidth + x] = pixel.m_r;
+        m_colours[z * _hmWidth + x] = pixel;
+      }
+    }
+
+    return true;
   }
 
   size_t Terrain::widthX() const
@@ -136,18 +167,48 @@ namespace terraindeformer
     return setColour(_x, _z, ngl::Vec3(DEFAULT_COLOUR));
   }
 
-  void Terrain::print()
+  // std::vector<float> *Terrain::yValues()
+  // {
+  //   return &m_yValues;
+  // }
+
+  // std::vector<ngl::Vec3> *Terrain::colours()
+  // {
+  //   return &m_colours;
+  // }
+
+  // const std::vector<ngl::Vec2> &Terrain::fpVertices(FootprintType _footprint) const
+  // {
+  //   return m_footprints[static_cast<int>(_footprint)]->vertices();
+  // }
+
+  // const std::vector<GLuint> &Terrain::fpIndices(FootprintType _footprint) const
+  // {
+  //   return m_footprints[static_cast<int>(_footprint)]->indices();
+  // }
+
+  std::vector<Clipmap *> &Terrain::clipmaps()
   {
-    std::cout << "Printing terrain\n";
-    for (int z = 0; z < m_widthZ; z++)
+    return m_clipmaps;
+  }
+
+  std::vector<Footprint *> &Terrain::footprints()
+  {
+    return m_footprints;
+  }
+
+  std::vector<FootprintLocation *> Terrain::selectLocations(int _selection)
+  {
+    // TODO: this should return the required footprints based on the selection made
+    std::vector<FootprintLocation *> selectedLocations;
+    for (auto location : m_locations)
     {
-      for (int x = 0; x < m_widthX; x++)
+      if (true)
       {
-        std::cout << height(x, z) << ' ';
+        selectedLocations.push_back(location);
       }
-      std::cout << '\n';
     }
-    std::cout << "End terrain\n";
+    return selectedLocations;
   }
 
 } // end namespace terraindeformer

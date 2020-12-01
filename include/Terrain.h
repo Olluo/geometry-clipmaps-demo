@@ -1,31 +1,47 @@
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
+#include "Clipmap.h"
+#include "Footprint.h"
+
 #include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
 
 namespace terraindeformer
 {
-
-  const float DEFAULT_HEIGHT = 0.0f;
-  const float DEFAULT_COLOUR = 0.9f;
-  const size_t TILE_SIZE = 16;
-
   class Terrain
   {
   private:
-    /**
-     * @brief Calculate the adjusted width which is the width when scaled to fit in TILE_SIZE tiles + 1
-     * 
-     * @param _width The width to scale
-     * @return size_t 
-     */
-    size_t calculateAdjustedWidth(size_t _width) const;
+    // The X width of the terrain
     size_t m_widthX;
+    // The Z width of the terrain
     size_t m_widthZ;
+    // Used for the height texture
     std::vector<float> m_yValues;
-    std::vector<ngl::Vec2> m_xzValues;
+    // Used for colour lookup
     std::vector<ngl::Vec3> m_colours;
+    // The list of all clipmap levels
+    std::vector<Clipmap *> m_clipmaps;
+    // The list of all footprints
+    std::vector<Footprint *> m_footprints;
+    // The list of all the locations
+    std::vector<FootprintLocation *> m_locations;
+
+    /**
+     * @brief Generate the set of footprints
+     * 
+     */
+    void generateFootprints();
+    /**
+     * @brief Generate all the possible footprint locations
+     * 
+     */
+    void generateLocations();
+    /**
+     * @brief Generate a clipmap for each level of detail
+     * 
+     */
+    void generateClipmaps();
 
   public:
     /**
@@ -40,12 +56,21 @@ namespace terraindeformer
      * 
      * @brief Construct a new Terrain object with a height map
      * 
-     * @param _heightMap The height map ot initialise the Terrain object with
      * @param _hmWidth The width of the height map (also the width of the Terrain object)
      * @param _hmHeight The height of the height map (also the width of the Terrain object)
+     * @param _heightMap The height map ot initialise the Terrain object with
      */
     Terrain(size_t _hmWidth, size_t _hmHeight, std::vector<ngl::Vec3> _heightMap);
-
+    /**
+     * @brief Load a height map into the terrain, size of heightmap must not be greater than size of terrain
+     * 
+     * @param _hmWidth The width of the height map
+     * @param _hmHeight The height of the height map
+     * @param _heightMap The height map ot initialise the Terrain object with
+     * @return true The height map was loaded with no errors
+     * @return false Error loading height map
+     */
+    bool Terrain::loadHeightMap(size_t _hmWidth, size_t _hmHeight, std::vector<ngl::Vec3> _heightMap);
     /**
      * @brief Returns the width in X of the terrain
      * 
@@ -113,7 +138,34 @@ namespace terraindeformer
      * @return false If the colour wasn't set successfully
      */
     bool resetColour(int _x, int _z);
-    void print();
+    // std::vector<float> *yValues();
+    // std::vector<ngl::Vec3> *colours();
+    // const std::vector<ngl::Vec2> &fpVertices(FootprintType _footprint) const;
+    // const std::vector<GLuint> &fpIndices(FootprintType _footprint) const;
+    /**
+     * @brief Return a vector of all the clipmaps that have been generated
+     * 
+     * @return std::vector<Clipmap *>& 
+     */
+    std::vector<Clipmap *> &clipmaps();
+    /**
+     * @brief Return a vector of all the footprints
+     * 
+     * @return std::vector<Footprint *>& 
+     */
+    std::vector<Footprint *> &footprints();
+    /**
+     * @brief Return a selection of footprint locations based on the selection parameter
+     * 
+     * @param _selection The footprints required
+     * @return std::vector<FootprintLocation *> 
+     */
+    std::vector<FootprintLocation *> selectLocations(int _selection);
+    /**
+     * @brief Initialise the terrain object and generate all sub-parts
+     * 
+     */
+    void initialize();
   };
 
 } // end namespace terraindeformer

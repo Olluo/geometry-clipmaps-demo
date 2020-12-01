@@ -1,80 +1,20 @@
 #include <gtest/gtest.h>
 
+#include "Constants.h"
 #include "Terrain.h"
 
 namespace terraindeformer
 {
   TEST(TerrainTest, ctor_widthX_widthZ_tilesizeplus1)
   {
-    size_t widthX = TILE_SIZE + 1;
-    size_t widthZ = TILE_SIZE + 1;
+    size_t widthX = 16;
+    size_t widthZ = 16;
     Terrain t(widthX, widthZ);
+    // t.print();
+    // EXPECT_TRUE(false);
 
     EXPECT_EQ(t.widthX(), widthX);
     EXPECT_EQ(t.widthZ(), widthZ);
-
-    for (int z = 0; z < t.widthZ(); z++)
-    {
-      for (int x = 0; x < t.widthX(); x++)
-      {
-        auto height = t.height(x, z);
-        auto colour = t.colour(x, z);
-        EXPECT_EQ(height, 0.0f);
-        EXPECT_EQ(colour, ngl::Vec3(0.9f));
-      }
-    }
-  }
-
-  TEST(TerrainTest, ctor_widthX_widthZ_tilesize)
-  {
-    size_t widthX = TILE_SIZE;
-    size_t widthZ = TILE_SIZE;
-    Terrain t(widthX, widthZ);
-
-    EXPECT_EQ(t.widthX(), widthX + 1);
-    EXPECT_EQ(t.widthZ(), widthZ + 1);
-
-    for (int z = 0; z < t.widthZ(); z++)
-    {
-      for (int x = 0; x < t.widthX(); x++)
-      {
-        auto height = t.height(x, z);
-        auto colour = t.colour(x, z);
-        EXPECT_EQ(height, 0.0f);
-        EXPECT_EQ(colour, ngl::Vec3(0.9f));
-      }
-    }
-  }
-
-  TEST(TerrainTest, ctor_widthX_widthZ_tilesizelower)
-  {
-    size_t widthX = TILE_SIZE - 1;
-    size_t widthZ = TILE_SIZE - 1;
-    Terrain t(widthX, widthZ);
-
-    EXPECT_EQ(t.widthX(), widthX + 2);
-    EXPECT_EQ(t.widthZ(), widthZ + 2);
-
-    for (int z = 0; z < t.widthZ(); z++)
-    {
-      for (int x = 0; x < t.widthX(); x++)
-      {
-        auto height = t.height(x, z);
-        auto colour = t.colour(x, z);
-        EXPECT_EQ(height, 0.0f);
-        EXPECT_EQ(colour, ngl::Vec3(0.9f));
-      }
-    }
-  }
-
-  TEST(TerrainTest, ctor_widthX_widthZ_nonsquare)
-  {
-    size_t widthX = TILE_SIZE - 1;
-    size_t widthZ = TILE_SIZE + 2;
-    Terrain t(widthX, widthZ);
-
-    EXPECT_EQ(t.widthX(), widthX + 2);
-    EXPECT_EQ(t.widthZ(), 2 * TILE_SIZE + 1);
 
     for (int z = 0; z < t.widthZ(); z++)
     {
@@ -112,12 +52,12 @@ namespace terraindeformer
     size_t hmHeight = 4;
     Terrain t(hmWidth, hmHeight, heightMap);
 
-    EXPECT_EQ(t.widthX(), TILE_SIZE + 1);
-    EXPECT_EQ(t.widthZ(), TILE_SIZE + 1);
+    EXPECT_EQ(t.widthX(), hmWidth);
+    EXPECT_EQ(t.widthZ(), hmHeight);
 
-    for (int z = 0; z < TILE_SIZE + 1; z++)
+    for (int z = 0; z < hmHeight; z++)
     {
-      for (int x = 0; x < TILE_SIZE + 1; x++)
+      for (int x = 0; x < hmWidth; x++)
       {
         auto height = t.height(x, z);
         auto colour = t.colour(x, z);

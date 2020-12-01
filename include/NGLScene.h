@@ -1,10 +1,17 @@
 #ifndef NGLSCENE_H_
 #define NGLSCENE_H_
-#include <ngl/Vec3.h>
 #include <ngl/Mat4.h>
+#include <ngl/Text.h>
+#include <ngl/Vec3.h>
+
+#include "Clipmap.h"
+#include "Constants.h"
+#include "Footprint.h"
+#include "Terrain.h"
 #include "WindowParams.h"
-// this must be included after NGL includes else we get a clash with gl libs
 #include <QOpenGLWindow>
+#include <memory>
+
 //----------------------------------------------------------------------------------------------------------------------
 /// @file NGLScene.h
 /// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
@@ -18,14 +25,16 @@
 /// put in this file
 //----------------------------------------------------------------------------------------------------------------------
 
-class NGLScene : public QOpenGLWindow
+namespace terraindeformer
 {
+  class NGLScene : public QOpenGLWindow
+  {
   public:
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief ctor for our NGL drawing class
     /// @param [in] parent the parent window to the class
     //----------------------------------------------------------------------------------------------------------------------
-    NGLScene();
+    NGLScene(std::string _fname);
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief dtor must close down ngl and release OpenGL resources
     //----------------------------------------------------------------------------------------------------------------------
@@ -40,12 +49,40 @@ class NGLScene : public QOpenGLWindow
     //----------------------------------------------------------------------------------------------------------------------
     void paintGL() override;
     //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this is called everytime we resize the window
+    /// @brief this is called everytime we resize
     //----------------------------------------------------------------------------------------------------------------------
     void resizeGL(int _w, int _h) override;
 
-private:
-
+  private:
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief the windows params such as mouse and rotations etc
+    //----------------------------------------------------------------------------------------------------------------------
+    WinParams m_win;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief used to store the global mouse transforms
+    //----------------------------------------------------------------------------------------------------------------------
+    ngl::Mat4 m_mouseGlobalTX;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief Our Camera
+    //----------------------------------------------------------------------------------------------------------------------
+    ngl::Mat4 m_view;
+    ngl::Mat4 m_project;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief the model position for mouse movement
+    //----------------------------------------------------------------------------------------------------------------------
+    ngl::Vec3 m_modelPos;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief vao created from the image
+    //----------------------------------------------------------------------------------------------------------------------
+    GLuint m_vaoID;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief number of verts to draw
+    //----------------------------------------------------------------------------------------------------------------------
+    unsigned int m_vertSize;
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief name of the image to load
+    //----------------------------------------------------------------------------------------------------------------------
+    std::string m_imageName;
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief Qt Event called when a key is pressed
     /// @param [in] _event the Qt event to query for size etc
@@ -55,54 +92,60 @@ private:
     /// @brief this method is called every time a mouse is moved
     /// @param _event the Qt Event structure
     //----------------------------------------------------------------------------------------------------------------------
-    void mouseMoveEvent (QMouseEvent * _event ) override;
+    void mouseMoveEvent(QMouseEvent *_event) override;
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief this method is called everytime the mouse button is pressed
     /// inherited from QObject and overridden here.
     /// @param _event the Qt Event structure
     //----------------------------------------------------------------------------------------------------------------------
-    void mousePressEvent ( QMouseEvent *_event) override;
+    void mousePressEvent(QMouseEvent *_event) override;
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief this method is called everytime the mouse button is released
     /// inherited from QObject and overridden here.
     /// @param _event the Qt Event structure
     //----------------------------------------------------------------------------------------------------------------------
-    void mouseReleaseEvent ( QMouseEvent *_event ) override;
+    void mouseReleaseEvent(QMouseEvent *_event) override;
 
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief this method is called everytime the mouse wheel is moved
     /// inherited from QObject and overridden here.
     /// @param _event the Qt Event structure
     //----------------------------------------------------------------------------------------------------------------------
-    void wheelEvent( QWheelEvent *_event) override;
-    /// @brief windows parameters for mouse control etc.
-    WinParams m_win;
-    /// position for our model
-    ngl::Vec3 m_modelPos;
+    void wheelEvent(QWheelEvent *_event) override;
 
-    ngl::Mat4 m_view;
-    ngl::Mat4 m_project;
-    void loadMatrixToShader(const ngl::Mat4 &_tx);
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief build our VAO grid
+    //----------------------------------------------------------------------------------------------------------------------
+    void buildVAO();
+    //----------------------------------------------------------------------------------------------------------------------
+    /// @brief generate our grid points in x,z (width / depth) set y to 0 for now
+    /// @param [in] _width the physical width size of our grid
+    /// @param [in] _depth the phsical height size of our grid
+    //----------------------------------------------------------------------------------------------------------------------
+    void genGridPoints(ngl::Real _width, ngl::Real _depth);
+    Terrain *m_terrain;
+    std::string m_shaderProgram;
 
-    void timerEvent(QTimerEvent *) override;
+    /**
+     * @brief Generate all the bindings for each footprint and buffer data
+     * 
+     * @param _footprints The footprints to configure
+     */
+    void configureFootprints(std::vector<Footprint *> _footprints);
+    /**
+     * @brief Generate textures for each clipmap and buffer texture data
+     * 
+     * @param _clipmaps The clipmaps to configure
+     */
+    void configureClipmaps(std::vector<Clipmap *> _clipmaps);
+    /**
+     * @brief Bind the correct buffer and draw the footprint
+     * 
+     * @param _footprint 
+     */
+    void drawFootprint(Footprint *_footprint);
+  };
 
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // end namespace terraindeformer
 
 #endif
