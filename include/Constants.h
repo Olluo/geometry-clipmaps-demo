@@ -5,7 +5,7 @@ namespace terraindeformer
 {
   const float DEFAULT_HEIGHT = 0.0f;
   const float DEFAULT_COLOUR = 0.9f;
-  // K - The level of detail (>2) - 4 for testing, 8 or 16 for final
+  // K - The level of detail (>2) - 4 for testing, 8 or 16 for final - tested values 4 to 9, any higher and program crashes
   const unsigned char CLIPMAP_K = 4;
   // D - Equivalent of 2^K
   const size_t CLIPMAP_D = 1 << CLIPMAP_K;

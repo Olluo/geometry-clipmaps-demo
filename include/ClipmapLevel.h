@@ -1,51 +1,48 @@
-#ifndef CLIPMAP_H_
-#define CLIPMAP_H_
+#ifndef CLIPMAP_LEVEL_H_
+#define CLIPMAP_LEVEL_H_
 
 #include <ngl/Vec2.h>
 
+#include "Heightmap.h"
+
 namespace terraindeformer
 {
-  class Clipmap
+  class ClipmapLevel
   {
   private:
-    // The level of detail of the Clipmap
+    // The level of the clipmap
     int m_level;
     // The scale of the clipmap
     int m_scale;
-    // The X width of the height map
-    size_t m_hmWidthX;
-    // The Z width of the height map
-    size_t m_hmWidthZ;
     // The heightmap
-    std::vector<float> m_heightMap;
-    // The texture for the Clipmap - used for height data
-    std::vector<float> m_texture;
+    Heightmap* m_heightmap;
+    // The texture for the ClipmapLevel - used for height data
+    std::vector<ngl::Real> m_texture;
     // The texture buffer
     GLuint m_textureName;
-    // The parent Clipmap (coarser detail) used to get pixel from texture (caching)
-    Clipmap *m_parent;
-    // The position of this Clipmap
+    // The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
+    ClipmapLevel *m_parent;
+    // The position of this ClipmapLevel
     ngl::Vec2 m_position;
+
     /**
      * @brief Generate a pixel at location based on parent texture and heightmap
      * 
      * @param _x The x location of the pixel
-     * @param _z The z location of the pixel
-     * @return float The height at pixel (_x, _z)
+     * @param _y The y location of the pixel
+     * @return float The height at pixel (_x, _y)
      */
-    float generatePixelAt(int _x, int _z);
+    ngl::Real generatePixelAt(ngl::Real _x, ngl::Real _y);
 
   public:
     /**
-     * @brief Construct a new Clipmap object
+     * @brief Construct a new ClipmapLevel object
      * 
      * @param _level The level of detail of this clipmap
-     * @param _hmWidthX The width in X of the height map
-     * @param _hmWidthZ The width in Z of the height map
-     * @param _heightMap The heightmap
-     * @param _parent The parent Clipmap (coarser detail) used to get pixel from texture (caching)
+     * @param _heightmap The heightmap
+     * @param _parent The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
      */
-    Clipmap(int _level, size_t _hmWidthX, size_t _hmWidthZ, std::vector<float> &_heightMap, Clipmap *_parent);
+    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent);
     /**
      * @brief Set the position of the clipmap. This will recalculate the texture.
      * 
@@ -55,9 +52,9 @@ namespace terraindeformer
     /**
      * @brief Return const reference to the texture for this clipmap
      * 
-     * @return const std::vector<float>& the texture of this clipmap
+     * @return const std::vector<ngl::Real>& the texture of this clipmap
      */
-    const std::vector<float> &texture() const;
+    const std::vector<ngl::Real> &texture() const;
     /**
      * @brief return pointer to the textureName, to be bound to a specific texture buffer
      * 
@@ -76,7 +73,9 @@ namespace terraindeformer
      * @return const ngl::Vec2& 
      */
     const ngl::Vec2 &position() const;
+    bool left() const;
+    bool bottom() const;
   };
 
 } // end namespace terraindeformer
-#endif // !CLIPMAP_H_
+#endif // !CLIPMAP_LEVEL_H_

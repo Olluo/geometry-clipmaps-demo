@@ -4,9 +4,10 @@
 #include <ngl/Text.h>
 #include <ngl/Vec3.h>
 
-#include "Clipmap.h"
+#include "ClipmapLevel.h"
 #include "Constants.h"
 #include "Footprint.h"
+#include "Heightmap.h"
 #include "Terrain.h"
 #include "WindowParams.h"
 #include <QOpenGLWindow>
@@ -118,11 +119,11 @@ namespace terraindeformer
     //----------------------------------------------------------------------------------------------------------------------
     void buildVAO();
     //----------------------------------------------------------------------------------------------------------------------
-    /// @brief generate our grid points in x,z (width / depth) set y to 0 for now
+    /// @brief generate our grid points in x,y (width / depth)
     /// @param [in] _width the physical width size of our grid
-    /// @param [in] _depth the phsical height size of our grid
+    /// @param [in] _depth the physical depth size of our grid
     //----------------------------------------------------------------------------------------------------------------------
-    void genGridPoints(ngl::Real _width, ngl::Real _depth);
+    void generateTerrain(ngl::Real _width, ngl::Real _depth);
     Terrain *m_terrain;
     std::string m_shaderProgram;
 
@@ -137,7 +138,13 @@ namespace terraindeformer
      * 
      * @param _clipmaps The clipmaps to configure
      */
-    void configureClipmaps(std::vector<Clipmap *> _clipmaps);
+    void configureClipmaps(std::vector<ClipmapLevel *> _clipmaps);
+    /**
+     * @brief Update the textures for each clipmap and buffer texture data
+     * 
+     * @param _clipmaps The clipmaps to update
+     */
+    void updateClipmaps(std::vector<ClipmapLevel *> _clipmaps);
     /**
      * @brief Bind the correct buffer and draw the footprint
      * 

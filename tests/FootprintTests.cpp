@@ -6,14 +6,14 @@
 
 namespace terraindeformer
 {
-  TEST(FootprintTest, ctor_widthX_widthZ)
+  TEST(FootprintTest, ctor_width_depth)
   {
-    size_t widthX = 2;
-    size_t widthZ = 3;
-    Footprint f(widthX, widthZ);
+    size_t width = 2;
+    size_t depth = 3;
+    Footprint f(width, depth);
 
-    EXPECT_EQ(f.widthX(), widthX);
-    EXPECT_EQ(f.widthZ(), widthZ);
+    EXPECT_EQ(f.width(), width);
+    EXPECT_EQ(f.depth(), depth);
 
     std::vector<ngl::Vec2> expectedVertices =
         {{0, 0}, {1, 0}, {0, 1}, {1, 1}, {0, 2}, {1, 2}};
@@ -33,8 +33,8 @@ namespace terraindeformer
     size_t width = 4;
     Footprint f(width);
 
-    EXPECT_EQ(f.widthX(), width);
-    EXPECT_EQ(f.widthZ(), width);
+    EXPECT_EQ(f.width(), width);
+    EXPECT_EQ(f.depth(), width);
 
     std::vector<ngl::Vec2> expectedVertices =
         {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {3, 1}, {3, 2}, {3, 3}, {2, 3}, {1, 3}, {0, 3}, {0, 2}, {0, 1}};

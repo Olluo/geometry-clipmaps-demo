@@ -75,11 +75,11 @@ namespace terraindeformer
     // check the diff of the wheel position (0 means no change)
     if (_event->delta() > 0)
     {
-      m_modelPos.m_z += ZOOM;
+      m_modelPos.m_y += ZOOM;
     }
     else if (_event->delta() < 0)
     {
-      m_modelPos.m_z -= ZOOM;
+      m_modelPos.m_y -= ZOOM;
     }
     update();
   }

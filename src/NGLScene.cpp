@@ -21,27 +21,28 @@ namespace terraindeformer
     std::cout << "Shutting down NGL, removing VAO's and Shaders\n";
   }
 
-  void NGLScene::genGridPoints(ngl::Real _width, ngl::Real _depth)
+  void NGLScene::generateTerrain(ngl::Real _width, ngl::Real _depth)
   {
     // load our image and get size
     QImage image(m_imageName.c_str());
     int imageWidth = image.size().width();
     int imageHeight = image.size().height();
-    std::cout << "image size " << imageWidth << " " << imageHeight << "\n";
+    std::unique_ptr<GLfloat []> data=std::make_unique<GLfloat []>(imageWidth);
+    auto i = data.get();
+    std::cout << "Loading height map " << m_imageName << ", size " << imageWidth << "x" << imageHeight << "\n";
 
     std::vector<ngl::Vec3> gridPoints;
 
-    for (int z = 0; z < imageHeight; z++)
+    for (int y = 0; y < imageHeight; y++)
     {
       for (int x = 0; x < imageWidth; x++)
       {
-        QColor c(image.pixel(x, z));
+        QColor c(image.pixel(x, y));
         gridPoints.push_back(ngl::Vec3(c.redF(), c.greenF(), c.blueF()));
       }
     }
 
-    m_terrain = new Terrain(imageWidth, imageHeight, gridPoints);
-    m_terrain->initialize();
+    m_terrain = new Terrain(new Heightmap(imageWidth, imageHeight, gridPoints));
     configureFootprints(m_terrain->footprints());
     configureClipmaps(m_terrain->clipmaps());
   }
@@ -69,7 +70,7 @@ namespace terraindeformer
     constexpr auto fragShader = "TerrainFragment";
 
     // create the shader program
-    ngl::ShaderLib::createShaderProgram(m_shaderProgram);
+    ngl::ShaderLib::createShaderProgram(m_shaderProgram, ngl::ErrorExit::OFF);
 
     // now we are going to create empty shaders for Frag and Vert
     ngl::ShaderLib::attachShader(vertexShader, ngl::ShaderType::VERTEX);
@@ -96,17 +97,17 @@ namespace terraindeformer
     // Now we will create a basic Camera from the graphics library
     // This is a static camera so it only needs to be set once
     // First create Values for the camera position
-    ngl::Vec3 from(10, 10, 40);
+    ngl::Vec3 from(0, 10, 40);
     ngl::Vec3 to(0, 0, 0);
     ngl::Vec3 up(0, 1, 0);
 
     m_view = ngl::lookAt(from, to, up);
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
-    m_project = ngl::perspective(45, 720.0f / 576.0f, 0.001f, 150);
+    m_project = ngl::perspective(45, m_win.width / m_win.height, 0.001f, 150);
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
-    genGridPoints(64, 64);
+    generateTerrain(64, 64);
   }
 
   void NGLScene::paintGL()
@@ -125,7 +126,10 @@ namespace terraindeformer
     // add the translations
     m_mouseGlobalTX.m_m[3][0] = m_modelPos.m_x;
     m_mouseGlobalTX.m_m[3][1] = m_modelPos.m_y;
-    m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
+    m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_y;
+
+    // Doesn't work properly
+    // m_terrain->move(m_modelPos.m_x, m_modelPos.m_y);
 
     ngl::ShaderLib::use(m_shaderProgram);
 
@@ -134,45 +138,73 @@ namespace terraindeformer
     ngl::ShaderLib::setUniform("MVP", MVP);
 
     auto clipmaps = m_terrain->clipmaps();
+    updateClipmaps(clipmaps);
     for (int l = CLIPMAP_L - 1; l >= 0; l--)
     // for (int l = 0; l >= 0; l--)
     {
       auto currentLevel = clipmaps[l];
-      // int x = 1;
-      // auto currentLevel = clipmaps[x];
+      glBindTexture(GL_TEXTURE_BUFFER, currentLevel->textureName());
+      // TODO: set colour
 
-      // set colour
+      FootprintSelection selection;
+      if (l == 0)
+      {
+        selection = FootprintSelection::All;
+      }
+      else if (currentLevel->bottom())
+      {
+        if (currentLevel->left())
+        {
+          selection = FootprintSelection::BottomLeft;
+        }
+        else
+        {
+          selection = FootprintSelection::BottomRight;
+        }
+      }
+      else
+      {
+        if (currentLevel->left())
+        {
+          selection = FootprintSelection::TopLeft;
+        }
+        else
+        {
+          selection = FootprintSelection::TopRight;
+        }
+      }
 
-      // TODO: choose which footprint locations to use based on whether the current level is oriented in one of these ways
-      // left bottom
-      // right bottom
-      // left top
-      // right top
-      int selection = 0;
-
-      // set up some variables that i dont quite understand
-      // float levelXPos = (CLIPMAP_N * (l + 1)) / 2;
-      // float levelZPos = (CLIPMAP_N * (l + 1)) / 2;
-      // float levelXPos = (CLIPMAP_SIZE * (x + 1)) / 2;
-      // float levelZPos = (CLIPMAP_SIZE * (x + 1)) / 2;
+      // Get the position in world of the current clipmap level
       ngl::Vec2 levelPosition = currentLevel->position();
+
+      // Get decimal part of the clipmap position, multiply by 2 and subtract 1 to get offset inside parent
+      // if the decimal part is less than 0.5 this will result in a negative number, if it is greater, a positive
+      // number. As each clipmap level's position is half of the parent position, this results in an alternating
+      // placement for each clipmap where in the finest clipmap will be centred around the viewer
+      float xPos = (levelPosition.m_x - static_cast<long>(levelPosition.m_x)) * 2.0f - 1.0f;
+      float yPos = (levelPosition.m_y - static_cast<long>(levelPosition.m_y)) * 2.0f - 1.0f;
 
       for (auto location : m_terrain->selectLocations(selection))
       {
         auto footprint = location->footprint;
-        ngl::Vec4 scaleFactor{static_cast<ngl::Real>(currentLevel->scale()),
-                              static_cast<ngl::Real>(currentLevel->scale()),
-                              static_cast<ngl::Real>(location->x - levelPosition.m_x),
-                              static_cast<ngl::Real>(location->z - levelPosition.m_y)};
+        ngl::Vec4 scaleFactor{
+            static_cast<ngl::Real>(location->x + xPos), // location->x is the footprints local coords, xPos is the offset for the clipmap level
+            static_cast<ngl::Real>(location->y + yPos), // location->y is the footprints local coords, xPos is the offset for the clipmap level
+            static_cast<ngl::Real>(currentLevel->scale()),  // This is the scale of the clipmap level
+            static_cast<ngl::Real>(1 / static_cast<ngl::Real>(CLIPMAP_D)),  // This is to scale the texture - texture is DxD and is clamped to 0-1 so need to do same with coords somehow
+        };
         ngl::ShaderLib::setUniform("scaleFactor", scaleFactor);
 
-        ngl::Vec4 fineBlockOrigin{static_cast<ngl::Real>(footprint->widthX()),
-                                  static_cast<ngl::Real>(footprint->widthZ()),
-                                  static_cast<ngl::Real>(0),
-                                  static_cast<ngl::Real>(0)};
+        ngl::Vec4 fineBlockOrigin{
+            static_cast<ngl::Real>(location->x),
+            static_cast<ngl::Real>(location->y),
+            static_cast<ngl::Real>(CLIPMAP_D),
+            static_cast<ngl::Real>(0)};
         ngl::ShaderLib::setUniform("fineBlockOrigin", fineBlockOrigin);
         drawFootprint(footprint);
       }
+
+      glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
   }
 
@@ -197,25 +229,41 @@ namespace terraindeformer
     }
   }
 
-  void NGLScene::configureClipmaps(std::vector<Clipmap *> _clipmaps)
+  void NGLScene::configureClipmaps(std::vector<ClipmapLevel *> _clipmaps)
   {
     for (auto clipmap : _clipmaps)
     {
+      glActiveTexture(GL_TEXTURE0);
       glGenTextures(1, &clipmap->textureName());
-      glBindTexture(GL_TEXTURE_2D, clipmap->textureName());
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+      glBindBuffer(GL_TEXTURE_BUFFER, clipmap->textureName());
+      glBindTexture(GL_TEXTURE_BUFFER, clipmap->textureName());
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, static_cast<GLsizei>(CLIPMAP_N), static_cast<GLsizei>(CLIPMAP_N), 0, GL_RGB, GL_UNSIGNED_BYTE, &clipmap->texture());
+      glBufferData(GL_TEXTURE_BUFFER, clipmap->texture().size() * sizeof(ngl::Real), &clipmap->texture()[0], GL_STATIC_DRAW);
+      glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, clipmap->textureName());
 
-      glGenerateMipmap(GL_TEXTURE_2D); //  Allocate the mipmaps
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindTexture(GL_TEXTURE_BUFFER, 0);
+    }
+  }
+
+  void NGLScene::updateClipmaps(std::vector<ClipmapLevel *> _clipmaps)
+  {
+    for (auto clipmap : _clipmaps)
+    {
+      glActiveTexture(GL_TEXTURE0);
+      glBindBuffer(GL_TEXTURE_BUFFER, clipmap->textureName());
+      glBindTexture(GL_TEXTURE_BUFFER, clipmap->textureName());
+
+      glBufferData(GL_TEXTURE_BUFFER, clipmap->texture().size() * sizeof(ngl::Real), &clipmap->texture()[0], GL_STATIC_DRAW);
+      glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, clipmap->textureName());
+
+
+      glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
   }
 
   void NGLScene::drawFootprint(Footprint *_footprint)
   {
-    // std::cout << "Drawing footprint (" << _footprint->widthX() << ',' << _footprint->widthZ() << ")\n";
+    // std::cout << "Drawing footprint (" << _footprint->width() << ',' << _footprint->depth() << ")\n";
     glBindVertexArray(_footprint->vao());
     glBindBuffer(GL_ARRAY_BUFFER, _footprint->vbo());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _footprint->ibo());

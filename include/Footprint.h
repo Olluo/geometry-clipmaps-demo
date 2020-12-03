@@ -19,10 +19,10 @@ namespace terraindeformer
   class Footprint
   {
   private:
-    // The X width of the Footprint
-    size_t m_widthX;
-    // The Z width of the Footprint
-    size_t m_widthZ;
+    // The width of the Footprint
+    size_t m_width;
+    // The depth of the Footprint
+    size_t m_depth;
     // The vertices representing the Footprint
     std::vector<ngl::Vec2> m_vertices;
     // The indices representing the Footprint
@@ -65,28 +65,28 @@ namespace terraindeformer
     /**
      * @brief Construct a new Footprint object
      * 
-     * @param _widthX The width in X of the Footprint
-     * @param _widthZ The width in Z of the Footprint
+     * @param _width The width of the Footprint
+     * @param _depth The depth of the Footprint
      */
-    Footprint(size_t _widthX, size_t _widthZ);
+    Footprint(size_t _width, size_t _depth);
     /**
      * @brief Construct a degenerate triangle ring Footprint
      * 
-     * @param _width The width X/Z of the ring
+     * @param _width The width of the ring
      */
     Footprint(size_t _width);
     /**
-     * @brief Get the width in X of the footprint
+     * @brief Get the width of the footprint
      * 
-     * @return size_t The width in X
+     * @return size_t The width
      */
-    size_t widthX() const;
+    size_t width() const;
     /**
-     * @brief Get the width in Z of the footprint
+     * @brief Get the depth of the footprint
      * 
-     * @return size_t The width in Z
+     * @return size_t The depth
      */
-    size_t widthZ() const;
+    size_t depth() const;
     /**
      * @brief Get the vertices that represent this footprint
      * 
@@ -135,19 +135,19 @@ namespace terraindeformer
   {
     // The position in x
     int x;
-    // The position in z
-    int z;
-    // The footprint at (x, z)
+    // The position in y
+    int y;
+    // The footprint at (x, y)
     Footprint *footprint;
     /**
      * @brief Construct a new Footprint Location object that represents where the footprint could be
      * 
      * @param _x The position in x
-     * @param _z The position in z
+     * @param _y The position in y
      * @param _footprint A reference to a footprint that will be at this location
      */
-    FootprintLocation(int _x, int _z, Footprint *_footprint) : x{_x},
-                                                               z{_z},
+    FootprintLocation(int _x, int _y, Footprint *_footprint) : x{_x},
+                                                               y{_y},
                                                                footprint{_footprint}
     {
     }

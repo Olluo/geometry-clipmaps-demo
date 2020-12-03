@@ -57,11 +57,13 @@ link_directories($ENV{HOMEDRIVE}/$ENV{HOMEPATH}/NGL/lib)
 add_library(
   ${LIBRARY_NAME} STATIC
   ${CMAKE_SOURCE_DIR}/src/Terrain.cpp
-  ${CMAKE_SOURCE_DIR}/src/Clipmap.cpp
+  ${CMAKE_SOURCE_DIR}/src/ClipmapLevel.cpp
+  ${CMAKE_SOURCE_DIR}/src/Heightmap.cpp
   ${CMAKE_SOURCE_DIR}/src/Footprint.cpp
   ${CMAKE_SOURCE_DIR}/include/Constants.h
   ${CMAKE_SOURCE_DIR}/include/Terrain.h
-  ${CMAKE_SOURCE_DIR}/include/Clipmap.h
+  ${CMAKE_SOURCE_DIR}/include/ClipmapLevel.h
+  ${CMAKE_SOURCE_DIR}/include/Heightmap.h
   ${CMAKE_SOURCE_DIR}/include/Footprint.h)
 
 set_target_properties(
@@ -135,8 +137,8 @@ enable_testing()
 
 # Files needed for the test executable
 target_sources(
-  ${TESTS_NAME} PRIVATE tests/TerrainTests.cpp tests/ClipmapTests.cpp
-                        tests/FootprintTests.cpp)
+  ${TESTS_NAME} PRIVATE tests/TerrainTests.cpp tests/ClipmapLevelTests.cpp
+                        tests/HeightmapTests.cpp tests/FootprintTests.cpp)
 gtest_discover_tests(${TESTS_NAME})
 
 # Libraries needed for the test executable, our library at the top
