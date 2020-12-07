@@ -3,19 +3,19 @@
 <!-- ## Table of Contents -->
 - [Ollie Nicholls - Interactive Terrain Deformation and Sculpting](#ollie-nicholls---interactive-terrain-deformation-and-sculpting)
   - [About the Project](#about-the-project)
-  - [References to explore](#references-to-explore)
-    - [Existing Tools](#existing-tools)
-    - [Videos](#videos)
-    - [Concepts and Papers](#concepts-and-papers)
-  - [Initial Ideas and Code Design](#initial-ideas-and-code-design)
-    - [UML Diagram](#uml-diagram)
-    - [Plan](#plan)
+    - [Code Design and Plan](#code-design-and-plan)
       - [Representation](#representation)
       - [Modification](#modification)
       - [Creation](#creation)
+      - [High-Level Code Design](#high-level-code-design)
+      - [UML Diagram](#uml-diagram)
   - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [Usage](#usage)
+  - [References and Acknowledgement](#references-and-acknowledgement)
+    - [Existing Tools](#existing-tools)
+    - [Videos](#videos)
+    - [Concepts and Papers](#concepts-and-papers)
 
 ## About the Project
 
@@ -33,46 +33,48 @@ The tools should allow them to modify a plethora of the terrains properties, inc
 
 Your system should ensure correct geometry, UVs and normals at all times and should also be able to export the terrain geometry into either OBJ, FBX or USD (if you feel experimental) so that it can be loaded back into Maya. Additionally, it should handle large scale terrains efficiently with good real time performance. The toolset can be developed inside a DCC (Digital Content Creation) tool, or as a standalone application. The only limitation is that Houdini may not be used. You are free to use third party libraries as long as they are open source. It is not required for the sake of this task for the toolset to work in AR/VR. However, if it is possible to do so with controller interaction, this would be very interesting. Note, the focus of this task is on the features, quality of the experience and the usability of each tool provided. Make sure you focus on the key features to produce a quality useable product and explain with accompanying documentation any features not implemented and why. There is always the risk that certain features are harder to implement than initially anticipated. If this is the case, explain in writing why these were hard to complete and provide a suggestion on what is required to complete their implementation. -->
 
-## References to explore
+### Code Design and Plan
 
-### Existing Tools
+See section 3 of the [report](docs/report.pdf) for a high-level description of the project specification.
 
-- [Terragen](https://planetside.co.uk/) - a powerful solution for building, rendering, and animating realistic natural environments.
-- [Daylon Leveller](http://hme.sourceforge.net/) - combines intuitive pixel sculpting with the accuracy of geo-referencing and vector shapes.
-- [Height Map Editor](http://hme.sourceforge.net/) - 2D program for creating, manipulating, and viewing height maps.
-- [Advanced Landscape Editor](http://www.dyvision.co.uk/ale.htm) - Create large scale landscapes and edit textures with direct painting.
-- [Kashmir 3D](https://www.kashmir3d.com/index-e.html) - Old tool for making 3D landscapes
-- [L3DT](http://www.bundysoft.com/L3DT/) - a Windows application for generating terrain maps and textures. It is intended to help game developers and digital artists create vast high-quality 3D worlds.
-- [EarthSculptor](http://www.earthsculptor.com/) - a realtime terrain height-map editor and paint program featuring an easy to use interface designed
-exclusively for rapid development of 3D landscapes for visualization, multimedia and game development.
-- [TerraNoise](https://www.guruware.at/main/index.html) - Node based terrain editor.
+The project is split into three parts: Representation, Modification, and Creation. The main goal will be to get an efficient representation of the terrain, offer basic tools to change the heights/colours of the terrain, and options for saving to different object files for use in other modelling and VFX software.
 
-### Videos
+#### Representation
 
-- [Potch Explains Perlin Noise with Terrain Generation!](https://www.youtube.com/watch?v=ww5CcgG34Dc)
-- [PROCEDURAL TERRAIN in Unity! - Mesh Generation](https://www.youtube.com/watch?v=64NblGkAabk)
-- [River Based Terrain Generation - Sapiens Devlog 36](https://www.youtube.com/watch?v=yZHe-2Gg6zA)
-- [Procedural Landmass Generation (E01: Introduction)](https://www.youtube.com/watch?v=wbpMiKiSKm8)
+This part of the project will rely on loading in a predefined heightmap. Basic **saving** and **loading** will also be available at this stage.
 
-### Concepts and Papers
+Main Goal: Trying to get a terrain grid shown to the screen in an efficient way - will use the algorithms described in the report, based on [Geoclipmaps](https://webpages.uncc.edu/krs/courses/6127/pubs/mesh/losasso-siggraph-2004.pdf) and [NVIDIA's GPU Gems 2: Terrain Rendering Using GPU-Based Geometry Clipmaps](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.146.3203&rep=rep1&type=pdf).
 
-- [Artificial Terrain Generation](http://vterrain.org/Elevation/Artificial/) - Outlines details for many types of generation including information on [caves](http://vterrain.org/Elevation/Caves/). Also contains loads of links to papers on terrain generation:
-  - [Terrain generation using procedural models based on hydrology](https://dl.acm.org/doi/abs/10.1145/2461912.2461996)
-  - [Terrain Synthesis from Digital Elevation Models](http://www.howardzzh.com/research/terrain/)
-  - [Real-Time Editing, Synthesis, and Rendering of Infinite Landscapes on GPUs](https://www.researchgate.net/profile/Jens_Schneider/publication/228909493_Real-Time_Editing_Synthesis_and_Rendering_of_Infinite_Landscapes_on_GPUs/links/0fcfd50a2c4bacf8fb000000/Real-Time-Editing-Synthesis-and-Rendering-of-Infinite-Landscapes-on-GPUs.pdf)
-  - [Heightfield Synthesis by Non-Parametric Sampling](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.103.2245&rep=rep1&type=pdf)
-  - [Modeling for the Plausible Emulation of Large Worlds](https://www.elibrary.ru/item.asp?id=5283463)
-  - [TEXTURING & MODELING: A Procedural Approach](http://elibrary.lt/resursai/Leidiniai/Litfund/Lithfund_leidiniai/IT/Texturing.and.Modeling.-.A.Procedural.Approach.3rd.edition.eBook-LRN.pdf)
-  - [Generalized Stochastic Subdivision](http://scribblethink.org/Work/Gsd/gsd.pdf)
-  - [Computer rendering of stochastic models](https://dl.acm.org/doi/abs/10.1145/358523.358553)
-  - [Physically Based Terrain Generation : Procedural Heightmap Generation Using Plate Tectonics](https://www.theseus.fi/handle/10024/40422)
-  - [Terrain simulation using a model of stream erosion](https://dl.acm.org/doi/10.1145/378456.378519)
-- [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu) - NVIDIA book about terrain generation.
-- [Procedural Generation](https://en.wikipedia.org/wiki/Procedural_generation) - Wikipedia
-- [PCG-Based game design: enabling new play experiences through procedural content generation](https://dl.acm.org/doi/abs/10.1145/2000919.2000926) - Paper describing how games like Rust, Minecraft, and The Forest use PCG to create terrains.
-- [Inside ’no man’s sky,’ the most innovative game in years](https://time.com/no-mans-sky/) - TIME article on how No Man's Sky does terrain generation.
+- The data will be split into an X-Z vertex and index buffer for each footprint, a texture buffer that represents the height data at each vertex, and some normal and colour data.
+- LOD levels span from fine to coarse around the viewer toroidally based on the position of the camera.
+- The terrain world is seemingly infinite with the heightmap loaded in to the origin.
+- A region of the world can be saved to an object file.
+- The performance (FPS/memory usage) can be seen on screen.
 
-## Initial Ideas and Code Design
+Secondary Goal: Texturing terrain
+
+- How to texture based on height?
+- Is it possible for users to define own textures?
+- Can you simulate biomes/different texturing approaches?
+- Having sun position, setting a skybox texture?
+
+Could use [Scape Rendering](https://www.decarpentier.nl/scape-render)'s way of projecting textures onto steep surfaces using a horizontal texture map.
+
+#### Modification
+
+This step I am splitting from creation as this will handle basic brushes (excavator, builder) and other modifications that don't require procedurally generating parts of the terrain.
+
+- How to modify the height of existing terrain in a user-friendly way?
+- How to change colours of terrain sections?
+- How to set certain areas' biome? (want to deliver at least 2 maybe 3 different biomes)
+
+#### Creation
+
+This step will cover all the procedural generation brushes and only be done if time permits.
+
+- What algorithms to use for building mountains, rivers, caves, chasms, oceans etc.?
+
+#### High-Level Code Design
 
 Using MVC pattern
 
@@ -141,50 +143,9 @@ Ideas/scratch pad:
 - contours?
 - Lock mouse to height
 
-### UML Diagram
+#### UML Diagram
 
 ![UML class diagram](img/ase_class_diagram.svg)
-
-### Plan
-
-Representation - Modification - Creation
-
-#### Representation
-
-This step of the plan will rely on loading in a predefined heightmap. Basic **saving** and **loading** will also be used at this stage.
-
-Main Goal: Trying to get a terrain grid shown to the screen
-
-- How to represent data?
-- How to use level of detail (LOD) to improve performance?
-- How to minimise the amount of data sent between CPU and GPU?
-- How large a terrain should the tool be able to show?
-- How will the performance be measured?
-
-Do a similar process to [Scape Rendering](https://www.decarpentier.nl/scape-render) and [Geomipmapping](https://www.flipcode.com/archives/article_geomipmaps.pdf) - having XZ vertex buffer (vertex points of a single tile, using a vertex shader to transform into world space, and having all vertices at same LOD level use shared vertex representation), Y vertex buffer (unique per tile), and a final buffer for dealing with stitching LOD regions together.
-
-Secondary Goal: Texturing terrain
-
-- How to texture based on height?
-- Is it possible for users to define own textures?
-- Can you simulate biomes/different texturing approaches?
-- Having sun position, setting a skybox texture?
-
-Could use scape rendering's way of projecting textures onto steep surfaces using a horizontal texture map.
-
-#### Modification
-
-This step I am splitting from creation as this will handle basic brushes (excavator, builder) and other modifications that don't require procedurally generating parts of the terrain.
-
-- How to modify the height of existing terrain in a user-friendly way?
-- How to change colours of terrain sections?
-- How to set certain areas' biome? (want to deliver at least 2 maybe 3 different biomes)
-
-#### Creation
-
-This step will cover all the procedural generation brushes and only be done if time permits.
-
-- What algorithms to use for building mountains, rivers, caves, chasms, oceans etc.?
 
 ## Getting Started
 
@@ -197,3 +158,42 @@ TODO
 ## Usage
 
 TODO
+
+## References and Acknowledgement
+
+### Existing Tools
+
+- [Terragen](https://planetside.co.uk/) - a powerful solution for building, rendering, and animating realistic natural environments.
+- [Daylon Leveller](http://hme.sourceforge.net/) - combines intuitive pixel sculpting with the accuracy of geo-referencing and vector shapes.
+- [Height Map Editor](http://hme.sourceforge.net/) - 2D program for creating, manipulating, and viewing height maps.
+- [Advanced Landscape Editor](http://www.dyvision.co.uk/ale.htm) - Create large scale landscapes and edit textures with direct painting.
+- [Kashmir 3D](https://www.kashmir3d.com/index-e.html) - Old tool for making 3D landscapes
+- [L3DT](http://www.bundysoft.com/L3DT/) - a Windows application for generating terrain maps and textures. It is intended to help game developers and digital artists create vast high-quality 3D worlds.
+- [EarthSculptor](http://www.earthsculptor.com/) - a realtime terrain height-map editor and paint program featuring an easy to use interface designed
+exclusively for rapid development of 3D landscapes for visualization, multimedia and game development.
+- [TerraNoise](https://www.guruware.at/main/index.html) - Node based terrain editor.
+
+### Videos
+
+- [Potch Explains Perlin Noise with Terrain Generation!](https://www.youtube.com/watch?v=ww5CcgG34Dc)
+- [PROCEDURAL TERRAIN in Unity! - Mesh Generation](https://www.youtube.com/watch?v=64NblGkAabk)
+- [River Based Terrain Generation - Sapiens Devlog 36](https://www.youtube.com/watch?v=yZHe-2Gg6zA)
+- [Procedural Landmass Generation (E01: Introduction)](https://www.youtube.com/watch?v=wbpMiKiSKm8)
+
+### Concepts and Papers
+
+- [Artificial Terrain Generation](http://vterrain.org/Elevation/Artificial/) - Outlines details for many types of generation including information on [caves](http://vterrain.org/Elevation/Caves/). Also contains loads of links to papers on terrain generation:
+  - [Terrain generation using procedural models based on hydrology](https://dl.acm.org/doi/abs/10.1145/2461912.2461996)
+  - [Terrain Synthesis from Digital Elevation Models](http://www.howardzzh.com/research/terrain/)
+  - [Real-Time Editing, Synthesis, and Rendering of Infinite Landscapes on GPUs](https://www.researchgate.net/profile/Jens_Schneider/publication/228909493_Real-Time_Editing_Synthesis_and_Rendering_of_Infinite_Landscapes_on_GPUs/links/0fcfd50a2c4bacf8fb000000/Real-Time-Editing-Synthesis-and-Rendering-of-Infinite-Landscapes-on-GPUs.pdf)
+  - [Heightfield Synthesis by Non-Parametric Sampling](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.103.2245&rep=rep1&type=pdf)
+  - [Modeling for the Plausible Emulation of Large Worlds](https://www.elibrary.ru/item.asp?id=5283463)
+  - [TEXTURING & MODELING: A Procedural Approach](http://elibrary.lt/resursai/Leidiniai/Litfund/Lithfund_leidiniai/IT/Texturing.and.Modeling.-.A.Procedural.Approach.3rd.edition.eBook-LRN.pdf)
+  - [Generalized Stochastic Subdivision](http://scribblethink.org/Work/Gsd/gsd.pdf)
+  - [Computer rendering of stochastic models](https://dl.acm.org/doi/abs/10.1145/358523.358553)
+  - [Physically Based Terrain Generation : Procedural Heightmap Generation Using Plate Tectonics](https://www.theseus.fi/handle/10024/40422)
+  - [Terrain simulation using a model of stream erosion](https://dl.acm.org/doi/10.1145/378456.378519)
+- [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu) - NVIDIA book about terrain generation.
+- [Procedural Generation](https://en.wikipedia.org/wiki/Procedural_generation) - Wikipedia
+- [PCG-Based game design: enabling new play experiences through procedural content generation](https://dl.acm.org/doi/abs/10.1145/2000919.2000926) - Paper describing how games like Rust, Minecraft, and The Forest use PCG to create terrains.
+- [Inside ’no man’s sky,’ the most innovative game in years](https://time.com/no-mans-sky/) - TIME article on how No Man's Sky does terrain generation.
