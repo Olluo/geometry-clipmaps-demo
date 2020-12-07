@@ -29,24 +29,28 @@ Interactive Terrain Deformation \\
 \section{Introduction}
 % 100 words
 
-% Introduce the topic
-% Why is this focus area interesting? Examples mando
-% What will I discuss
-% What are key questions and challenges
-% Why it is important that I reviewed literature in this area
+Creating massive, realistic terrains for VFX that are indistinguishable from real life, is both a time and resource heavy task. Often, many departments and developers will slowly iterate and adapt a design to suit the desired use-case of the terrain.
 
-% talk about how the project will start off with fake 3D with only height data and no options for overhangs due to xz coords being uniform
+With more and more landscapes being created, and the need for hyper-realism \textit{(as seen in `The Mandalorian', \cite{mandalorian})} for both film and games, having methods for representing these terrains, and options for modifying and creating new terrain, has become an important area of computer graphics.
+
+This is the area of computer graphics that my project shall address. I shall identify and analyse some existing tools and algorithms that currently exist, merit and critique each source, then finally describe what my project will do.
 
 \section{Literature Review}
 % 1200 words
 
 \subsection{Quadtrees and Octrees}
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1.0\textwidth]{octomap.png}
+  \caption{An example of the ``blocky'' nature of the terrain when stored in octrees. \textit{Credit \cite{octrees}}}
+\end{figure}
+
 Quadtrees and octrees utilise tree-like data structures to represent large sizes of data in efficient compressed formats. Quadtrees are good for representing 2D data with octrees being better suited to 3D representation. Each node only has children if the data cannot be represented by this single node, \cite{quadtreesOctrees}. 
 
 Using these data structures, large terrains can be represented in efficient ways that are easier to compute and send to the GPU, than the full size objects. As sending data between the CPU and GPU are the main bottlenecks in these systems, requiring the transfer of a small amount of data (that represents lots of information), makes these trees useful for terrain representation.
 
-Octrees are frequently used for LOD systems due to their inherent ability to represent 3D terrains, \cite{lod}. One example of their use is in 3D mapping for drone systems. In \cite{octrees}, octrees are used to store volumetric, 3D environment models to help drones navigate the terrain. Accurate 3D models of the terrain can be taken and stored efficiently, with any gaps being probabilistically estimated. This quick-running algorithm works perfectly in the real-time system of automated drone flying.
+Octrees are frequently used for LOD systems due to their inherent ability to represent 3D terrains, \cite{lod}. One example of their use is in 3D mapping for drone systems. In \cite{octrees}, octrees are used to store volumetric, 3D environment models to help drones navigate the terrain. Accurate 3D models of the terrain can be taken and stored efficiently, with any gaps being probabilistically estimated. This quick-running algorithm works perfectly in the real-time system of automated drone flying. Unfortunately, very complex terrain needs detailed octrees to represent it correctly otherwise the terrain can look ``blocky'' or low quality.
 
 Although octrees are more commonly used, quadtrees can also be adapted for terrain representation. In \cite{quadtrees}, a two-step, surface simplification process is introduced to decide the LOD level for each block of triangles. The first step is using a coarse-grained simplification algorithm to determine the LOD levels required for that block. The second step is a fine-grained retriangulation of each block where individual vertices are compared with the original data and considered whether they are required or not to represent the data suitably, in this quadtree-like structure.
 
@@ -62,13 +66,19 @@ Unfortunately, ROAM doesn't work well on the GPU. Data needs to constantly be re
 
 One solution to this is to keep the vertex buffer static and only change the index buffer based on the current LOD. This is what \cite{roamGeomancy} does to make ROAM better suited to video games. Whilst this works well and provides real-time rendering, the terrain represented is restricted to terrains with uniform X-Z spacing of vertices--an issue that is prevalent with many terrain algorithms.
 
-\subsection{Geomipmapping} \label{geomipmapping}
+\subsection{Geomipmapping}
 
 To avoid having to represent the entire terrain's X-Z coordinates, geomipmapping works by splitting the terrain into equally sized chunks with uniform X-Z coordinates that can be duplicated and placed all over the terrain. In \cite{geomipmapping}, sets of meshes are represented by blocks of vertices, and then depending on the LOD level, vertices will be skipped to reduce the triangle count. Some of the failings of this original algorithm is the amount of data that needs to be sent between the CPU and GPU, and the problem with stitching two different LOD levels together.
 
 In \cite{geomipmappingScape}, there are three types of buffers used; A vertex buffer for X-Z vertices in a chunk, another for all the Y coordinates of the terrain, and an index buffer for each LOD level that describes which vertices to use. The LOD level of each chunk is dependent on the LOD levels of the neighbouring chunks, and most of the complex calculations are computed on the GPU to reduce the data sent between the CPU and GPU. This algorithm also fixes the stitching problem by having predefined ways of stitching each LOD level together. The main failing of this solution is its complexity as the maths to calculate the stitching is complex and time consuming to work out. This is where the simpler and better approach of geoclipmapping comes in.
 
-\subsection{Geoclipmapping}
+\subsection{Geoclipmapping} \label{geoclipmap}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1.0\textwidth]{geoclipmapping_footprints.png}
+  \caption{An example of geoclipmapping and the 2D footprints that make up each clipmap. \textit{Credit \cite{geoclipmappingGPUGems}}}
+\end{figure}
 
 In geoclipmapping, just like geomipmapping, X-Z coordinates are represented by a few vertices and indices, with terrain data being cached in a set of nested grids centred around the viewer. Each grid is stored as a constant vertex buffer made up of four different ``footprints'' in video memory, whilst the height data is stored as a texture to be read in the vertex shader. The original paper to describe geoclipmapping was \cite{geoclipmapping}, with one of the authors later working alongside NVIDIA to create a chapter for GPU Gems 2, \cite{geoclipmappingGPUGems}.
 
@@ -89,7 +99,7 @@ In the first algorithm, Perlin noise has been effectively used, alongside featur
 
 This project can be split into two sections; The representation of the terrain and the modification/creation of new parts of the terrain. The section that is most important to get right is the representation as being able to represent massive terrains efficiently is a key goal of this project.
 
-The algorithms dealing with the representation of the terrain will follow the geoclipmapping algorithms outlined in section \ref{geomipmapping}, and also take influences from the other algorithms I described. 
+The algorithms dealing with the representation of the terrain will follow the geoclipmapping algorithms outlined in section \ref{geoclipmap}, and also take influences from the other algorithms I described. 
 
 The high-level overview of this section is as follows; An X-Z vertex buffer will be generated for each footprint of the clipmap, with a corresponding index buffer, and this will be buffered to the GPU for each of the clipmap levels. The height values (that will initially come from a loaded in heightmap) will be buffered to a terrain buffer, read in the vertex shader, then combined with the X-Z values to create a vertex in world space. Methods to blend LOD regions together will be used to avoid any holes in the terrain.
 
@@ -102,15 +112,17 @@ Due to my limited (but growing) knowledge in the area of computer graphics, I am
 \section{Conclusion}
 % 200 words
 
-% What the paper has been about.
+Many algorithms for representing and displaying terrain have been developed since the start of the computer graphics epoch, with some taking inspiration from traditional data structures, and others coming up with novel ones that are sometimes more efficient, but often more complicated to implement.
 
-% What existing solutions.
+I have highlighted the algorithms that I intend to take notes from when developing my project, briefly explaining the algorithm, and critiquing the approach. A wide variety of existing solutions have been discussed here--each with their own advantages and disadvantages--giving an extensive overview of the topic area at present. 
 
-% What I am taking forward to my project.
+Based on the advantages and disadvantages of the existing algorithms, I have opted for a mix of most of them, with the main algorithm taking inspiration from geoclipmapping (section \ref{geoclipmap}). This algorithm seems like the easiest to implement with significant benefits to efficiency compared with the other solutions.
 
-% What issues there might be.
+However, some issues with this approach may be encountered, mostly due to my developing knowledge of computer graphics, and to counteract this, I have tried to split and simplify the project, and described the milestones I will try to reach, for each section, in the given time-frame.
 
-% How the project will be graded as successful or not.
+The success criteria were touched on, with the functional requirement of the project being the ability to load and save the terrain, and the non-functional requirements of having constant framerates and low memory usage being important to the project's success.
+
+Finally, when my project is finished, I can compare it to some existing solutions that the papers referenced were used in, to deem whether my project has been an overall success.
 
 \clearpage
 \bibliographystyle{agsm}
