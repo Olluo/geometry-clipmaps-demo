@@ -10,7 +10,8 @@
 \title{%
 Interactive Terrain Deformation \\
 \large CGI Techniques and ASE Project}
-\date{}
+\author{}
+\date{08/12/2020}
 
 \begin{document}
 \maketitle
@@ -18,7 +19,7 @@ Interactive Terrain Deformation \\
 \thispagestyle{empty}
 
 \begin{abstract}
-\noindent With GPU processing becoming more and more advanced each year, hundreds of level-of-detail (LOD) approaches have been created to try to tackle displaying terrains in the most efficient way. In this paper, a few different techniques and algorithms will be analysed, and their prose stated, then taking a combination of these techniques, my initial project design will be described. The goal of the project is to provide a tool to load terrain, allow the modification of parts of the terrain, then the ability to output to a file to be used in other VFX programs such as Maya.
+\noindent With GPU processing becoming more and more advanced each year, hundreds of algorithms that try to tackle the complex task of 3D-model representation have been created. These algorithms, often referred to as level-of-detail (LOD) systems, have been created to try to tackle displaying terrains in the most efficient way. In this paper, different techniques and algorithms will be analysed and discussed, then taking a combination of these techniques, my initial project design will be described. The goal of the project is to provide a tool to load terrain, allow the modification of parts of the terrain, then the ability to output the terrain to a file to be used in other VFX programs such as Maya.
 \end{abstract}
 
 \newpage
@@ -30,9 +31,9 @@ Interactive Terrain Deformation \\
 
 Creating large-scale, realistic, and visually-stimulating terrains is both a time and resource intensive task. Within the visual effects (VFX) industry, it can take huge teams of artists and developers to design and develop these terrains. Having many departments slowly iterating and adapting a design can take many months to suit the desired use-case of the terrain.
 
-With more and more landscapes being created each year, tools that can transform the work of an entire department into the work of a single person are of key interest to VFX houses. The need for hyper-realism in both film and games, and having methods for representing these terrains, and options for modifying and creating new terrain, has become an important area of research within computer graphics. In the current climate, the rise of streaming sites that have a high turnover of shows has become more prevalent, and being able to make these beautiful terrains quickly has become very important to the success of theses platforms \textit{(example of a TV show that uses computer generated terrains: `The Mandalorian', \cite{mandalorian})}.
+With more and more landscapes being created each year, tools that can transform the work of an entire department into the work of a single person are of key interest to VFX houses. The need for hyper-realism in both film and games, and having methods for representing these terrains, and options for modifying and creating new terrain, has become an important area of research within computer graphics. In the current climate, the rise of streaming sites that have a high turnover of shows has become more prevalent, and being able to make these realistic and complex terrains quickly has become very important to the success of theses platforms \textit{(example of a TV show that uses computer generated terrains: `The Mandalorian', \cite{mandalorian})}.
 
-This is the area of computer graphics that my project shall address. I shall identify and analyse some existing tools and algorithms that currently exist, merit and critique each source, then finally describe what my project will do.
+This is the area of computer graphics that my project shall address. I shall identify and analyse some existing tools and algorithms that currently exist, merit and critique each source, then finally, using this research, describe the plan for my project.
 
 \section{Literature Review}
 % 1200 words
@@ -46,9 +47,9 @@ This is the area of computer graphics that my project shall address. I shall ide
   \label{fig:octrees}
 \end{figure}
 
-Quadtrees and octrees utilise tree-like data structures to represent large sizes of data in efficient compressed formats. Quadtrees are good for representing 2D data with octrees being better suited for 3D representation. In these tree structures, each node only has children if the data cannot be represented by this single node, \cite{quadtreesOctrees}. 
+Quadtrees and octrees utilise tree data structures and use them to represent large sizes of data in efficient compressed formats. Quadtrees are good for representing 2D data with octrees being better suited for 3D representation. In these tree structures, each node only has child nodes if the data cannot be represented by this single node, \cite{quadtreesOctrees}. 
 
-Using these data structures, large terrains can be represented in efficient ways that are easier to compute and send to the GPU, than the full size objects. As sending data between the CPU and GPU are the main bottlenecks in these systems, requiring the transfer of a small amount of data (that represents lots of information), makes these trees useful for terrain representation.
+Using these data structures, large terrains can be represented in efficient ways that are easier to compute and send to the GPU, than the full size objects. As sending data between the CPU and GPU are the main bottlenecks in these systems, requiring the transfer of a small amount of data (that represents lots of information) makes these trees useful for terrain representation.
 
 Octrees are frequently used for LOD systems due to their inherent ability to represent 3D terrains, \cite{lod}. One example of their use is in 3D mapping for drone systems. 
 
@@ -60,30 +61,30 @@ Whilst the algorithm described here suitably provides a real-time solution, the 
 
 \subsection{Real-time Optimally Adapting Mesh (ROAM)}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{roam.png}
   \caption{An example of the triangulation of the terrain in the ROAM algorithm. \textit{Credit \cite{roam}}}
   \label{fig:roam}
 \end{figure}
 
-Another type of tree structure that can be used in terrain representation is a bintree. In the ROAM algorithm, using some sophisticated approaches, they are able to achieve high frame-rates when displaying thousands of triangles, \cite{roam}. 
+Another type of tree structure that can be used in terrain representation is a binary tree (bintree). In the ROAM algorithm, using some sophisticated approaches, the authors \cite{roam} are able to achieve high frame-rates when displaying thousands of triangles. 
 
 Meshes are defined as a bintree of triangles, wherein each node represents the triangles of its two children but in a coarser LOD (see figure \ref{fig:roam}). The important details are determined, and using the view-distance parameter, this information is passed on to traditional LOD algorithms. As ROAM works on a per triangle basis, it reduces any ``popping'' of LOD levels and also helps to solve the massive mesh problem (where large portions need to be loaded at a time to determine LOD level for the whole section).
 
 Unfortunately, ROAM doesn't work well on the GPU. This is due to data needing to constantly be re-uploaded which can result in ``thrashing'' the GPU, stalling it as it waits for the data to be written. Therefore, ROAM is better suited to rendering for film, instead of its use in video games that require real-time rendering.
 
-One solution to this is to keep the vertex buffer static and only change the index buffer based on the current LOD. This is what \cite{roamGeomancy} does to make ROAM better suited to video games. Whilst this works well and provides real-time rendering, the terrain represented is restricted to terrains with uniform X-Z spacing of vertices--an issue that is prevalent with many terrain algorithms.
+One solution to this is to keep the vertex buffer static and only change the index buffer based on the current LOD. This is what \cite{roamGeomancy} does to make ROAM better suited to video games. Whilst this works well and provides real-time rendering, the terrain represented is restricted to terrains with uniform X-Z spacing of vertices -- an issue that is prevalent with many terrain algorithms.
 
 \subsection{Geomipmapping}
 
 To avoid having to represent the entire terrain's X-Z coordinates, geomipmapping works by splitting the terrain into equally sized chunks with uniform X-Z coordinates that can be duplicated and placed all over the terrain. In \cite{geomipmapping}, sets of meshes are represented by blocks of vertices, and then depending on the LOD level, will be skipped to reduce the triangle count. Some of the failings of this original algorithm is the amount of data that needs to be sent between the CPU and GPU, and the problem with stitching two different LOD levels together.
 
-In \cite{geomipmappingScape}, there are three types of buffers used; A vertex buffer for X-Z vertices in a chunk, another for all the Y coordinates of the terrain, and an index buffer for each LOD level that describes which vertices to use. The LOD level of each chunk is dependent on the LOD levels of the neighbouring chunks, and most of the complex calculations are computed on the GPU to reduce the data sent between the CPU and GPU. This algorithm also fixes the stitching problem by having predefined ways of stitching each LOD level together. The main failing of this solution is its complexity as the maths to calculate the stitching is complex and time consuming to work out. This is where the simpler and better approach of geoclipmapping comes in.
+In \cite{geomipmappingScape}, there are three types of buffers used; a vertex buffer for X-Z vertices in a chunk, another for all the Y coordinates of the terrain, and an index buffer for each LOD level that describes which vertices to use. The LOD level of each chunk is dependent on the LOD levels of the neighbouring chunks, and most of the complex calculations are computed on the GPU to reduce the data sent between the CPU and GPU. This algorithm also fixes the stitching problem by having predefined ways of stitching each LOD level together. The main failing of this solution is its complexity as the maths to calculate the stitching is complex and time consuming to work out. This is where the simpler and better approach of geoclipmapping comes in.
 
 \subsection{Geoclipmapping} \label{geoclipmap}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{geoclipmapping_footprints.png}
   \caption{An example of geoclipmapping and the 2D footprints that make up each clipmap. \textit{Credit \cite{geoclipmappingGPUGems}}}
@@ -98,7 +99,7 @@ Geoclipmaps have several advantages over other LOD methods. These advantages inc
 
 \subsection{Modification and Procedural Content Generation (PCG)} \label{pcg}
 
-As my project is a fusion of representation algorithms and procedural modification, some research into PCG methods and their uses in terrain has also been carried out. The main problem that is to be solved is trying to create realistic terrain in a computationally inexpensive way.
+As my project is a fusion of representation algorithms and procedural modification, some research into PCG methods and their uses in terrain has also been carried out. The main problem to be solved is trying to create realistic terrain in a computationally inexpensive way.
 
 When trying to create realistic-looking terrain, algorithms that are derived from nature and then simplified into an approximation of the real-world processes can be used to achieve terrains that are indistinguishable from the real thing. Simply creating high and low points at random using basic algorithms like Perlin noise can create these desired effects, \cite{perlin}. However, better results have been seen from water erosion algorithms as seen in \cite{hydrology}.
 
@@ -109,13 +110,13 @@ In the second, iterative generation using graphs made from the underlying terrai
 \section{Project Specification}
 % 500 words
 
-This project can be split into two sections; The representation of the terrain and the modification/creation of new parts of the terrain. The section that is most important to get right is the representation of the terrain. This is because being able to represent massive terrains efficiently is a key goal of this project.
+This project can be split into two sections; the representation of the terrain and the modification/creation of new parts of the terrain. The section that is most important to get right is the representation of the terrain. This is because being able to represent massive terrains efficiently is a key goal of this project.
 
 The algorithms dealing with the representation of the terrain will follow the geoclipmapping algorithms outlined in section \ref{geoclipmap}, and also take influences from the other algorithms I described. 
 
-The high-level overview of this section is as follows; An X-Z vertex buffer will be generated for each footprint of the clipmap, with a corresponding index buffer, and this will be buffered to the GPU for each of the clipmap levels. The height values (that will initially come from a loaded in heightmap) will be buffered to a terrain buffer, read in the vertex shader, then combined with the X-Z values to create a vertex in world space. Methods to blend LOD regions together will be used to avoid any holes in the terrain (see figure \ref{fig:blending}).
+The high-level overview of this section is as follows; an X-Z vertex buffer will be generated for each footprint of the clipmap, with a corresponding index buffer, and this will be buffered to the GPU for each of the clipmap levels. The height values (that will initially come from a loaded in heightmap) will be buffered to a terrain buffer, read in the vertex shader, then combined with the X-Z values to create a vertex in world space. Methods to blend LOD regions together will be used to avoid any holes in the terrain (see figure \ref{fig:blending}).
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{blen_regions_and_gaps.png}
   \caption{An example of the gaps that need to be blended in geoclipmapping between clipmap levels. \textit{Credit \cite{geoclipmapping}}}
@@ -135,7 +136,7 @@ Due to my limited (but growing) knowledge in the area of computer graphics, I am
 
 Many algorithms for representing and displaying terrain have been developed since the start of the computer graphics epoch, with some taking inspiration from traditional data structures, and others coming up with novel ones that are sometimes more efficient, but often more complicated to implement.
 
-I have highlighted the algorithms that I intend to take notes from when developing my project, briefly explaining the algorithm, and critiquing the approach. A wide variety of existing solutions have been discussed here--each with their own advantages and disadvantages--giving an extensive overview of the topic area at present. 
+I have highlighted the algorithms that I intend to take notes from when developing my project, briefly explaining the algorithm, and critiquing the approach. A wide variety of existing solutions have been discussed here -- each with their own advantages and disadvantages -- giving an extensive overview of the topic area at present. 
 
 Based on the advantages and disadvantages of the existing algorithms, I have opted for a mix of most of them, with the main algorithm taking inspiration from geoclipmapping (section \ref{geoclipmap}). This algorithm seems the easiest to implement with significant benefits to efficiency compared with the other solutions.
 
