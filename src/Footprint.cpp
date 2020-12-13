@@ -5,8 +5,8 @@
 
 namespace terraindeformer
 {
-  Footprint::Footprint(size_t _width, size_t _depth) : m_width{_width},
-                                                         m_depth{_depth}
+  Footprint::Footprint(size_t _width, size_t _depth) noexcept : m_width{_width},
+                                                                m_depth{_depth}
   {
     calculate2DVertices();
     m_vertexCount = m_vertices.size();
@@ -14,8 +14,8 @@ namespace terraindeformer
     m_indexCount = m_indices.size();
   }
 
-  Footprint::Footprint(size_t _width) : m_width{_width},
-                                        m_depth{_width}
+  Footprint::Footprint(size_t _width) noexcept : m_width{_width},
+                                                 m_depth{_width}
   {
     calculate2DVerticesDegenerate();
     m_vertexCount = m_vertices.size();
@@ -23,54 +23,54 @@ namespace terraindeformer
     m_indexCount = m_indices.size();
   }
 
-  size_t Footprint::width() const
+  size_t Footprint::width() const noexcept
   {
     return m_width;
   }
 
-  size_t Footprint::depth() const
+  size_t Footprint::depth() const noexcept
   {
     return m_depth;
   }
 
-  const std::vector<ngl::Vec2> &Footprint::vertices() const
+  const std::vector<ngl::Vec2> &Footprint::vertices() const noexcept
   {
     return m_vertices;
   }
 
-  size_t Footprint::vertexCount() const
+  size_t Footprint::vertexCount() const noexcept
   {
     return m_vertexCount;
   }
 
-  const std::vector<GLuint> &Footprint::indices() const
+  const std::vector<GLuint> &Footprint::indices() const noexcept
   {
     return m_indices;
   }
 
-  size_t Footprint::indexCount() const
+  size_t Footprint::indexCount() const noexcept
   {
     return m_indexCount;
   }
 
-  GLuint &Footprint::vao()
+  GLuint &Footprint::vao() noexcept
   {
     return m_vao;
   }
 
-  GLuint &Footprint::vbo()
+  GLuint &Footprint::vbo() noexcept
   {
     return m_vbo;
   }
 
-  GLuint &Footprint::ibo()
+  GLuint &Footprint::ibo() noexcept
   {
     return m_ibo;
   }
 
   // ======================================= Private methods =======================================
 
-  void Footprint::calculate2DVertices()
+  void Footprint::calculate2DVertices() noexcept
   {
     for (size_t y = 0; y < m_depth; y++)
     {
@@ -81,7 +81,7 @@ namespace terraindeformer
     }
   }
 
-  void Footprint::calculate2DVerticesDegenerate()
+  void Footprint::calculate2DVerticesDegenerate() noexcept
   {
     // Bottom
     for (int x = 0; x < m_width; x++)
@@ -108,7 +108,7 @@ namespace terraindeformer
     }
   }
 
-  void Footprint::calculateIndices()
+  void Footprint::calculateIndices() noexcept
   {
     for (int y = 0; y < m_depth - 1; y++)
     {
@@ -136,7 +136,7 @@ namespace terraindeformer
     }
   }
 
-  void Footprint::calculateIndicesDegenerate()
+  void Footprint::calculateIndicesDegenerate() noexcept
   {
     // Indices
     size_t nVertices = m_vertices.size();

@@ -1,3 +1,11 @@
+/**
+ * @file ClipmapLevel.h
+ * @author s5222743
+ * @brief This class implements a level of the geoclipmap
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef CLIPMAP_LEVEL_H_
 #define CLIPMAP_LEVEL_H_
 
@@ -32,7 +40,7 @@ namespace terraindeformer
      * @param _y The y location of the pixel
      * @return float The height at pixel (_x, _y)
      */
-    ngl::Real generatePixelAt(ngl::Real _x, ngl::Real _y);
+    ngl::Real generatePixelAt(ngl::Real _x, ngl::Real _y) noexcept;
 
   public:
     /**
@@ -42,39 +50,39 @@ namespace terraindeformer
      * @param _heightmap The heightmap
      * @param _parent The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
      */
-    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent);
+    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent) noexcept;
     /**
      * @brief Set the position of the clipmap. This will recalculate the texture.
      * 
      * @param _position 
      */
-    void setPosition(ngl::Vec2 _position);
+    void setPosition(ngl::Vec2 _position) noexcept;
     /**
      * @brief Return const reference to the texture for this clipmap
      * 
      * @return const std::vector<ngl::Real>& the texture of this clipmap
      */
-    const std::vector<ngl::Real> &texture() const;
+    const std::vector<ngl::Real> &texture() const noexcept;
     /**
      * @brief return pointer to the textureName, to be bound to a specific texture buffer
      * 
      * @return GLuint& the textureName buffer
      */
-    GLuint &textureName();
+    GLuint &textureName() noexcept;
     /**
      * @brief Get the scale of this clipmap
      * 
      * @return int 
      */
-    int scale() const;
+    int scale() const noexcept;
     /**
      * @brief Get the position of this clipmap
      * 
      * @return const ngl::Vec2& 
      */
-    const ngl::Vec2 &position() const;
-    bool left() const;
-    bool bottom() const;
+    const ngl::Vec2 &position() const noexcept;
+    bool left() const noexcept;
+    bool bottom() const noexcept;
   };
 
 } // end namespace terraindeformer

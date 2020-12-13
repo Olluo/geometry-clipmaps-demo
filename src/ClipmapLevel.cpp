@@ -4,7 +4,7 @@
 namespace terraindeformer
 {
 
-  float ClipmapLevel::generatePixelAt(ngl::Real _x, ngl::Real _y)
+  float ClipmapLevel::generatePixelAt(ngl::Real _x, ngl::Real _y) noexcept
   {
     // for now just return the pixel in the heightmap
     // in future we will want to get an adjusted height that is between the coarse
@@ -13,16 +13,16 @@ namespace terraindeformer
     return m_heightmap->value(_x, _y);
   }
 
-  ClipmapLevel::ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent) : m_level{_level},
-                                                                                         m_heightmap{_heightmap},
-                                                                                         m_parent{_parent},
-                                                                                         m_texture(CLIPMAP_D * CLIPMAP_D),
-                                                                                        //  m_scale{CLIPMAP_D * (1 << m_level)}
-                                                                                         m_scale{(1 << m_level)}
+  ClipmapLevel::ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent) noexcept : m_level{_level},
+                                                                                                  m_heightmap{_heightmap},
+                                                                                                  m_parent{_parent},
+                                                                                                  m_texture(CLIPMAP_D * CLIPMAP_D),
+                                                                                                  //  m_scale{CLIPMAP_D * (1 << m_level)}
+                                                                                                  m_scale{(1 << m_level)}
   {
   }
 
-  void ClipmapLevel::setPosition(ngl::Vec2 _position)
+  void ClipmapLevel::setPosition(ngl::Vec2 _position) noexcept
   {
     m_position = _position;
 
@@ -48,27 +48,27 @@ namespace terraindeformer
     // }
   }
 
-  const std::vector<ngl::Real> &ClipmapLevel::texture() const
+  const std::vector<ngl::Real> &ClipmapLevel::texture() const noexcept
   {
     return m_texture;
   }
 
-  GLuint &ClipmapLevel::textureName()
+  GLuint &ClipmapLevel::textureName() noexcept
   {
     return m_textureName;
   }
 
-  int ClipmapLevel::scale() const
+  int ClipmapLevel::scale() const noexcept
   {
     return m_scale;
   }
 
-  const ngl::Vec2 &ClipmapLevel::position() const
+  const ngl::Vec2 &ClipmapLevel::position() const noexcept
   {
     return m_position;
   }
 
-  bool ClipmapLevel::left() const
+  bool ClipmapLevel::left() const noexcept
   {
     // Get fractional part of the x value and compare to 0.5
     // The positions of each sub clipmap are half the position of the parent
@@ -76,7 +76,7 @@ namespace terraindeformer
     return m_position.m_x - static_cast<long>(m_position.m_x) < 0.5f;
   }
 
-  bool ClipmapLevel::bottom() const
+  bool ClipmapLevel::bottom() const noexcept
   {
     // Get fractional part of the y value and compare to 0.5
     // The positions of each sub clipmap are half the position of the parent

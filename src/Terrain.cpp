@@ -12,9 +12,9 @@
 
 namespace terraindeformer
 {
-  Terrain::Terrain(Heightmap *_heightmap) : m_heightmap{_heightmap},
-                                            m_footprints(6),
-                                            m_clipmaps(CLIPMAP_L)
+  Terrain::Terrain(Heightmap *_heightmap) noexcept : m_heightmap{_heightmap},
+                                                     m_footprints(6),
+                                                     m_clipmaps(CLIPMAP_L)
   {
     generateFootprints();
     generateLocations();
@@ -22,17 +22,17 @@ namespace terraindeformer
     updatePosition();
   }
 
-  std::vector<ClipmapLevel *> &Terrain::clipmaps()
+  std::vector<ClipmapLevel *> &Terrain::clipmaps() noexcept
   {
     return m_clipmaps;
   }
 
-  std::vector<Footprint *> &Terrain::footprints()
+  std::vector<Footprint *> &Terrain::footprints() noexcept
   {
     return m_footprints;
   }
 
-  std::vector<FootprintLocation *> Terrain::selectLocations(FootprintSelection _selection)
+  std::vector<FootprintLocation *> Terrain::selectLocations(FootprintSelection _selection) noexcept
   {
     std::vector<int> selectionIndices;
     switch (_selection)
@@ -65,7 +65,7 @@ namespace terraindeformer
     return selectedLocations;
   }
 
-  void Terrain::updatePosition()
+  void Terrain::updatePosition() noexcept
   {
     auto position = m_position;
     std::vector<ngl::Vec2> positions;
@@ -81,7 +81,7 @@ namespace terraindeformer
     }
   }
 
-  void Terrain::move(float _x, float _y)
+  void Terrain::move(float _x, float _y) noexcept
   {
     m_position.m_x += _x;
     m_position.m_y += _y;
@@ -90,7 +90,7 @@ namespace terraindeformer
 
   // ======================================= Private methods =======================================
 
-  void Terrain::generateFootprints()
+  void Terrain::generateFootprints() noexcept
   {
     m_footprints[static_cast<int>(FootprintType::Block)] = new Footprint(CLIPMAP_M, CLIPMAP_M);
     m_footprints[static_cast<int>(FootprintType::FixupHorizontal)] = new Footprint(CLIPMAP_M, 3);
@@ -100,7 +100,7 @@ namespace terraindeformer
     m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)] = new Footprint((4 * CLIPMAP_M) - 1);
   }
 
-  void Terrain::generateLocations()
+  void Terrain::generateLocations() noexcept
   {
     // This is used for the bottom left corner displacement of each footprint
     // 0, 0 is the local coordinate centre of the clipmap level
@@ -151,7 +151,7 @@ namespace terraindeformer
     m_locations.push_back(new FootprintLocation(h, h, m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)]));
   }
 
-  void Terrain::generateClipmaps()
+  void Terrain::generateClipmaps() noexcept
   {
     ClipmapLevel *parent = nullptr;
     for (int l = CLIPMAP_L - 1; l >= 0; l--)

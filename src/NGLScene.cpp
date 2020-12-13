@@ -21,30 +21,11 @@ namespace terraindeformer
     std::cout << "Shutting down NGL, removing VAO's and Shaders\n";
   }
 
-  void NGLScene::generateTerrain(ngl::Real _width, ngl::Real _depth)
+  void NGLScene::resizeGL(int _w, int _h)
   {
-    // load our image and get size
-    QImage image(m_imageName.c_str());
-    int imageWidth = image.size().width();
-    int imageHeight = image.size().height();
-    std::unique_ptr<GLfloat []> data=std::make_unique<GLfloat []>(imageWidth);
-    auto i = data.get();
-    std::cout << "Loading height map " << m_imageName << ", size " << imageWidth << "x" << imageHeight << "\n";
-
-    std::vector<ngl::Vec3> gridPoints;
-
-    for (int y = 0; y < imageHeight; y++)
-    {
-      for (int x = 0; x < imageWidth; x++)
-      {
-        QColor c(image.pixel(x, y));
-        gridPoints.push_back(ngl::Vec3(c.redF(), c.greenF(), c.blueF()));
-      }
-    }
-
-    m_terrain = new Terrain(new Heightmap(imageWidth, imageHeight, gridPoints));
-    configureFootprints(m_terrain->footprints());
-    configureClipmaps(m_terrain->clipmaps());
+    m_projection = ngl::perspective(45.0f, static_cast<float>(_w) / _h, 0.05f, 350.0f);
+    m_win.width = static_cast<int>(_w * devicePixelRatio());
+    m_win.height = static_cast<int>(_h * devicePixelRatio());
   }
 
   void NGLScene::initializeGL()
@@ -55,7 +36,7 @@ namespace terraindeformer
 
     // uncomment this line to make ngl less noisy with debug info
     // ngl::NGLInit::instance()->setCommunicationMode( ngl::CommunicationMode::NULLCONSUMER);
-    glClearColor(0.4f, 0.4f, 0.4f, 1.0f); // Grey Background
+    glClearColor(135.0f / 256.0f, 206.0f / 256.0f, 235.0f / 256.0f, 1.0f); // Sky blue Background
 
     // enable depth testing for drawing
     glEnable(GL_DEPTH_TEST);
@@ -97,14 +78,14 @@ namespace terraindeformer
     // Now we will create a basic Camera from the graphics library
     // This is a static camera so it only needs to be set once
     // First create Values for the camera position
-    ngl::Vec3 from(0, 10, 40);
+    ngl::Vec3 from(0, 0, 40);
     ngl::Vec3 to(0, 0, 0);
     ngl::Vec3 up(0, 1, 0);
 
-    m_view = ngl::lookAt(from, to, up);
+    m_cam = Camera(from, to, up);
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
-    m_project = ngl::perspective(45, m_win.width / m_win.height, 0.001f, 150);
+    m_projection = ngl::perspective(45.0f, m_win.width / m_win.height, 0.05f, 350.0f);
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
     generateTerrain(64, 64);
@@ -115,26 +96,12 @@ namespace terraindeformer
     // clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_win.width, m_win.height);
-    // Rotation based on the mouse position for our global transform
-    ngl::Mat4 rotX;
-    ngl::Mat4 rotY;
-    // create the rotation matrices
-    rotX.rotateX(m_win.spinXFace);
-    rotY.rotateY(m_win.spinYFace);
-    // multiply the rotations
-    m_mouseGlobalTX = rotY * rotX;
-    // add the translations
-    m_mouseGlobalTX.m_m[3][0] = m_modelPos.m_x;
-    m_mouseGlobalTX.m_m[3][1] = m_modelPos.m_y;
-    m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_y;
-
-    // Doesn't work properly
-    // m_terrain->move(m_modelPos.m_x, m_modelPos.m_y);
 
     ngl::ShaderLib::use(m_shaderProgram);
+    m_transform.setRotation(90.0f, 0.0f, 0.0f);
 
     ngl::Mat4 MVP;
-    MVP = m_project * m_view * m_mouseGlobalTX;
+    MVP = m_projection * m_cam.view() * m_transform.getMatrix();
     ngl::ShaderLib::setUniform("MVP", MVP);
 
     auto clipmaps = m_terrain->clipmaps();
@@ -188,10 +155,10 @@ namespace terraindeformer
       {
         auto footprint = location->footprint;
         ngl::Vec4 scaleFactor{
-            static_cast<ngl::Real>(location->x + xPos), // location->x is the footprints local coords, xPos is the offset for the clipmap level
-            static_cast<ngl::Real>(location->y + yPos), // location->y is the footprints local coords, xPos is the offset for the clipmap level
-            static_cast<ngl::Real>(currentLevel->scale()),  // This is the scale of the clipmap level
-            static_cast<ngl::Real>(1 / static_cast<ngl::Real>(CLIPMAP_D)),  // This is to scale the texture - texture is DxD and is clamped to 0-1 so need to do same with coords somehow
+            static_cast<ngl::Real>(location->x + xPos),                    // location->x is the footprints local coords, xPos is the offset for the clipmap level
+            static_cast<ngl::Real>(location->y + yPos),                    // location->y is the footprints local coords, xPos is the offset for the clipmap level
+            static_cast<ngl::Real>(currentLevel->scale()),                 // This is the scale of the clipmap level
+            static_cast<ngl::Real>(1 / static_cast<ngl::Real>(CLIPMAP_D)), // This is to scale the texture - texture is DxD and is clamped to 0-1 so need to do same with coords somehow
         };
         ngl::ShaderLib::setUniform("scaleFactor", scaleFactor);
 
@@ -206,6 +173,32 @@ namespace terraindeformer
 
       glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
+  }
+
+  void NGLScene::generateTerrain(ngl::Real _width, ngl::Real _depth)
+  {
+    // load our image and get size
+    QImage image(m_imageName.c_str());
+    int imageWidth = image.size().width();
+    int imageHeight = image.size().height();
+    std::unique_ptr<GLfloat[]> data = std::make_unique<GLfloat[]>(imageWidth);
+    auto i = data.get();
+    std::cout << "Loading height map " << m_imageName << ", size " << imageWidth << "x" << imageHeight << "\n";
+
+    std::vector<ngl::Vec3> gridPoints;
+
+    for (int y = 0; y < imageHeight; y++)
+    {
+      for (int x = 0; x < imageWidth; x++)
+      {
+        QColor c(image.pixel(x, y));
+        gridPoints.push_back(ngl::Vec3(c.redF(), c.greenF(), c.blueF()));
+      }
+    }
+
+    m_terrain = new Terrain(new Heightmap(imageWidth, imageHeight, gridPoints));
+    configureFootprints(m_terrain->footprints());
+    configureClipmaps(m_terrain->clipmaps());
   }
 
   void NGLScene::configureFootprints(std::vector<Footprint *> _footprints)
@@ -256,7 +249,6 @@ namespace terraindeformer
       glBufferData(GL_TEXTURE_BUFFER, clipmap->texture().size() * sizeof(ngl::Real), &clipmap->texture()[0], GL_STATIC_DRAW);
       glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, clipmap->textureName());
 
-
       glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
   }
@@ -271,25 +263,34 @@ namespace terraindeformer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
 
-  void NGLScene::resizeGL(int _w, int _h)
-  {
-    m_project = ngl::perspective(45.0f, static_cast<float>(_w) / _h, 0.05f, 350.0f);
-    m_win.width = static_cast<int>(_w * devicePixelRatio());
-    m_win.height = static_cast<int>(_h * devicePixelRatio());
-  }
   //----------------------------------------------------------------------------------------------------------------------
 
   void NGLScene::keyPressEvent(QKeyEvent *_event)
   {
-    // this method is called every time the main window recives a key event.
+    // add to our keypress set the values of any keys pressed
+    m_keysPressed += static_cast<Qt::Key>(_event->key());
+    // that method is called every time the main window recives a key event.
     // we then switch on the key value and set the camera in the GLWindow
+    auto setLight = [](std::string _num, bool _mode) {
+      ngl::ShaderLib::use("PBR");
+      if (_mode == true)
+      {
+        ngl::Vec3 colour = {255.0f, 255.0f, 255.0f};
+        ngl::ShaderLib::setUniform(_num, colour);
+      }
+      else
+      {
+        ngl::Vec3 colour = {0.0f, 0.0f, 0.0f};
+        ngl::ShaderLib::setUniform(_num, colour);
+      }
+    };
     switch (_event->key())
     {
-    // escape key to quite
+    // escape key to quit
     case Qt::Key_Escape:
       QGuiApplication::exit(EXIT_SUCCESS);
       break;
-    // turn on wireframe rendering
+    // wireframe
     case Qt::Key_W:
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       break;
@@ -305,11 +306,18 @@ namespace terraindeformer
     case Qt::Key_N:
       showNormal();
       break;
+    case Qt::Key_Space:
+      m_cam.reset();
+      break;
     default:
       break;
     }
-    // finally update the GLWindow and re-draw
-    //if (isExposed())
     update();
+  }
+
+  void NGLScene::keyReleaseEvent(QKeyEvent *_event)
+  {
+    // remove from our key set any keys that have been released
+    m_keysPressed -= static_cast<Qt::Key>(_event->key());
   }
 } // end namespace terraindeformer

@@ -1,3 +1,11 @@
+/**
+ * @file Constants.h
+ * @author s5222743
+ * @brief This file keeps track of any constants used in Geoclipmapping
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 

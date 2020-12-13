@@ -1,3 +1,11 @@
+/**
+ * @file Terrain.h
+ * @author s5222743
+ * @brief This class is resposible for managing the Geoclipmap
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
@@ -37,18 +45,18 @@ namespace terraindeformer
      * @brief Generate the set of footprints
      * 
      */
-    void generateFootprints();
+    void generateFootprints() noexcept;
     /**
      * @brief Generate all the possible footprint locations
      * 
      */
-    void generateLocations();
+    void generateLocations() noexcept;
     /**
      * @brief Generate a clipmap for each level of detail
      * 
      */
-    void generateClipmaps();
-    void updatePosition();
+    void generateClipmaps() noexcept;
+    void updatePosition() noexcept;
 
   public:
     /**
@@ -57,32 +65,32 @@ namespace terraindeformer
      * 
      * @param _heightmap The height map to initialise the Terrain object with
      */
-    Terrain(Heightmap *_heightmap);
+    Terrain(Heightmap *_heightmap) noexcept;
     /**
      * @brief Return a vector of all the clipmaps that have been generated
      * 
      * @return std::vector<Clipmap *>& 
      */
-    std::vector<ClipmapLevel *> &clipmaps();
+    std::vector<ClipmapLevel *> &clipmaps() noexcept;
     /**
      * @brief Return a vector of all the footprints
      * 
      * @return std::vector<Footprint *>& 
      */
-    std::vector<Footprint *> &footprints();
+    std::vector<Footprint *> &footprints() noexcept;
     /**
      * @brief Return a selection of footprint locations based on the selection parameter
      * 
      * @param _selection The footprints required
      * @return std::vector<FootprintLocation *> 
      */
-    std::vector<FootprintLocation *> selectLocations(FootprintSelection _selection);
+    std::vector<FootprintLocation *> selectLocations(FootprintSelection _selection) noexcept;
     /**
      * @brief Initialise the terrain object and generate all sub-parts
      * 
      */
-    void initialize();
-    void move(float _x, float _y);
+    void initialize() noexcept;
+    void move(float _x, float _y) noexcept;
   };
 
 } // end namespace terraindeformer

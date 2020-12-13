@@ -1,3 +1,11 @@
+/**
+ * @file Footprint.h
+ * @author s5222743
+ * @brief A class to represent a footprint as seen in https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef FOOTPRINT_H_
 #define FOOTPRINT_H_
 
@@ -41,11 +49,11 @@ namespace terraindeformer
     /**
      * @brief Calculate the 2D vertices for the Footprint
      */
-    void calculate2DVertices();
+    void calculate2DVertices() noexcept;
     /**
      * @brief Calculate the 2D vertices for a degenerate triangle ring Footprint
      */
-    void calculate2DVerticesDegenerate();
+    void calculate2DVerticesDegenerate() noexcept;
     /**
      * @brief Calculate the indices for the Footprint.
      * 
@@ -55,11 +63,11 @@ namespace terraindeformer
      * rectangular as they mixed up which width they used when trying to find 
      * items from the next row, so that is fixed here.
      */
-    void calculateIndices();
+    void calculateIndices() noexcept;
     /**
      * @brief Calculate the indices for a degenerate triangle ring Footprint
      */
-    void calculateIndicesDegenerate();
+    void calculateIndicesDegenerate() noexcept;
 
   public:
     /**
@@ -68,67 +76,67 @@ namespace terraindeformer
      * @param _width The width of the Footprint
      * @param _depth The depth of the Footprint
      */
-    Footprint(size_t _width, size_t _depth);
+    Footprint(size_t _width, size_t _depth) noexcept;
     /**
      * @brief Construct a degenerate triangle ring Footprint
      * 
      * @param _width The width of the ring
      */
-    Footprint(size_t _width);
+    Footprint(size_t _width) noexcept;
     /**
      * @brief Get the width of the footprint
      * 
      * @return size_t The width
      */
-    size_t width() const;
+    size_t width() const noexcept;
     /**
      * @brief Get the depth of the footprint
      * 
      * @return size_t The depth
      */
-    size_t depth() const;
+    size_t depth() const noexcept;
     /**
      * @brief Get the vertices that represent this footprint
      * 
      * @return const std::vector<ngl::Vec2>& Const reference to the vector of vertices
      */
-    const std::vector<ngl::Vec2> &vertices() const;
+    const std::vector<ngl::Vec2> &vertices() const noexcept;
     /**
      * @brief The number of vertices that represent this footprint
      * 
      * @return size_t 
      */
-    size_t vertexCount() const;
+    size_t vertexCount() const noexcept;
     /**
      * @brief Get the indices that represent this footprint
      * 
      * @return const std::vector<GLuint>& Const reference to the vector of vertices
      */
-    const std::vector<GLuint> &indices() const;
+    const std::vector<GLuint> &indices() const noexcept;
     /**
      * @brief The number of indices that represent this footprint
      * 
      * @return size_t 
      */
-    size_t indexCount() const;
+    size_t indexCount() const noexcept;
     /**
      * @brief Return pointer to the vao, to be bound to a specific vertex array buffer
      * 
      * @return GLuint& 
      */
-    GLuint &vao();
+    GLuint &vao() noexcept;
     /**
      * @brief Return pointer to the vbo, to be bound to a specific vertex buffer
      * 
      * @return GLuint& 
      */
-    GLuint &vbo();
+    GLuint &vbo() noexcept;
     /**
      * @brief Return pointer to the ibo, to be bound to a specific index buffer
      * 
      * @return GLuint& 
      */
-    GLuint &ibo();
+    GLuint &ibo() noexcept;
   };
 
   struct FootprintLocation
