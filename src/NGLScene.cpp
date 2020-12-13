@@ -85,10 +85,11 @@ namespace terraindeformer
     m_cam = Camera(from, to, up);
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
-    m_projection = ngl::perspective(45.0f, m_win.width / m_win.height, 0.05f, 350.0f);
+    m_projection = ngl::perspective(45.0f, m_win.width / m_win.height, 0.05f, 10000.0f);
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
     generateTerrain(64, 64);
+    // m_terrain->move(10, 10);
   }
 
   void NGLScene::paintGL()
@@ -108,6 +109,7 @@ namespace terraindeformer
     updateClipmaps(clipmaps);
     for (int l = CLIPMAP_L - 1; l >= 0; l--)
     // for (int l = 0; l >= 0; l--)
+    // for (int l = 1; l >= 0; l--)
     {
       auto currentLevel = clipmaps[l];
       glBindTexture(GL_TEXTURE_BUFFER, currentLevel->textureName());

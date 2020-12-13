@@ -24,28 +24,25 @@ namespace terraindeformer
 
   void ClipmapLevel::setPosition(ngl::Vec2 _position) noexcept
   {
+    // TODO: caching - get data from parent
     m_position = _position;
 
-    // TODO: need to get correct heights from correct position on heightmap instead of just getting the same for every clipmap
-    int min = 0;
-    int max = CLIPMAP_D;
+    int halfD = CLIPMAP_D / 2;
+    int xStart = static_cast<int>(m_position.m_x) - halfD;
+    int yStart = static_cast<int>(m_position.m_y) - halfD;
+
     for (int y = 0; y < CLIPMAP_D; y++)
     {
+      xStart = static_cast<int>(m_position.m_x) - halfD;
       for (int x = 0; x < CLIPMAP_D; x++)
       {
-        int xPos = static_cast<int>((static_cast<float>(x - min) / static_cast<float>(max - min)) * m_heightmap->width());
-        int yPos = static_cast<int>((static_cast<float>(y - min) / static_cast<float>(max - min)) * m_heightmap->depth());
+        int xPos = static_cast<int>(xStart * m_scale);
+        int yPos = static_cast<int>(yStart * m_scale);
         m_texture[y * CLIPMAP_D + x] = generatePixelAt(static_cast<ngl::Real>(xPos), static_cast<ngl::Real>(yPos));
+        xStart++;
       }
+      yStart++;
     }
-    // for (int y = 0; y < CLIPMAP_D; y++)
-    // {
-    //   for (int x = 0; x < CLIPMAP_D; x++)
-    //   {
-    //     m_texture[y * CLIPMAP_D + x] = static_cast<ngl::Real>(static_cast<float>(x) / static_cast<float>(CLIPMAP_D));
-    //     // m_texture[y * CLIPMAP_D + x] = 0;
-    //   }
-    // }
   }
 
   const std::vector<ngl::Real> &ClipmapLevel::texture() const noexcept

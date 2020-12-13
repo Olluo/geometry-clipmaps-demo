@@ -14,13 +14,13 @@ namespace terraindeformer
   const float DEFAULT_HEIGHT = 0.0f;
   const float DEFAULT_COLOUR = 0.9f;
   // K - The level of detail (>2) - 4 for testing, 8 or 16 for final - tested values 4 to 9, any higher and program crashes
-  const unsigned char CLIPMAP_K = 4;
+  const unsigned char CLIPMAP_K = 8;
   // D - Equivalent of 2^K
   const size_t CLIPMAP_D = 1 << CLIPMAP_K;
   // N - Grid size (must be odd hence -1)
   const size_t CLIPMAP_N = CLIPMAP_D - 1;
   // L - The number of levels of detail - 4 for testing 11 or higher final
-  const unsigned char CLIPMAP_L = 4;
+  const unsigned char CLIPMAP_L = 8;
   // M -
   const size_t CLIPMAP_M = CLIPMAP_D / 4;
   // H - How much to move the clipmap by to find center point

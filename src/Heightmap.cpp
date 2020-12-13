@@ -21,38 +21,23 @@ namespace terraindeformer
 
   ngl::Real Heightmap::value(ngl::Real _x, ngl::Real _y) noexcept
   {
-    // Make the values within the range of the heightmap
-    int x = static_cast<int>(_x) % static_cast<int>(m_width);
-    int y = static_cast<int>(_y) % static_cast<int>(m_depth);
-
-    // If the values are negative now, wrap back to positive
-    if (x < 0)
-    {
-      x *= -1;
-    }
-    if (y < 0)
-    {
-      y *= -1;
-    }
-
     // Just return red value for now
-    return m_data[y * static_cast<int>(m_width) + x].m_r;
+    return colour(_x, _y).m_r;
   }
 
   ngl::Vec3 Heightmap::colour(ngl::Real _x, ngl::Real _y) noexcept
   {
-    // Make the values within the range of the heightmap
-    int x = static_cast<int>(_x) % static_cast<int>(m_width);
-    int y = static_cast<int>(_y) % static_cast<int>(m_depth);
+    int x = static_cast<int>(_x);
+    int y = static_cast<int>(_y);
 
-    // If the values are negative now, wrap back to positive
-    if (x < 0)
+    if (x < 0 || x > m_width - 1)
     {
-      x *= -1;
+      return 0.0f;
     }
-    if (y < 0)
+
+    if (y < 0 || y > m_depth - 1)
     {
-      y *= -1;
+      return 0.0f;
     }
 
     return m_data[y * static_cast<int>(m_width) + x];
