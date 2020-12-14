@@ -60,12 +60,14 @@ add_library(
   ${CMAKE_SOURCE_DIR}/src/ClipmapLevel.cpp
   ${CMAKE_SOURCE_DIR}/src/Heightmap.cpp
   ${CMAKE_SOURCE_DIR}/src/Footprint.cpp
+  ${CMAKE_SOURCE_DIR}/src/FootprintVAO.cpp
   ${CMAKE_SOURCE_DIR}/src/Camera.cpp
   ${CMAKE_SOURCE_DIR}/include/Constants.h
   ${CMAKE_SOURCE_DIR}/include/Terrain.h
   ${CMAKE_SOURCE_DIR}/include/ClipmapLevel.h
   ${CMAKE_SOURCE_DIR}/include/Heightmap.h
   ${CMAKE_SOURCE_DIR}/include/Footprint.h
+  ${CMAKE_SOURCE_DIR}/include/FootprintVAO.h
   ${CMAKE_SOURCE_DIR}/include/Camera.h)
 
 set_target_properties(

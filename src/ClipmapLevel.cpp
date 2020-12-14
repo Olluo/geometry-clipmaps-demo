@@ -45,16 +45,6 @@ namespace terraindeformer
     }
   }
 
-  const std::vector<ngl::Real> &ClipmapLevel::texture() const noexcept
-  {
-    return m_texture;
-  }
-
-  GLuint &ClipmapLevel::textureName() noexcept
-  {
-    return m_textureName;
-  }
-
   int ClipmapLevel::scale() const noexcept
   {
     return m_scale;
@@ -79,6 +69,23 @@ namespace terraindeformer
     // The positions of each sub clipmap are half the position of the parent
     // this means that it will alternate between bottom and top for each clipmap
     return m_position.m_y - static_cast<long>(m_position.m_y) < 0.5f;
+  }
+
+  void ClipmapLevel::bindTextures() noexcept
+  {
+    // TODO: set colour
+    glActiveTexture(GL_TEXTURE0);
+
+    if (!m_allocated)
+    {
+      glGenTextures(1, &m_textureName);
+      m_allocated = true;
+    }
+
+    glBindBuffer(GL_TEXTURE_BUFFER, m_textureName);
+    glBindTexture(GL_TEXTURE_BUFFER, m_textureName);
+    glBufferData(GL_TEXTURE_BUFFER, m_texture.size() * sizeof(ngl::Real), &m_texture[0], GL_STATIC_DRAW);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, m_textureName);
   }
 
 } // end namespace terraindeformer

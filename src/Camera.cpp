@@ -68,6 +68,7 @@ namespace terraindeformer
     // Right mouse moves camera towards lookat, distance > 0
     ngl::Vec3 dolly = m_look - m_eye;
 
+    // If the dolly length is greater than 1, or if it is less than 1 the deltaZ must be negative and moving the camera out
     if (dolly.lengthSquared() > 1 || _deltaZ < 0)
     {
       m_eye += _deltaZ * m_dolly_speed * dolly;

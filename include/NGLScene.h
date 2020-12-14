@@ -139,31 +139,6 @@ namespace terraindeformer
     void generateTerrain(ngl::Real _width, ngl::Real _depth);
     Terrain *m_terrain;
     std::string m_shaderProgram;
-
-    /**
-     * @brief Generate all the bindings for each footprint and buffer data
-     * 
-     * @param _footprints The footprints to configure
-     */
-    void configureFootprints(std::vector<Footprint *> _footprints);
-    /**
-     * @brief Generate textures for each clipmap and buffer texture data
-     * 
-     * @param _clipmaps The clipmaps to configure
-     */
-    void configureClipmaps(std::vector<ClipmapLevel *> _clipmaps);
-    /**
-     * @brief Update the textures for each clipmap and buffer texture data
-     * 
-     * @param _clipmaps The clipmaps to update
-     */
-    void updateClipmaps(std::vector<ClipmapLevel *> _clipmaps);
-    /**
-     * @brief Bind the correct buffer and draw the footprint
-     * 
-     * @param _footprint 
-     */
-    void drawFootprint(Footprint *_footprint);
   };
 
 } // end namespace terraindeformer

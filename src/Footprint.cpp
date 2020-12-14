@@ -1,7 +1,9 @@
-#include <iostream>
-
-#include "Constants.h"
 #include "Footprint.h"
+#include "Constants.h"
+
+#include <ngl/VAOFactory.h>
+
+#include <iostream>
 
 namespace terraindeformer
 {
@@ -23,49 +25,35 @@ namespace terraindeformer
     m_indexCount = m_indices.size();
   }
 
-  size_t Footprint::width() const noexcept
+  Footprint::~Footprint() noexcept
   {
-    return m_width;
+    if (!m_vaoBound)
+    {
+      m_vao->removeVAO();
+    }
   }
 
-  size_t Footprint::depth() const noexcept
+  void Footprint::draw() noexcept
   {
-    return m_depth;
-  }
+    if (!m_vaoBound)
+    {
+      ngl::VAOFactory::registerVAOCreator("footprintVAO", FootprintVAO::create);
+      m_vao = ngl::vaoFactoryCast<FootprintVAO>(ngl::VAOFactory::createVAO("footprintVAO", GL_TRIANGLE_STRIP));
+      m_vaoBound = true;
+    }
 
-  const std::vector<ngl::Vec2> &Footprint::vertices() const noexcept
-  {
-    return m_vertices;
-  }
+    m_vao->bind();
 
-  size_t Footprint::vertexCount() const noexcept
-  {
-    return m_vertexCount;
-  }
+    if (!m_dataBound)
+    {
+      m_vao->setData(FootprintVAO::VertexData(m_vertices.size() * sizeof(ngl::Vec3), m_vertices[0].m_x));
+      m_vao->setVertexAttributePointer(0, 2, GL_FLOAT, 0, 0);
+      m_vao->setIndexData(FootprintVAO::IndexData(m_indices.size() * sizeof(GLuint), m_indices[0]), m_indices.size());
+      m_dataBound = true;
+    }
 
-  const std::vector<GLuint> &Footprint::indices() const noexcept
-  {
-    return m_indices;
-  }
-
-  size_t Footprint::indexCount() const noexcept
-  {
-    return m_indexCount;
-  }
-
-  GLuint &Footprint::vao() noexcept
-  {
-    return m_vao;
-  }
-
-  GLuint &Footprint::vbo() noexcept
-  {
-    return m_vbo;
-  }
-
-  GLuint &Footprint::ibo() noexcept
-  {
-    return m_ibo;
+    m_vao->draw();
+    m_vao->unbind();
   }
 
   // ======================================= Private methods =======================================

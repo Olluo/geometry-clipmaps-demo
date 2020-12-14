@@ -89,7 +89,7 @@ namespace terraindeformer
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
     generateTerrain(64, 64);
-    // m_terrain->move(10, 10);
+    m_terrain->move(32, 32);
   }
 
   void NGLScene::paintGL()
@@ -106,14 +106,13 @@ namespace terraindeformer
     ngl::ShaderLib::setUniform("MVP", MVP);
 
     auto clipmaps = m_terrain->clipmaps();
-    updateClipmaps(clipmaps);
+
     for (int l = CLIPMAP_L - 1; l >= 0; l--)
     // for (int l = 0; l >= 0; l--)
     // for (int l = 1; l >= 0; l--)
     {
       auto currentLevel = clipmaps[l];
-      glBindTexture(GL_TEXTURE_BUFFER, currentLevel->textureName());
-      // TODO: set colour
+      currentLevel->bindTextures();
 
       FootprintSelection selection;
       if (l == 0)
@@ -170,7 +169,8 @@ namespace terraindeformer
             static_cast<ngl::Real>(CLIPMAP_D),
             static_cast<ngl::Real>(0)};
         ngl::ShaderLib::setUniform("fineBlockOrigin", fineBlockOrigin);
-        drawFootprint(footprint);
+
+        footprint->draw();
       }
 
       glBindTexture(GL_TEXTURE_BUFFER, 0);
@@ -199,70 +199,6 @@ namespace terraindeformer
     }
 
     m_terrain = new Terrain(new Heightmap(imageWidth, imageHeight, gridPoints));
-    configureFootprints(m_terrain->footprints());
-    configureClipmaps(m_terrain->clipmaps());
-  }
-
-  void NGLScene::configureFootprints(std::vector<Footprint *> _footprints)
-  {
-    for (auto footprint : _footprints)
-    {
-      glGenVertexArrays(1, &footprint->vao());
-      glBindVertexArray(footprint->vao());
-
-      glGenBuffers(1, &footprint->vbo());
-      glBindBuffer(GL_ARRAY_BUFFER, footprint->vbo());
-      glBufferData(GL_ARRAY_BUFFER, footprint->vertexCount() * sizeof(ngl::Vec2), &footprint->vertices()[0].m_x, GL_STATIC_DRAW);
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ngl::Vec2), 0);
-      glEnableVertexAttribArray(0);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-      glGenBuffers(1, &footprint->ibo());
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, footprint->ibo());
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, footprint->indexCount() * sizeof(GLuint), &footprint->indices()[0], GL_STATIC_DRAW);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
-  }
-
-  void NGLScene::configureClipmaps(std::vector<ClipmapLevel *> _clipmaps)
-  {
-    for (auto clipmap : _clipmaps)
-    {
-      glActiveTexture(GL_TEXTURE0);
-      glGenTextures(1, &clipmap->textureName());
-      glBindBuffer(GL_TEXTURE_BUFFER, clipmap->textureName());
-      glBindTexture(GL_TEXTURE_BUFFER, clipmap->textureName());
-
-      glBufferData(GL_TEXTURE_BUFFER, clipmap->texture().size() * sizeof(ngl::Real), &clipmap->texture()[0], GL_STATIC_DRAW);
-      glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, clipmap->textureName());
-
-      glBindTexture(GL_TEXTURE_BUFFER, 0);
-    }
-  }
-
-  void NGLScene::updateClipmaps(std::vector<ClipmapLevel *> _clipmaps)
-  {
-    for (auto clipmap : _clipmaps)
-    {
-      glActiveTexture(GL_TEXTURE0);
-      glBindBuffer(GL_TEXTURE_BUFFER, clipmap->textureName());
-      glBindTexture(GL_TEXTURE_BUFFER, clipmap->textureName());
-
-      glBufferData(GL_TEXTURE_BUFFER, clipmap->texture().size() * sizeof(ngl::Real), &clipmap->texture()[0], GL_STATIC_DRAW);
-      glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, clipmap->textureName());
-
-      glBindTexture(GL_TEXTURE_BUFFER, 0);
-    }
-  }
-
-  void NGLScene::drawFootprint(Footprint *_footprint)
-  {
-    // std::cout << "Drawing footprint (" << _footprint->width() << ',' << _footprint->depth() << ")\n";
-    glBindVertexArray(_footprint->vao());
-    glBindBuffer(GL_ARRAY_BUFFER, _footprint->vbo());
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _footprint->ibo());
-    glDrawElements(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_footprint->indexCount()), GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
 
   //----------------------------------------------------------------------------------------------------------------------
@@ -271,42 +207,50 @@ namespace terraindeformer
   {
     // add to our keypress set the values of any keys pressed
     m_keysPressed += static_cast<Qt::Key>(_event->key());
-    // that method is called every time the main window recives a key event.
-    // we then switch on the key value and set the camera in the GLWindow
-    auto setLight = [](std::string _num, bool _mode) {
-      ngl::ShaderLib::use("PBR");
-      if (_mode == true)
-      {
-        ngl::Vec3 colour = {255.0f, 255.0f, 255.0f};
-        ngl::ShaderLib::setUniform(_num, colour);
-      }
-      else
-      {
-        ngl::Vec3 colour = {0.0f, 0.0f, 0.0f};
-        ngl::ShaderLib::setUniform(_num, colour);
-      }
-    };
+    // // that method is called every time the main window recives a key event.
+    // // we then switch on the key value and set the camera in the GLWindow
+    // auto setLight = [](std::string _num, bool _mode) {
+    //   ngl::ShaderLib::use("PBR");
+    //   if (_mode == true)
+    //   {
+    //     ngl::Vec3 colour = {255.0f, 255.0f, 255.0f};
+    //     ngl::ShaderLib::setUniform(_num, colour);
+    //   }
+    //   else
+    //   {
+    //     ngl::Vec3 colour = {0.0f, 0.0f, 0.0f};
+    //     ngl::ShaderLib::setUniform(_num, colour);
+    //   }
+    // };
     switch (_event->key())
     {
     // escape key to quit
     case Qt::Key_Escape:
       QGuiApplication::exit(EXIT_SUCCESS);
       break;
-    // wireframe
+    // Toggle wireframe
     case Qt::Key_W:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      if (m_win.wireframe)
+      {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      }
+      else
+      {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      }
+      m_win.wireframe = !m_win.wireframe;
       break;
-    // turn off wire frame
-    case Qt::Key_S:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      break;
-    // show full screen
-    case Qt::Key_F:
-      showFullScreen();
-      break;
-    // show windowed
-    case Qt::Key_N:
-      showNormal();
+    // Toggle fullscreen
+    case Qt::Key_F11:
+      if (m_win.fullscreen)
+      {
+        showNormal();
+      }
+      else
+      {
+        showFullScreen();
+      }
+      m_win.fullscreen = !m_win.fullscreen;
       break;
     case Qt::Key_Space:
       m_cam.reset();

@@ -11,6 +11,8 @@ struct WinParams
   int width = 1024;
   // Window height
   int height = 720;
+  bool wireframe = false;
+  bool fullscreen = false;
 };
 
 #endif
