@@ -23,7 +23,7 @@ namespace terraindeformer
 
   void NGLScene::resizeGL(int _w, int _h)
   {
-    m_projection = ngl::perspective(45.0f, static_cast<float>(_w) / _h, 0.05f, 350.0f);
+    m_projection = ngl::perspective(m_fov, static_cast<float>(_w) / _h, m_near, m_far);
     m_win.width = static_cast<int>(_w * devicePixelRatio());
     m_win.height = static_cast<int>(_h * devicePixelRatio());
   }
@@ -85,11 +85,10 @@ namespace terraindeformer
     m_cam = Camera(from, to, up);
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
-    m_projection = ngl::perspective(45.0f, m_win.width / m_win.height, 0.05f, 10000.0f);
+    m_projection = ngl::perspective(m_fov, m_win.width / m_win.height, m_near, m_far);
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
     generateTerrain(64, 64);
-    m_terrain->move(32, 32);
   }
 
   void NGLScene::paintGL()
@@ -115,7 +114,7 @@ namespace terraindeformer
       currentLevel->bindTextures();
 
       FootprintSelection selection;
-      if (l == 0)
+      if (l == CLIPMAP_L - 1)
       {
         selection = FootprintSelection::All;
       }
@@ -151,6 +150,10 @@ namespace terraindeformer
       // placement for each clipmap where in the finest clipmap will be centred around the viewer
       float xPos = (levelPosition.m_x - static_cast<long>(levelPosition.m_x)) * 2.0f - 1.0f;
       float yPos = (levelPosition.m_y - static_cast<long>(levelPosition.m_y)) * 2.0f - 1.0f;
+      // float xPos = static_cast<long>(levelPosition.m_x);
+      // float yPos = static_cast<long>(levelPosition.m_y);
+      // float xPos = levelPosition.m_x;
+      // float yPos = levelPosition.m_y;
 
       for (auto location : m_terrain->selectLocations(selection))
       {
@@ -254,6 +257,28 @@ namespace terraindeformer
       break;
     case Qt::Key_Space:
       m_cam.reset();
+      break;
+    case Qt::Key_Left:
+      m_terrain->move(1, 0);
+      m_terrainX++;
+      break;
+    case Qt::Key_Up:
+      m_terrain->move(0, 1);
+      m_terrainY++;
+      break;
+    case Qt::Key_Right:
+      if (m_terrainX > 0)
+      {
+        m_terrain->move(-1, 0);
+        m_terrainX--;
+      }
+      break;
+    case Qt::Key_Down:
+      if (m_terrainY > 0)
+      {
+        m_terrain->move(0, -1);
+        m_terrainY--;
+      }
       break;
     default:
       break;

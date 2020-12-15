@@ -139,6 +139,11 @@ namespace terraindeformer
     void generateTerrain(ngl::Real _width, ngl::Real _depth);
     Terrain *m_terrain;
     std::string m_shaderProgram;
+    ngl::Real m_terrainX = 0;
+    ngl::Real m_terrainY = 0;
+    float m_fov = 90.0f;
+    float m_near = 0.05f;
+    float m_far = 1000.0f;
   };
 
 } // end namespace terraindeformer

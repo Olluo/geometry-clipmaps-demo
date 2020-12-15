@@ -14,7 +14,8 @@ namespace terraindeformer
 {
   Terrain::Terrain(Heightmap *_heightmap) noexcept : m_heightmap{_heightmap},
                                                      m_footprints(6),
-                                                     m_clipmaps(CLIPMAP_L)
+                                                     m_clipmaps(CLIPMAP_L),
+                                                     m_position{}
   {
     generateFootprints();
     generateLocations();
@@ -72,12 +73,12 @@ namespace terraindeformer
     for (int i = 0; i < CLIPMAP_L; i++)
     {
       positions.push_back(position);
-      position /= 2;
+      position /= 2.0f;
     }
 
-    for (int i = CLIPMAP_L - 1; i >= 0; i--)
+    for (int i = 0; i < CLIPMAP_L; i++)
     {
-      m_clipmaps[i]->setPosition(positions[i]);
+      m_clipmaps[i]->setPosition(positions[CLIPMAP_L - 1 - i]);
     }
   }
 
@@ -154,7 +155,7 @@ namespace terraindeformer
   void Terrain::generateClipmaps() noexcept
   {
     ClipmapLevel *parent = nullptr;
-    for (int l = CLIPMAP_L - 1; l >= 0; l--)
+    for (int l = 0; l < CLIPMAP_L; l++)
     {
       m_clipmaps[l] = new ClipmapLevel(l, m_heightmap, parent);
       parent = m_clipmaps[l];

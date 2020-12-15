@@ -54,7 +54,7 @@ void main()
   // alpha.x = max(alpha.x, alpha.y);
   // float z = zf + alpha.x * zd;
   float z = texel.r;
-  z = z * 10.0f;
+  z = z * 256.0f;
 
   // output.pos = mul(float4(worldPos.x, worldPos.y, z, 1), WorldViewProjMatrix);
   

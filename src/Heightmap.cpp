@@ -22,7 +22,7 @@ namespace terraindeformer
   ngl::Real Heightmap::value(ngl::Real _x, ngl::Real _y) noexcept
   {
     // Just return red value for now
-    return colour(_x, _y).m_r;
+    return colour(_x, _y).lengthSquared();
   }
 
   ngl::Vec3 Heightmap::colour(ngl::Real _x, ngl::Real _y) noexcept
@@ -32,12 +32,12 @@ namespace terraindeformer
 
     if (x < 0 || x > m_width - 1)
     {
-      return 0.0f;
+      return ngl::Vec3();
     }
 
     if (y < 0 || y > m_depth - 1)
     {
-      return 0.0f;
+      return ngl::Vec3();
     }
 
     return m_data[y * static_cast<int>(m_width) + x];
