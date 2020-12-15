@@ -14,15 +14,11 @@ namespace terraindeformer
     updateViewMatrix();
   }
 
-  void Camera::move(ngl::Real _deltaX, ngl::Real _deltaY) noexcept
+  void Camera::pedestal(ngl::Real _deltaY) noexcept
   {
     // Middle mouse moves camera and lookat the same amount
-    ngl::Quaternion rotate;
-    rotate.fromAxisAngle(m_up, m_yaw);
-    ngl::Vec3 move = (rotate * ngl::Vec4{_deltaX, _deltaY, 0.0f}).toVec3();
-
-    m_eye += move * m_move_speed;
-    m_look += move * m_move_speed;
+    m_eye.m_y += _deltaY * m_move_speed;
+    m_look.m_y += _deltaY * m_move_speed;
 
     updateViewMatrix();
   }

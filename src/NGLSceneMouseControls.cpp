@@ -28,11 +28,9 @@ namespace terraindeformer
 
     if (_event->buttons() == Qt::MiddleButton)
     {
-      int deltaX = _event->x() - m_win.origX;
       int deltaY = _event->y() - m_win.origY;
-      m_win.origX = _event->x();
       m_win.origY = _event->y();
-      m_cam.move(-deltaX, deltaY);
+      m_cam.pedestal(deltaY);
       update();
     }
   }
@@ -52,7 +50,6 @@ namespace terraindeformer
     
     if (_event->button() == Qt::MiddleButton)
     {
-      m_win.origX = _event->x();
       m_win.origY = _event->y();
     }
   }

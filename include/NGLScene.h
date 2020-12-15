@@ -143,7 +143,8 @@ namespace terraindeformer
     ngl::Real m_terrainY = 0;
     float m_fov = 90.0f;
     float m_near = 0.05f;
-    float m_far = 1000.0f;
+    float m_far = 5000.0f;
+    float m_moveSpeed = 5.0f;
   };
 
 } // end namespace terraindeformer

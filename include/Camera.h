@@ -31,12 +31,11 @@ namespace terraindeformer
      */
     Camera(ngl::Vec3 _eye, ngl::Vec3 _look, ngl::Vec3 _up) noexcept;
     /**
-     * @brief Move the camera in the X-Y plane but don't change rotation
+     * @brief Move the camera in the Y plane (pedestal) but don't change rotation
      * 
-     * @param _deltaX The change in X
      * @param _deltaY The change in Y 
      */
-    void move(ngl::Real _deltaX, ngl::Real _deltaY) noexcept;
+    void pedestal(ngl::Real _deltaY) noexcept;
     /**
      * @brief Orbit the camera around the look at position (arcball camera).
      * This maintains the distance to the look at position.
@@ -92,7 +91,7 @@ namespace terraindeformer
     ngl::Real m_pitchInit = 0.0f;
 
     // The speed to move the camera
-    ngl::Real m_move_speed = 0.045f;
+    ngl::Real m_move_speed = 0.2f;
     // The speed to rotate the camera
     ngl::Real m_sensitivity = 0.5f;
     // The speed to dolly the camera

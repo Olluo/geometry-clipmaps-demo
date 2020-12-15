@@ -1,21 +1,25 @@
-#version 410 core
-
+#version 450 core
+// ==== Buffered Data ====
+// Buffered vertex in data
 layout (location = 0) in vec2 inVert;
-uniform samplerBuffer tex;
-uniform mat4 MVP;
-// Used for scaling data to position the vertices in the correct place in world
-// scaleFactor.x = x position in world
-// scaleFactor.y = y position in world
-// scaleFactor.z = the scale of the clipmap level
-// scaleFactor.w = 1 / width of clipmap
-uniform vec4 scaleFactor;
-// Used for texture lookup and blending
-// scaleFactor.x = x position on footprint
-// scaleFactor.y = y position on footprint
-// scaleFactor.z = width of clipmap
-// scaleFactor.w = unused
-uniform vec4 fineBlockOrigin;
 
+// ==== Texture Buffers ====
+// The height data stored in a texture buffer
+uniform samplerBuffer heightData;
+
+// ==== Uniforms ====
+// The model-view-projection matrix
+uniform mat4 MVP;
+// The location of the footprint in its clipmap's local coords
+uniform vec2 footprintLocalPos;
+// The offset of the clipmap level in the world
+uniform vec2 clipmapOffsetPos;
+// The scale of the clipmap level
+uniform float clipmapScale;
+// The width of the clipmap
+uniform float clipmapD;
+
+// ==== Out Data ====
 out vec3 vertColour;
 
 // uniform vec3 camPos;
@@ -33,14 +37,14 @@ out vec3 vertColour;
 
 void main()
 {
-  // move the vertex and scale compared to where the clipmap is meant to be
-  vec2 worldPos = (inVert + scaleFactor.xy) * scaleFactor.zz;
-  // move the vertex to correct position in local clipmap coords then add
-  // half width so all values are positive for texture lookup
-  vec2 uv = inVert + fineBlockOrigin.xy + (0.5 * fineBlockOrigin.zz);;
+  // Move the vertex and scale compared to where the clipmap is meant to be
+  vec2 worldPos = (inVert + footprintLocalPos + clipmapOffsetPos) * vec2(clipmapScale);
+  // Move the vertex to correct position in local clipmap coords then 
+  // add half width so all values are positive for texture lookup
+  vec2 uv = inVert + footprintLocalPos + vec2(0.5 * clipmapD);;
 
   // sample the vertex texture
-  vec3 texel = texelFetch(tex, int(uv.y * fineBlockOrigin.z + uv.x)).xyz;
+  vec3 texel = texelFetch(heightData, int(uv.y * clipmapD + uv.x)).xyz;
 
   // unpack to obtain zf and zd = (zc - zf)    
   //  zf is elevation value in current (fine) level    
@@ -69,5 +73,6 @@ void main()
   // calculate the vertex position
   gl_Position = MVP * worldPosFinal;
   // pass the UV values to the frag shader
-  vertColour=texel.rrr;
+  // vertColour=texel.rrr;
+  vertColour=vec3(clipmapScale / 10, texel.r, 0.8f);
 }

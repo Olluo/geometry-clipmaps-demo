@@ -78,8 +78,8 @@ namespace terraindeformer
     // Now we will create a basic Camera from the graphics library
     // This is a static camera so it only needs to be set once
     // First create Values for the camera position
-    ngl::Vec3 from(0, 0, 40);
-    ngl::Vec3 to(0, 0, 0);
+    ngl::Vec3 from(0, 100, 50);
+    ngl::Vec3 to(0, 100, 0);
     ngl::Vec3 up(0, 1, 0);
 
     m_cam = Camera(from, to, up);
@@ -98,7 +98,7 @@ namespace terraindeformer
     glViewport(0, 0, m_win.width, m_win.height);
 
     ngl::ShaderLib::use(m_shaderProgram);
-    m_transform.setRotation(90.0f, 0.0f, 0.0f);
+    m_transform.setRotation(90.0f, 150.0f, 0.0f);
 
     ngl::Mat4 MVP;
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();
@@ -150,28 +150,15 @@ namespace terraindeformer
       // placement for each clipmap where in the finest clipmap will be centred around the viewer
       float xPos = (levelPosition.m_x - static_cast<long>(levelPosition.m_x)) * 2.0f - 1.0f;
       float yPos = (levelPosition.m_y - static_cast<long>(levelPosition.m_y)) * 2.0f - 1.0f;
-      // float xPos = static_cast<long>(levelPosition.m_x);
-      // float yPos = static_cast<long>(levelPosition.m_y);
-      // float xPos = levelPosition.m_x;
-      // float yPos = levelPosition.m_y;
 
       for (auto location : m_terrain->selectLocations(selection))
       {
         auto footprint = location->footprint;
-        ngl::Vec4 scaleFactor{
-            static_cast<ngl::Real>(location->x + xPos),                    // location->x is the footprints local coords, xPos is the offset for the clipmap level
-            static_cast<ngl::Real>(location->y + yPos),                    // location->y is the footprints local coords, xPos is the offset for the clipmap level
-            static_cast<ngl::Real>(currentLevel->scale()),                 // This is the scale of the clipmap level
-            static_cast<ngl::Real>(1 / static_cast<ngl::Real>(CLIPMAP_D)), // This is to scale the texture - texture is DxD and is clamped to 0-1 so need to do same with coords somehow
-        };
-        ngl::ShaderLib::setUniform("scaleFactor", scaleFactor);
 
-        ngl::Vec4 fineBlockOrigin{
-            static_cast<ngl::Real>(location->x),
-            static_cast<ngl::Real>(location->y),
-            static_cast<ngl::Real>(CLIPMAP_D),
-            static_cast<ngl::Real>(0)};
-        ngl::ShaderLib::setUniform("fineBlockOrigin", fineBlockOrigin);
+        ngl::ShaderLib::setUniform("footprintLocalPos", static_cast<ngl::Real>(location->x), static_cast<ngl::Real>(location->y));
+        ngl::ShaderLib::setUniform("clipmapOffsetPos", static_cast<ngl::Real>(xPos), static_cast<ngl::Real>(yPos));
+        ngl::ShaderLib::setUniform("clipmapScale", static_cast<ngl::Real>(currentLevel->scale()));
+        ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(CLIPMAP_D));
 
         footprint->draw();
       }
@@ -259,25 +246,25 @@ namespace terraindeformer
       m_cam.reset();
       break;
     case Qt::Key_Left:
-      m_terrain->move(1, 0);
-      m_terrainX++;
+      m_terrain->move(m_moveSpeed, 0);
+      m_terrainX += m_moveSpeed;
       break;
     case Qt::Key_Up:
-      m_terrain->move(0, 1);
-      m_terrainY++;
+      m_terrain->move(0, m_moveSpeed);
+      m_terrainY += m_moveSpeed;
       break;
     case Qt::Key_Right:
       if (m_terrainX > 0)
       {
-        m_terrain->move(-1, 0);
-        m_terrainX--;
+        m_terrain->move(-m_moveSpeed, 0);
+        m_terrainX -= m_moveSpeed;
       }
       break;
     case Qt::Key_Down:
       if (m_terrainY > 0)
       {
-        m_terrain->move(0, -1);
-        m_terrainY--;
+        m_terrain->move(0, -m_moveSpeed);
+        m_terrainY -= m_moveSpeed;
       }
       break;
     default:
