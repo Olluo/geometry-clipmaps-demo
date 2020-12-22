@@ -1,6 +1,6 @@
 /**
  * @file ClipmapLevel.h
- * @author s5222743
+ * @author Ollie Nicholls
  * @brief This class implements a level of the geoclipmap
  * 
  * @copyright Copyright (c) 2020
@@ -15,6 +15,15 @@
 
 namespace terraindeformer
 {
+
+  enum class TrimLocation
+  {
+    All,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+  };
   class ClipmapLevel
   {
 
@@ -26,13 +35,13 @@ namespace terraindeformer
      * @param _heightmap The heightmap
      * @param _parent The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
      */
-    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent) noexcept;
+    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent, TrimLocation _trimLocation = TrimLocation::TopRight) noexcept;
     /**
-     * @brief Set the position of the clipmap. This will recalculate the texture.
+     * @brief Set the position of the clipmap. This will recalculate the texture. TODO
      * 
      * @param _position 
      */
-    void setPosition(ngl::Vec2 _position) noexcept;
+    void setPosition(ngl::Vec2 _worldPosition, ngl::Vec2 _heightmapPosition, TrimLocation _trimLocation) noexcept;
     /**
      * @brief Get the scale of this clipmap
      * 
@@ -45,8 +54,7 @@ namespace terraindeformer
      * @return const ngl::Vec2& 
      */
     const ngl::Vec2 &position() const noexcept;
-    bool left() const noexcept;
-    bool bottom() const noexcept;
+    TrimLocation trimLocation() const noexcept;
     void bindTextures() noexcept;
 
   private:
@@ -63,7 +71,9 @@ namespace terraindeformer
     // The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
     ClipmapLevel *m_parent;
     // The position of this ClipmapLevel
-    ngl::Vec2 m_position;
+    ngl::Vec2 m_worldPosition;
+    ngl::Vec2 m_heightmapPosition;
+    TrimLocation m_trimLocation;
     bool m_allocated = false;
 
     /**
@@ -73,7 +83,13 @@ namespace terraindeformer
      * @param _y The y location of the pixel
      * @return float The height at pixel (_x, _y)
      */
-    ngl::Real generatePixelAt(ngl::Real _x, ngl::Real _y) noexcept;
+    ngl::Real generatePixelAt(int _x, int _y) noexcept;
+
+#ifdef TERRAIN_TESTING
+#include <gtest/gtest.h>
+    FRIEND_TEST(ClipmapTest, ctor);
+    FRIEND_TEST(ClipmapTest, setPosition);
+#endif
   };
 
 } // end namespace terraindeformer

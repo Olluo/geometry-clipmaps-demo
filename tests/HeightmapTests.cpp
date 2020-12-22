@@ -1,3 +1,7 @@
+#ifndef TERRAIN_TESTING
+#define TERRAIN_TESTING
+#endif
+
 #include <gtest/gtest.h>
 
 #include "Constants.h"
@@ -37,13 +41,11 @@ namespace terraindeformer
       for (size_t x = 0; x < width; x++)
       {
         EXPECT_EQ(
-          h.value(static_cast<ngl::Real>(x), static_cast<ngl::Real>(y)),
-          data[y * width + x].m_r
-        );
+            h.value(static_cast<int>(x), static_cast<int>(y)),
+            data[y * width + x].m_r);
         EXPECT_EQ(
-          h.colour(static_cast<ngl::Real>(x), static_cast<ngl::Real>(y)),
-          data[y * width + x]
-        );
+            h.colour(static_cast<int>(x), static_cast<int>(y)),
+            data[y * width + x]);
       }
     }
   }

@@ -1,3 +1,7 @@
+#ifndef TERRAIN_TESTING
+#define TERRAIN_TESTING
+#endif
+
 #include <gtest/gtest.h>
 
 #include "Constants.h"

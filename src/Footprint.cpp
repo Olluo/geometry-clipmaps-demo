@@ -27,7 +27,7 @@ namespace terraindeformer
 
   Footprint::~Footprint() noexcept
   {
-    if (!m_vaoBound)
+    if (m_vaoBound)
     {
       m_vao->removeVAO();
     }

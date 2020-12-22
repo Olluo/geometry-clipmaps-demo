@@ -37,14 +37,16 @@ out vec3 vertColour;
 
 void main()
 {
-  // Move the vertex and scale compared to where the clipmap is meant to be
+  // Calculate world coordinates by translating then scaling based on the position of the clipmap level
   vec2 worldPos = (inVert + footprintLocalPos + clipmapOffsetPos) * vec2(clipmapScale);
-  // Move the vertex to correct position in local clipmap coords then 
-  // add half width so all values are positive for texture lookup
-  vec2 uv = inVert + footprintLocalPos + vec2(0.5 * clipmapD);;
+  // Calculate uv coordinates for height map lookup
+  vec2 uv = inVert + footprintLocalPos;
+  // sample the height map texture at the uv coordinates
+  float height = texelFetch(heightData, int(uv.y * clipmapD + uv.x)).r;
 
-  // sample the vertex texture
-  vec3 texel = texelFetch(heightData, int(uv.y * clipmapD + uv.x)).xyz;
+  // Computation for blending heights at the edges of clipmap levels
+  // The transition width where blending will take place at the edges of the clipmap levels
+  float w = clipmapD / 10.0f;
 
   // unpack to obtain zf and zd = (zc - zf)    
   //  zf is elevation value in current (fine) level    
@@ -57,8 +59,8 @@ void main()
 
   // alpha.x = max(alpha.x, alpha.y);
   // float z = zf + alpha.x * zd;
-  float z = texel.r;
-  z = z * 256.0f;
+  float z = height;
+  z = z * 50.0f;
 
   // output.pos = mul(float4(worldPos.x, worldPos.y, z, 1), WorldViewProjMatrix);
   
@@ -73,6 +75,5 @@ void main()
   // calculate the vertex position
   gl_Position = MVP * worldPosFinal;
   // pass the UV values to the frag shader
-  // vertColour=texel.rrr;
-  vertColour=vec3(clipmapScale / 10, texel.r, 0.8f);
+  vertColour=vec3(height);
 }

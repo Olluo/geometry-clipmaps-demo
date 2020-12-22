@@ -1,6 +1,6 @@
 /**
  * @file Terrain.h
- * @author s5222743
+ * @author Ollie Nicholls
  * @brief This class is resposible for managing the Geoclipmap
  * 
  * @copyright Copyright (c) 2020
@@ -18,46 +18,8 @@
 
 namespace terraindeformer
 {
-
-  enum class FootprintSelection
-  {
-    All,
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight
-  };
-
   class Terrain
   {
-  private:
-    Heightmap *m_heightmap;
-    // The list of all clipmap levels
-    std::vector<ClipmapLevel *> m_clipmaps;
-    // The list of all footprints
-    std::vector<Footprint *> m_footprints;
-    // The list of all the locations
-    std::vector<FootprintLocation *> m_locations;
-    // The position of the terrain
-    ngl::Vec2 m_position;
-
-    /**
-     * @brief Generate the set of footprints
-     * 
-     */
-    void generateFootprints() noexcept;
-    /**
-     * @brief Generate all the possible footprint locations
-     * 
-     */
-    void generateLocations() noexcept;
-    /**
-     * @brief Generate a clipmap for each level of detail
-     * 
-     */
-    void generateClipmaps() noexcept;
-    void updatePosition() noexcept;
-
   public:
     /**
      * 
@@ -84,13 +46,47 @@ namespace terraindeformer
      * @param _selection The footprints required
      * @return std::vector<FootprintLocation *> 
      */
-    std::vector<FootprintLocation *> selectLocations(FootprintSelection _selection) noexcept;
+    std::vector<FootprintLocation *> selectLocations(TrimLocation _trimLocation) noexcept;
     /**
      * @brief Initialise the terrain object and generate all sub-parts
      * 
      */
     void initialize() noexcept;
     void move(float _x, float _y) noexcept;
+    void setActiveMin(size_t _activeMin) {m_activeMin = _activeMin;}
+    void setActiveMax(size_t _activeMax) {m_activeMax = _activeMax;}
+    size_t activeMin() {return m_activeMin;}
+    size_t activeMax() {return m_activeMax;}
+
+  private:
+    Heightmap *m_heightmap;
+    // The list of all clipmap levels
+    std::vector<ClipmapLevel *> m_clipmaps;
+    // The list of all footprints
+    std::vector<Footprint *> m_footprints;
+    // The list of all the locations
+    std::vector<FootprintLocation *> m_locations;
+    // The position of the terrain
+    ngl::Vec2 m_position;
+    size_t m_activeMin;
+    size_t m_activeMax;
+
+    /**
+     * @brief Generate the set of footprints
+     * 
+     */
+    void generateFootprints() noexcept;
+    /**
+     * @brief Generate all the possible footprint locations
+     * 
+     */
+    void generateLocations() noexcept;
+    /**
+     * @brief Generate a clipmap for each level of detail
+     * 
+     */
+    void generateClipmaps() noexcept;
+    void updatePosition() noexcept;
   };
 
 } // end namespace terraindeformer

@@ -5,85 +5,40 @@
 
 namespace terraindeformer
 {
-
-  float ClipmapLevel::generatePixelAt(ngl::Real _x, ngl::Real _y) noexcept
-  {
-    // for now just return the pixel in the heightmap
-    // in future we will want to get an adjusted height that is between the coarse
-    // and fine level to avoid holes in the terrain
-
-    return m_heightmap->value(_x, _y);
-  }
-
-  ClipmapLevel::ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent) noexcept : m_level{_level},
-                                                                                                  m_heightmap{_heightmap},
-                                                                                                  m_parent{_parent},
-                                                                                                  m_texture(CLIPMAP_D * CLIPMAP_D),
-                                                                                                  //  m_scale{CLIPMAP_D * (1 << m_level)}
-                                                                                                  m_scale{1 << ((CLIPMAP_L - 1) - m_level)}
+  ClipmapLevel::ClipmapLevel(int _level,
+                             Heightmap *_heightmap,
+                             ClipmapLevel *_parent,
+                             TrimLocation _trimLocation) noexcept : m_level{_level},
+                                                                    m_heightmap{_heightmap},
+                                                                    m_parent{_parent},
+                                                                    m_trimLocation{_trimLocation},
+                                                                    m_texture(CLIPMAP_D * CLIPMAP_D),
+                                                                    m_scale{1 << ((CLIPMAP_L - 1) - m_level)}
   {
   }
 
-  void ClipmapLevel::setPosition(ngl::Vec2 _position) noexcept
+  void ClipmapLevel::setPosition(ngl::Vec2 _worldPosition, ngl::Vec2 _heightmapPosition, TrimLocation _trimLocation) noexcept
   {
-    m_position = _position;
-    int xPosInt = static_cast<int>(m_position.m_x);
-    int yPosInt = static_cast<int>(m_position.m_y);
+    // When querying the heightmap, it is assumed the heightmap is always at 0,0
+    // So to get the correct pixels for this clipmaps texture we take its position
+    // and loop up to CLIPMAP_D and add this value to the position, then grab the pixel
+    // from the heightmap at this location adjusted for the scale
+    m_worldPosition = _worldPosition;
+    m_heightmapPosition = _heightmapPosition;
+    m_trimLocation = _trimLocation;
 
-    int halfD = CLIPMAP_D / 2;
-    ngl::Real xStart = (xPosInt - halfD) * static_cast<ngl::Real>(pow(2.0f, -m_level));
-    ngl::Real yStart = (yPosInt - halfD) * static_cast<ngl::Real>(pow(2.0f, -m_level));
+    // Get the integer part of the position as heightmap pixels are located at whole numbers
+    int xPosInt = static_cast<int>(floor(m_heightmapPosition.m_x));
+    int yPosInt = static_cast<int>(floor(m_heightmapPosition.m_y));
 
-    if (m_parent != nullptr)
+    for (int y = 0; y < CLIPMAP_D; y++)
     {
-      // TODO: caching - get data from parent
-      for (int y = 0; y < CLIPMAP_D; y++)
+      for (int x = 0; x < CLIPMAP_D; x++)
       {
-        xStart = (xPosInt - halfD) * static_cast<ngl::Real>(pow(2.0f, -m_level));
-        for (int x = 0; x < CLIPMAP_D; x++)
-        {
-          m_texture[y * CLIPMAP_D + x] = generatePixelAt(static_cast<ngl::Real>(xStart), static_cast<ngl::Real>(yStart));
-          xStart += static_cast<ngl::Real>(pow(2.0f, -m_level));
-        }
-        yStart += static_cast<ngl::Real>(pow(2.0f, -m_level));
+        // The positions to generate the pixels at must be scaled and offset based on the clipmap level
+        m_texture[y * CLIPMAP_D + x] = generatePixelAt((xPosInt + x) * m_scale, (yPosInt + y) * m_scale);
       }
     }
-    else
-    {
-      // assume coarsest level bottom left at 0,0
-      // assume coarsest level is same resoution as CLIPMAP_N
-      // assume heightmap starts at 0, 0 (can offset to mid point stuff using ImageHeightMap ngl demo at some point)
-      for (int y = 0; y < CLIPMAP_D; y++)
-      {
-        xStart = (xPosInt - halfD) * static_cast<ngl::Real>(pow(2.0f, -m_level));
-        for (int x = 0; x < CLIPMAP_D; x++)
-        {
-          m_texture[y * CLIPMAP_D + x] = generatePixelAt(static_cast<ngl::Real>(xStart), static_cast<ngl::Real>(yStart));
-          xStart += static_cast<ngl::Real>(pow(2.0f, -m_level));
-        }
-        yStart += static_cast<ngl::Real>(pow(2.0f, -m_level));
-      }
-    }
-
-    // Old code - DONT DELETE YET!!!!!!
-    // m_position = _position;
-
-    // int halfD = CLIPMAP_D / 2;
-    // int xStart = static_cast<int>(m_position.m_x) - halfD;
-    // int yStart = static_cast<int>(m_position.m_y) - halfD;
-
-    // for (int y = 0; y < CLIPMAP_D; y++)
-    // {
-    //   xStart = static_cast<int>(m_position.m_x) - halfD;
-    //   for (int x = 0; x < CLIPMAP_D; x++)
-    //   {
-    //     int xPos = static_cast<int>(xStart * m_scale);
-    //     int yPos = static_cast<int>(yStart * m_scale);
-    //     m_texture[y * CLIPMAP_D + x] = generatePixelAt(static_cast<ngl::Real>(xPos), static_cast<ngl::Real>(yPos));
-    //     xStart++;
-    //   }
-    //   yStart++;
-    // }
   }
 
   int ClipmapLevel::scale() const noexcept
@@ -93,28 +48,17 @@ namespace terraindeformer
 
   const ngl::Vec2 &ClipmapLevel::position() const noexcept
   {
-    return m_position;
+    return m_worldPosition;
   }
 
-  bool ClipmapLevel::left() const noexcept
+  TrimLocation ClipmapLevel::trimLocation() const noexcept
   {
-    // Get fractional part of the x value and compare to 0.5
-    // The positions of each sub clipmap are half the position of the parent
-    // this means that it will alternate between left and right for each clipmap
-    return (m_position.m_x - static_cast<long>(m_position.m_x)) < 0.5f;
-  }
-
-  bool ClipmapLevel::bottom() const noexcept
-  {
-    // Get fractional part of the y value and compare to 0.5
-    // The positions of each sub clipmap are half the position of the parent
-    // this means that it will alternate between bottom and top for each clipmap
-    return (m_position.m_y - static_cast<long>(m_position.m_y)) < 0.5f;
+    return m_trimLocation;
   }
 
   void ClipmapLevel::bindTextures() noexcept
   {
-    // TODO: set colour
+    // TODO: set colour or implement default textures for rock, grass, snow etc.
     glActiveTexture(GL_TEXTURE0);
 
     if (!m_allocated)
@@ -127,6 +71,29 @@ namespace terraindeformer
     glBindTexture(GL_TEXTURE_BUFFER, m_textureName);
     glBufferData(GL_TEXTURE_BUFFER, m_texture.size() * sizeof(ngl::Real), &m_texture[0], GL_STATIC_DRAW);
     glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, m_textureName);
+  }
+
+  // ======================================= Private methods =======================================
+
+  float ClipmapLevel::generatePixelAt(int _x, int _y) noexcept
+  {
+    // for now just return the pixel in the heightmap
+
+    // The value of the parent's pixel at this point which will be used in the shader for blending
+    float coarsePixel = 0.0f;
+
+    // Computation for getting the parent pixel data
+    if (m_parent != nullptr)
+    {
+      // TODO
+    }
+
+    // The value of the pixel for this clipmap level
+    float finePixel = m_heightmap->value(_x, _y);
+
+    // Return a float where the decimal part is the fine pixel value and the integer part is the coarse
+    // return (coarsePixel * 512.0f + finePixel) / 512.0f;
+    return finePixel;
   }
 
 } // end namespace terraindeformer

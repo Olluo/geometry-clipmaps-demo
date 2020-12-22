@@ -19,28 +19,25 @@ namespace terraindeformer
     return m_depth;
   }
 
-  ngl::Real Heightmap::value(ngl::Real _x, ngl::Real _y) noexcept
+  ngl::Real Heightmap::value(int _x, int _y) noexcept
   {
     // Just return red value for now
-    return colour(_x, _y).lengthSquared();
+    return colour(_x, _y).m_r;
   }
 
-  ngl::Vec3 Heightmap::colour(ngl::Real _x, ngl::Real _y) noexcept
+  ngl::Vec3 Heightmap::colour(int _x, int _y) noexcept
   {
-    int x = static_cast<int>(_x);
-    int y = static_cast<int>(_y);
-
-    if (x < 0 || x > m_width - 1)
+    if (_x < 0 || _x > m_width - 1)
     {
       return ngl::Vec3();
     }
 
-    if (y < 0 || y > m_depth - 1)
+    if (_y < 0 || _y > m_depth - 1)
     {
       return ngl::Vec3();
     }
 
-    return m_data[y * static_cast<int>(m_width) + x];
+    return m_data[_y * static_cast<int>(m_width) + _x];
   }
 
 } // end namespace terraindeformer

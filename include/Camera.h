@@ -1,6 +1,6 @@
 /**
  * @file Camera.h
- * @author s5222743
+ * @author Ollie Nicholls
  * @brief This class implements a basic arcball camera like the one used in Maya
  * 
  * @copyright Copyright (c) 2020
@@ -61,6 +61,7 @@ namespace terraindeformer
      * 
      */
     void reset() noexcept;
+    ngl::Real height() noexcept {return m_eye.m_y;}
 
   private:
     /**

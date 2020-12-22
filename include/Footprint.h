@@ -1,6 +1,6 @@
 /**
  * @file Footprint.h
- * @author s5222743
+ * @author Ollie Nicholls
  * @brief A class to represent a footprint as seen in https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry
  * 
  * @copyright Copyright (c) 2020
@@ -88,6 +88,13 @@ namespace terraindeformer
      * @brief Calculate the indices for a degenerate triangle ring Footprint
      */
     void calculateIndicesDegenerate() noexcept;
+    friend class NGLScene;
+
+#ifdef TERRAIN_TESTING
+#include <gtest/gtest.h>
+    FRIEND_TEST(FootprintTest, ctor_width_depth);
+    FRIEND_TEST(FootprintTest, ctor_degenerate);
+#endif
   };
 
   struct FootprintLocation

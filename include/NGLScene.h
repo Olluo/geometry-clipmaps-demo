@@ -144,7 +144,7 @@ namespace terraindeformer
     float m_fov = 90.0f;
     float m_near = 0.05f;
     float m_far = 5000.0f;
-    float m_moveSpeed = 5.0f;
+    float m_moveSpeed = 1.0f;
   };
 
 } // end namespace terraindeformer

@@ -1,3 +1,12 @@
+/**
+ * @file FootprintVAO.h
+ * @author Ollie Nicholls
+ * @brief An implementation of the AbstractVAO. 
+ * Only made this as couldn't seem to get SimpleIndexVAO working even though this is pretty much the same implementation.
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef FOOTPRINT_VAO_H_
 #define FOOTPRINT_VAO_H_
 

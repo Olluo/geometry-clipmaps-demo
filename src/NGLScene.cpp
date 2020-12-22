@@ -88,7 +88,9 @@ namespace terraindeformer
     m_projection = ngl::perspective(m_fov, m_win.width / m_win.height, m_near, m_far);
 
     // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
+    // TODO: the 64, 64 here is unused
     generateTerrain(64, 64);
+    // m_terrain->move(64, 64);
   }
 
   void NGLScene::paintGL()
@@ -98,67 +100,32 @@ namespace terraindeformer
     glViewport(0, 0, m_win.width, m_win.height);
 
     ngl::ShaderLib::use(m_shaderProgram);
-    m_transform.setRotation(90.0f, 150.0f, 0.0f);
+    m_transform.setRotation(90.0f, 0.0f, 0.0f);
 
     ngl::Mat4 MVP;
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();
     ngl::ShaderLib::setUniform("MVP", MVP);
 
+    // m_terrain->setActiveMin(static_cast<size_t>(m_cam.height() / 50));
+    // m_terrain->setActiveMax(m_terrain->activeMin() + 4);
+
     auto clipmaps = m_terrain->clipmaps();
 
-    for (int l = CLIPMAP_L - 1; l >= 0; l--)
-    // for (int l = 0; l >= 0; l--)
-    // for (int l = 1; l >= 0; l--)
+    for (int l = static_cast<int>(CLIPMAP_L - 1); l >= 0; l--)
     {
       auto currentLevel = clipmaps[l];
       currentLevel->bindTextures();
 
-      FootprintSelection selection;
-      if (l == CLIPMAP_L - 1)
-      {
-        selection = FootprintSelection::All;
-      }
-      else if (currentLevel->bottom())
-      {
-        if (currentLevel->left())
-        {
-          selection = FootprintSelection::BottomLeft;
-        }
-        else
-        {
-          selection = FootprintSelection::BottomRight;
-        }
-      }
-      else
-      {
-        if (currentLevel->left())
-        {
-          selection = FootprintSelection::TopLeft;
-        }
-        else
-        {
-          selection = FootprintSelection::TopRight;
-        }
-      }
-
-      // Get the position in world of the current clipmap level
-      ngl::Vec2 levelPosition = currentLevel->position();
-
-      // Get decimal part of the clipmap position, multiply by 2 and subtract 1 to get offset inside parent
-      // if the decimal part is less than 0.5 this will result in a negative number, if it is greater, a positive
-      // number. As each clipmap level's position is half of the parent position, this results in an alternating
-      // placement for each clipmap where in the finest clipmap will be centred around the viewer
-      float xPos = (levelPosition.m_x - static_cast<long>(levelPosition.m_x)) * 2.0f - 1.0f;
-      float yPos = (levelPosition.m_y - static_cast<long>(levelPosition.m_y)) * 2.0f - 1.0f;
-
-      for (auto location : m_terrain->selectLocations(selection))
+      for (auto location : m_terrain->selectLocations(currentLevel->trimLocation()))
       {
         auto footprint = location->footprint;
 
         ngl::ShaderLib::setUniform("footprintLocalPos", static_cast<ngl::Real>(location->x), static_cast<ngl::Real>(location->y));
-        ngl::ShaderLib::setUniform("clipmapOffsetPos", static_cast<ngl::Real>(xPos), static_cast<ngl::Real>(yPos));
+        ngl::ShaderLib::setUniform("clipmapOffsetPos", currentLevel->position());
         ngl::ShaderLib::setUniform("clipmapScale", static_cast<ngl::Real>(currentLevel->scale()));
         ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(CLIPMAP_D));
+
+        // ngl::ShaderLib::setUniform("colour", static_cast<ngl::Real>(footprint->m_width + footprint->m_depth));
 
         footprint->draw();
       }
@@ -171,10 +138,12 @@ namespace terraindeformer
   {
     // load our image and get size
     QImage image(m_imageName.c_str());
+
+    // Convert image to 16-bit colour depth
+    image = image.convertToFormat(QImage::Format_RGB16);
+
     int imageWidth = image.size().width();
     int imageHeight = image.size().height();
-    std::unique_ptr<GLfloat[]> data = std::make_unique<GLfloat[]>(imageWidth);
-    auto i = data.get();
     std::cout << "Loading height map " << m_imageName << ", size " << imageWidth << "x" << imageHeight << "\n";
 
     std::vector<ngl::Vec3> gridPoints;

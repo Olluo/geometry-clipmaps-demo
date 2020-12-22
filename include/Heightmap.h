@@ -1,6 +1,6 @@
 /**
  * @file Heightmap.h
- * @author s5222743
+ * @author Ollie Nicholls
  * @brief This class is used to store a heightmap to be used in Geoclipmapping
  * 
  * @copyright Copyright (c) 2020
@@ -51,7 +51,7 @@ namespace terraindeformer
      * @param _y Y coord of the heightmap
      * @return ngl::Real 
      */
-    ngl::Real value(ngl::Real _x, ngl::Real _y) noexcept;
+    ngl::Real value(int _x, int _y) noexcept;
     /**
      * @brief Get the colour at _x, _y in the heightmap
      * 
@@ -59,7 +59,7 @@ namespace terraindeformer
      * @param _y Y coord of the heightmap
      * @return ngl::Vec3 
      */
-    ngl::Vec3 colour(ngl::Real _x, ngl::Real _y) noexcept;
+    ngl::Vec3 colour(int _x, int _y) noexcept;
   };
 } // end namespace terraindeformer
 #endif // !HEIGHTMAP_H_
