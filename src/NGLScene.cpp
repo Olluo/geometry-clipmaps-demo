@@ -106,12 +106,12 @@ namespace terraindeformer
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();
     ngl::ShaderLib::setUniform("MVP", MVP);
 
-    // m_terrain->setActiveMin(static_cast<size_t>(m_cam.height() / 50));
-    // m_terrain->setActiveMax(m_terrain->activeMin() + 4);
+    m_terrain->setActiveLevels(m_cam.height());
 
     auto clipmaps = m_terrain->clipmaps();
 
-    for (int l = static_cast<int>(CLIPMAP_L - 1); l >= 0; l--)
+    // for (int l = static_cast<int>(CLIPMAP_L - 1); l >= 0; l--)
+    for (int l = static_cast<int>(m_terrain->activeFinest()); l >= static_cast<int>(m_terrain->activeCoarsest()); l--)
     {
       auto currentLevel = clipmaps[l];
       currentLevel->bindTextures();

@@ -6,6 +6,7 @@
  * 
  */
 #include <iostream>
+#include <algorithm>
 
 #include "Constants.h"
 #include "Terrain.h"
@@ -16,8 +17,8 @@ namespace terraindeformer
                                                      m_footprints(6),
                                                      m_clipmaps(CLIPMAP_L),
                                                      m_position{},
-                                                     m_activeMin{0},
-                                                     m_activeMax{CLIPMAP_L - 1}
+                                                     m_activeCoarsest{0},
+                                                     m_activeFinest{CLIPMAP_L - 1}
   {
     generateFootprints();
     generateLocations();
@@ -74,6 +75,25 @@ namespace terraindeformer
   {
     m_position.m_x += _x;
     m_position.m_y += _y;
+    updatePosition();
+  }
+
+  void Terrain::setActiveLevels(ngl::Real _camHeight)
+  {
+    unsigned char adjustedHeight = static_cast<unsigned char>(_camHeight / 100);
+    unsigned char clipmapRange = 4;
+
+    m_activeFinest = static_cast<unsigned char>(CLIPMAP_L - std::clamp(adjustedHeight, static_cast<unsigned char>(1), static_cast<unsigned char>(CLIPMAP_L)));
+
+    if (m_activeFinest < clipmapRange)
+    {
+      m_activeCoarsest = 0;
+    }
+    else
+    {
+      m_activeCoarsest = m_activeFinest - clipmapRange;
+    }
+
     updatePosition();
   }
 
@@ -159,11 +179,17 @@ namespace terraindeformer
 
   void Terrain::updatePosition() noexcept
   {
+    // If nothing has changed return
+    if (m_prevPosition == m_position && m_prevActiveFinest == m_activeFinest && m_prevActiveCoarsest == m_activeCoarsest)
+    {
+      return;
+    }
+
     // The terrain is always positioned at the camera X,Z coordinate
     // Each clipmap level is then at a position based on their scale and an offset
     auto position = m_position;
 
-    // This is the offset of half of the clipmap width so that the finest level is positioned in the centre 
+    // This is the offset of half of the clipmap width so that the finest level is positioned in the centre
     // then all other clipmaps are offset from that
     ngl::Vec2 clipmapCentreOffset(static_cast<ngl::Real>(CLIPMAP_D2), static_cast<ngl::Real>(CLIPMAP_D2));
     // All the positions are based off the initial position which starts at the clipmap offset
@@ -172,7 +198,7 @@ namespace terraindeformer
     // finer level within their centre
     ngl::Real trimOffset = static_cast<ngl::Real>(CLIPMAP_M - 1);
 
-    for (int l = static_cast<int>(CLIPMAP_L - 1); l >= 0; l--)
+    for (int l = m_activeFinest; l >= m_activeCoarsest; l--)
     {
       auto currentLevel = m_clipmaps[l];
 
@@ -187,7 +213,7 @@ namespace terraindeformer
       TrimLocation trimLocation;
 
       // Always show all trims on finest level
-      if (l == static_cast<int>(CLIPMAP_L - 1))
+      if (l == m_activeFinest)
       {
         trimLocation = TrimLocation::All;
       }
@@ -232,6 +258,10 @@ namespace terraindeformer
       // Divide the position by 2 as each subsequent level is scaled with powers of 2
       previousWorldPosition = newWorldPosition / 2.0f;
     }
+
+    m_prevPosition = m_position;
+    m_prevActiveFinest = m_activeFinest;
+    m_prevActiveCoarsest = m_activeCoarsest;
   }
 
 } // end namespace terraindeformer

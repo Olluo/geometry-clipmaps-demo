@@ -53,10 +53,9 @@ namespace terraindeformer
      */
     void initialize() noexcept;
     void move(float _x, float _y) noexcept;
-    void setActiveMin(size_t _activeMin) {m_activeMin = _activeMin;}
-    void setActiveMax(size_t _activeMax) {m_activeMax = _activeMax;}
-    size_t activeMin() {return m_activeMin;}
-    size_t activeMax() {return m_activeMax;}
+    void setActiveLevels(ngl::Real _camHeight);
+    unsigned char activeCoarsest() {return m_activeCoarsest;}
+    unsigned char activeFinest() {return m_activeFinest;}
 
   private:
     Heightmap *m_heightmap;
@@ -68,8 +67,11 @@ namespace terraindeformer
     std::vector<FootprintLocation *> m_locations;
     // The position of the terrain
     ngl::Vec2 m_position;
-    size_t m_activeMin;
-    size_t m_activeMax;
+    ngl::Vec2 m_prevPosition;
+    unsigned char m_activeCoarsest;
+    unsigned char m_activeFinest;
+    unsigned char m_prevActiveCoarsest;
+    unsigned char m_prevActiveFinest;
 
     /**
      * @brief Generate the set of footprints
