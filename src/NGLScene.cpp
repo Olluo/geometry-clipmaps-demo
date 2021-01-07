@@ -95,6 +95,15 @@ namespace terraindeformer
 
   void NGLScene::paintGL()
   {
+    // TODO: Lock camera above terrain
+    // TODO: Colour terrain correctly
+    // TODO: Show where looking
+    // TODO: load in terrain from commandline
+    // TODO: reduce work to just be a terrain explorer
+    // TODO: have 2 cameras first person and god camera
+    // TODO: redo verts using index reset
+    // TODO: have options adjustable on cmd line
+    // TODO: have CLIPMAP params adjustable with keybinds?
     // clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_win.width, m_win.height);
