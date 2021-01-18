@@ -99,7 +99,6 @@ namespace geoclipmap
     // TODO: Colour terrain correctly
     // TODO: Show where looking
     // TODO: load in terrain from commandline
-    // TODO: reduce work to just be a terrain explorer
     // TODO: have 2 cameras first person and god camera
     // TODO: have options adjustable on cmd line
     // clear the screen and depth buffer
@@ -252,26 +251,32 @@ namespace geoclipmap
     case Qt::Key_BracketLeft:
       m_manager->setK(m_manager->K() - 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     case Qt::Key_BracketRight:
       m_manager->setK(m_manager->K() + 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     case Qt::Key_Minus:
       m_manager->setL(m_manager->L() - 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     case Qt::Key_Equal:
       m_manager->setL(m_manager->L() + 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     case Qt::Key_9:
       m_manager->setR(m_manager->R() - 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     case Qt::Key_0:
       m_manager->setR(m_manager->R() + 1);
       regenerateTerrain();
+      m_terrain->move(m_terrainX, m_terrainY);
       break;
     default:
       break;
