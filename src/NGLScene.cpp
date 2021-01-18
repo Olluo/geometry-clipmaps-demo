@@ -42,6 +42,8 @@ namespace terraindeformer
     glEnable(GL_DEPTH_TEST);
     // enable multisampling for smoother drawing
     glEnable(GL_MULTISAMPLE);
+    // Used for drawing triangle strips
+    glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
 
     // now to load the shader and set the values
     // grab an instance of shader manager
@@ -79,7 +81,7 @@ namespace terraindeformer
     // This is a static camera so it only needs to be set once
     // First create Values for the camera position
     ngl::Vec3 from(0, 100, 50);
-    ngl::Vec3 to(0, 100, 0);
+    ngl::Vec3 to(0, 65, 0);
     ngl::Vec3 up(0, 1, 0);
 
     m_cam = Camera(from, to, up);
@@ -101,7 +103,6 @@ namespace terraindeformer
     // TODO: load in terrain from commandline
     // TODO: reduce work to just be a terrain explorer
     // TODO: have 2 cameras first person and god camera
-    // TODO: redo verts using index reset
     // TODO: have options adjustable on cmd line
     // TODO: have CLIPMAP params adjustable with keybinds?
     // clear the screen and depth buffer
@@ -109,7 +110,7 @@ namespace terraindeformer
     glViewport(0, 0, m_win.width, m_win.height);
 
     ngl::ShaderLib::use(m_shaderProgram);
-    m_transform.setRotation(90.0f, 0.0f, 0.0f);
+    m_transform.setRotation(90.0f, 135.0f, 0.0f);
 
     ngl::Mat4 MVP;
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();

@@ -46,7 +46,7 @@ namespace terraindeformer
 
     if (!m_dataBound)
     {
-      m_vao->setData(FootprintVAO::VertexData(m_vertices.size() * sizeof(ngl::Vec3), m_vertices[0].m_x));
+      m_vao->setData(FootprintVAO::VertexData(m_vertices.size() * sizeof(ngl::Vec2), m_vertices[0].m_x));
       m_vao->setVertexAttributePointer(0, 2, GL_FLOAT, 0, 0);
       m_vao->setIndexData(FootprintVAO::IndexData(m_indices.size() * sizeof(GLuint), m_indices[0]), m_indices.size());
       m_dataBound = true;
@@ -100,13 +100,6 @@ namespace terraindeformer
   {
     for (int y = 0; y < m_depth - 1; y++)
     {
-      // Happens on all but first row
-      if (y > 0)
-      {
-        // Degenerate triangle begin: repeat first vertex
-        m_indices.push_back(static_cast<GLuint>(y * m_width));
-      }
-
       // Happens on all rows
       for (int x = 0; x < m_width; x++)
       {
@@ -115,12 +108,8 @@ namespace terraindeformer
         m_indices.push_back(static_cast<GLuint>(((y + 1) * m_width) + x));
       }
 
-      // Happens on all but last 2 rows
-      if (y < m_depth - 2)
-      {
-        // Degenerate triangle end: repeat last vertex
-        m_indices.push_back(static_cast<GLuint>(((y + 1) * m_width) + (m_width - 1)));
-      }
+      // Push the restart value to the end of this strip
+      m_indices.push_back(std::numeric_limits<GLuint>::max());
     }
   }
 
