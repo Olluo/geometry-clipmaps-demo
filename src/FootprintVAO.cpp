@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace terraindeformer
+namespace geoclipmap
 {
 
   void FootprintVAO::draw() const
@@ -66,4 +66,4 @@ namespace terraindeformer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(_data.m_size), &_data.m_data, _data.m_mode);
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

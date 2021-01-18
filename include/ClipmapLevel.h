@@ -13,7 +13,7 @@
 
 #include "Heightmap.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
 
   enum class TrimLocation
@@ -92,5 +92,5 @@ namespace terraindeformer
 #endif
   };
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 #endif // !CLIPMAP_LEVEL_H_

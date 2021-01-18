@@ -14,7 +14,7 @@
 #include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   enum class FootprintType
   {
@@ -118,5 +118,5 @@ namespace terraindeformer
     {
     }
   };
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 #endif // !FOOTPRINT_H_

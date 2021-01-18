@@ -1,11 +1,10 @@
 #include "Footprint.h"
-#include "Constants.h"
 
 #include <ngl/VAOFactory.h>
 
 #include <iostream>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   Footprint::Footprint(size_t _width, size_t _depth) noexcept : m_width{_width},
                                                                 m_depth{_depth}
@@ -130,4 +129,4 @@ namespace terraindeformer
     m_indices.push_back(0);
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

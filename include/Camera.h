@@ -12,7 +12,7 @@
 #include <ngl/Mat4.h>
 #include <ngl/Vec3.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   class Camera
   {
@@ -98,6 +98,6 @@ namespace terraindeformer
     // The speed to dolly the camera
     ngl::Real m_dolly_speed = 0.005f;
   };
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 
 #endif

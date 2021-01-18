@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 	// now set the depth buffer to 24 bits
 	format.setDepthBufferSize(24);
 	// now we are going to create our scene window
-	// terraindeformer::NGLScene window("./img/FractalMap.bmp");
-	terraindeformer::NGLScene window("./img/MountainBig.bmp");
+	// geoclipmap::NGLScene window("./img/FractalMap.bmp");
+	geoclipmap::NGLScene window("./img/MountainBig.bmp");
 	// and set the OpenGL format
 	window.setFormat(format);
 	// we can now query the version to see if it worked

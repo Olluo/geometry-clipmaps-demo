@@ -3,7 +3,7 @@
 #include <ngl/Quaternion.h>
 #include <ngl/Util.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   Camera::Camera(ngl::Vec3 _eye, ngl::Vec3 _look, ngl::Vec3 _up) noexcept : m_eye{_eye},
                                                                             m_eyeInit{_eye},
@@ -95,4 +95,4 @@ namespace terraindeformer
     return m_view;
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

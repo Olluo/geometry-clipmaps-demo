@@ -1,9 +1,9 @@
 #include "ClipmapLevel.h"
-#include "Constants.h"
+#include "Manager.h"
 
 #include <cmath>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   ClipmapLevel::ClipmapLevel(int _level,
                              Heightmap *_heightmap,
@@ -11,32 +11,36 @@ namespace terraindeformer
                              TrimLocation _trimLocation) noexcept : m_level{_level},
                                                                     m_heightmap{_heightmap},
                                                                     m_parent{_parent},
-                                                                    m_trimLocation{_trimLocation},
-                                                                    m_texture(CLIPMAP_D * CLIPMAP_D),
-                                                                    m_scale{1 << ((CLIPMAP_L - 1) - m_level)}
+                                                                    m_trimLocation{_trimLocation}
   {
+    size_t D = Manager::getInstance()->D();
+    unsigned char L = Manager::getInstance()->L();
+
+    m_texture = std::vector<ngl::Real>(D * D);
+    m_scale = 1 << ((L - 1) - m_level);
   }
 
   void ClipmapLevel::setPosition(ngl::Vec2 _worldPosition, ngl::Vec2 _heightmapPosition, TrimLocation _trimLocation) noexcept
   {
     // When querying the heightmap, it is assumed the heightmap is always at 0,0
     // So to get the correct pixels for this clipmaps texture we take its position
-    // and loop up to CLIPMAP_D and add this value to the position, then grab the pixel
+    // and loop up to D and add this value to the position, then grab the pixel
     // from the heightmap at this location adjusted for the scale
     m_worldPosition = _worldPosition;
     m_heightmapPosition = _heightmapPosition;
     m_trimLocation = _trimLocation;
+    size_t D = Manager::getInstance()->D();
 
     // Get the integer part of the position as heightmap pixels are located at whole numbers
     int xPosInt = static_cast<int>(floor(m_heightmapPosition.m_x));
     int yPosInt = static_cast<int>(floor(m_heightmapPosition.m_y));
 
-    for (int y = 0; y < CLIPMAP_D; y++)
+    for (int y = 0; y < D; y++)
     {
-      for (int x = 0; x < CLIPMAP_D; x++)
+      for (int x = 0; x < D; x++)
       {
         // The positions to generate the pixels at must be scaled and offset based on the clipmap level
-        m_texture[y * CLIPMAP_D + x] = generatePixelAt((xPosInt + x) * m_scale, (yPosInt + y) * m_scale);
+        m_texture[y * D + x] = generatePixelAt((xPosInt + x) * m_scale, (yPosInt + y) * m_scale);
       }
     }
   }
@@ -96,4 +100,4 @@ namespace terraindeformer
     return finePixel;
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

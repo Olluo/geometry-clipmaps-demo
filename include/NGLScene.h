@@ -6,10 +6,10 @@
 #include <ngl/Vec3.h>
 
 #include "ClipmapLevel.h"
-#include "Constants.h"
 #include "Camera.h"
 #include "Footprint.h"
 #include "Heightmap.h"
+#include "Manager.h"
 #include "Terrain.h"
 #include "WindowParams.h"
 #include <QElapsedTimer>
@@ -30,7 +30,7 @@
 /// put in this file
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace terraindeformer
+namespace geoclipmap
 {
   class NGLScene : public QOpenGLWindow
   {
@@ -133,11 +133,11 @@ namespace terraindeformer
     void buildVAO();
     //----------------------------------------------------------------------------------------------------------------------
     /// @brief generate our grid points in x,y (width / depth)
-    /// @param [in] _width the physical width size of our grid
-    /// @param [in] _depth the physical depth size of our grid
     //----------------------------------------------------------------------------------------------------------------------
-    void generateTerrain(ngl::Real _width, ngl::Real _depth);
+    void generateTerrain();
+    void regenerateTerrain();
     Terrain *m_terrain;
+    Heightmap *m_heightmap;
     std::string m_shaderProgram;
     ngl::Real m_terrainX = 0;
     ngl::Real m_terrainY = 0;
@@ -145,8 +145,9 @@ namespace terraindeformer
     float m_near = 0.05f;
     float m_far = 5000.0f;
     float m_moveSpeed = 1.0f;
+    Manager *m_manager;
   };
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 
 #endif

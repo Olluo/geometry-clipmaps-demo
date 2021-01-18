@@ -11,7 +11,7 @@
 
 #include <ngl/Vec3.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   class Heightmap
   {
@@ -61,5 +61,5 @@ namespace terraindeformer
      */
     ngl::Vec3 colour(int _x, int _y) noexcept;
   };
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 #endif // !HEIGHTMAP_H_

@@ -1,6 +1,6 @@
 #include "Heightmap.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
 
   Heightmap::Heightmap(ngl::Real _width, ngl::Real _height, std::vector<ngl::Vec3> _data) noexcept : m_width{_width},
@@ -40,4 +40,4 @@ namespace terraindeformer
     return m_data[_y * static_cast<int>(m_width) + _x];
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

@@ -1,7 +1,7 @@
 #include "NGLScene.h"
 #include <QMouseEvent>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   void NGLScene::mouseMoveEvent(QMouseEvent *_event)
   {
@@ -61,4 +61,4 @@ namespace terraindeformer
   void NGLScene::wheelEvent(QWheelEvent *_event)
   {
   }
-} // end namespace terraindeformer
+} // end namespace geoclipmap

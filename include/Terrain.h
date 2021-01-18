@@ -16,7 +16,7 @@
 #include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   class Terrain
   {
@@ -91,5 +91,5 @@ namespace terraindeformer
     void updatePosition() noexcept;
   };
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 #endif // !TERRAIN_H_

@@ -5,21 +5,24 @@
  * and IIS.SLSharp Geoclipmap https://github.com/IgniteInteractiveStudio/SLSharp
  * 
  */
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
-#include "Constants.h"
+#include "Manager.h"
 #include "Terrain.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
   Terrain::Terrain(Heightmap *_heightmap) noexcept : m_heightmap{_heightmap},
                                                      m_footprints(6),
-                                                     m_clipmaps(CLIPMAP_L),
                                                      m_position{},
-                                                     m_activeCoarsest{0},
-                                                     m_activeFinest{CLIPMAP_L - 1}
+                                                     m_activeCoarsest{0}
   {
+    unsigned char L = Manager::getInstance()->L();
+
+    m_clipmaps = std::vector<ClipmapLevel *>(L);
+    m_activeFinest = L - 1;
+
     generateFootprints();
     generateLocations();
     generateClipmaps();
@@ -40,7 +43,6 @@ namespace terraindeformer
   {
     std::vector<int> selectionIndices;
     // These hard-coded values return the correct footprints based on the trim location
-    // TODO: see if better way to get these values
     switch (_trimLocation)
     {
     case TrimLocation::All:
@@ -80,18 +82,19 @@ namespace terraindeformer
 
   void Terrain::setActiveLevels(ngl::Real _camHeight)
   {
+    unsigned char L = Manager::getInstance()->L();
+    unsigned char R = Manager::getInstance()->R();
     unsigned char adjustedHeight = static_cast<unsigned char>(_camHeight / 100);
-    unsigned char clipmapRange = 4;
 
-    m_activeFinest = static_cast<unsigned char>(CLIPMAP_L - std::clamp(adjustedHeight, static_cast<unsigned char>(1), static_cast<unsigned char>(CLIPMAP_L)));
+    m_activeFinest = static_cast<unsigned char>(L - std::clamp(adjustedHeight, static_cast<unsigned char>(1), static_cast<unsigned char>(L)));
 
-    if (m_activeFinest < clipmapRange)
+    if (m_activeFinest < R)
     {
       m_activeCoarsest = 0;
     }
     else
     {
-      m_activeCoarsest = m_activeFinest - clipmapRange;
+      m_activeCoarsest = m_activeFinest - R;
     }
 
     updatePosition();
@@ -101,14 +104,15 @@ namespace terraindeformer
 
   void Terrain::generateFootprints() noexcept
   {
+    size_t M = Manager::getInstance()->M();
     // Generate all the footprint types each clipmap level will use/reuse
     // Only need one of each type as they are reused and this reduces the number of vertices bound to the VBO/VAO
-    m_footprints[static_cast<int>(FootprintType::Block)] = new Footprint(CLIPMAP_M, CLIPMAP_M);
-    m_footprints[static_cast<int>(FootprintType::FixupHorizontal)] = new Footprint(CLIPMAP_M, 3);
-    m_footprints[static_cast<int>(FootprintType::FixupVertical)] = new Footprint(3, CLIPMAP_M);
-    m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)] = new Footprint((2 * CLIPMAP_M) + 1, 2);
-    m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)] = new Footprint(2, (2 * CLIPMAP_M) + 1);
-    m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)] = new Footprint((4 * CLIPMAP_M) - 1);
+    m_footprints[static_cast<int>(FootprintType::Block)] = new Footprint(M, M);
+    m_footprints[static_cast<int>(FootprintType::FixupHorizontal)] = new Footprint(M, 3);
+    m_footprints[static_cast<int>(FootprintType::FixupVertical)] = new Footprint(3, M);
+    m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)] = new Footprint((2 * M) + 1, 2);
+    m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)] = new Footprint(2, (2 * M) + 1);
+    m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)] = new Footprint((4 * M) - 1);
   }
 
   void Terrain::generateLocations() noexcept
@@ -121,7 +125,7 @@ namespace terraindeformer
     // This is used for the bottom left corner displacement of each footprint
     // 0, 0 is the local coordinate centre of the clipmap level
     // The m_position of each clipmap level is their world coordinate
-    int m = static_cast<int>(CLIPMAP_M) - 1;
+    int m = static_cast<int>(Manager::getInstance()->M()) - 1;
 
     // See https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems2/elementLinks/02_clipmaps_05.jpg
     // B1 - B4
@@ -170,7 +174,7 @@ namespace terraindeformer
   {
     ClipmapLevel *parent = nullptr;
     // Generate clipmaps from coarsest to finest as finer clipmaps need a reference to the coarser one
-    for (int l = 0; l < CLIPMAP_L; l++)
+    for (int l = 0; l < Manager::getInstance()->L(); l++)
     {
       m_clipmaps[l] = new ClipmapLevel(l, m_heightmap, parent);
       parent = m_clipmaps[l];
@@ -179,6 +183,8 @@ namespace terraindeformer
 
   void Terrain::updatePosition() noexcept
   {
+    size_t M = Manager::getInstance()->M();
+    size_t D2 = Manager::getInstance()->D2();
     // If nothing has changed return
     if (m_prevPosition == m_position && m_prevActiveFinest == m_activeFinest && m_prevActiveCoarsest == m_activeCoarsest)
     {
@@ -191,12 +197,12 @@ namespace terraindeformer
 
     // This is the offset of half of the clipmap width so that the finest level is positioned in the centre
     // then all other clipmaps are offset from that
-    ngl::Vec2 clipmapCentreOffset(static_cast<ngl::Real>(CLIPMAP_D2), static_cast<ngl::Real>(CLIPMAP_D2));
+    ngl::Vec2 clipmapCentreOffset(static_cast<ngl::Real>(D2), static_cast<ngl::Real>(D2));
     // All the positions are based off the initial position which starts at the clipmap offset
     ngl::Vec2 previousWorldPosition = -clipmapCentreOffset;
     // This offset is used to offset subsequent levels as all levels are at least 1 block (mxm) offset from the
     // finer level within their centre
-    ngl::Real trimOffset = static_cast<ngl::Real>(CLIPMAP_M - 1);
+    ngl::Real trimOffset = static_cast<ngl::Real>(M - 1);
 
     for (int l = m_activeFinest; l >= m_activeCoarsest; l--)
     {
@@ -264,4 +270,4 @@ namespace terraindeformer
     m_prevActiveCoarsest = m_activeCoarsest;
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap

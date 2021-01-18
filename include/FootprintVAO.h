@@ -12,7 +12,7 @@
 
 #include <ngl/AbstractVAO.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   class FootprintVAO : public ngl::AbstractVAO
   {
@@ -93,6 +93,6 @@ namespace terraindeformer
     GLuint m_buffer = 0;
   };
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap
 
 #endif // !FOOTPRINT_VAO_H_

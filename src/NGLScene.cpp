@@ -8,7 +8,7 @@
 #include <ngl/Transformation.h>
 #include <ngl/VAOPrimitives.h>
 
-namespace terraindeformer
+namespace geoclipmap
 {
   NGLScene::NGLScene(std::string _fname)
   {
@@ -89,10 +89,8 @@ namespace terraindeformer
     // The final two are near and far clipping planes of 0.5 and 10
     m_projection = ngl::perspective(m_fov, m_win.width / m_win.height, m_near, m_far);
 
-    // ngl::ShaderLib::printRegisteredUniforms(m_shaderProgram);
-    // TODO: the 64, 64 here is unused
-    generateTerrain(64, 64);
-    // m_terrain->move(64, 64);
+    m_manager = Manager::getInstance();
+    generateTerrain();
   }
 
   void NGLScene::paintGL()
@@ -104,7 +102,6 @@ namespace terraindeformer
     // TODO: reduce work to just be a terrain explorer
     // TODO: have 2 cameras first person and god camera
     // TODO: have options adjustable on cmd line
-    // TODO: have CLIPMAP params adjustable with keybinds?
     // clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_win.width, m_win.height);
@@ -133,7 +130,7 @@ namespace terraindeformer
         ngl::ShaderLib::setUniform("footprintLocalPos", static_cast<ngl::Real>(location->x), static_cast<ngl::Real>(location->y));
         ngl::ShaderLib::setUniform("clipmapOffsetPos", currentLevel->position());
         ngl::ShaderLib::setUniform("clipmapScale", static_cast<ngl::Real>(currentLevel->scale()));
-        ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(CLIPMAP_D));
+        ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(m_manager->D()));
 
         // ngl::ShaderLib::setUniform("colour", static_cast<ngl::Real>(footprint->m_width + footprint->m_depth));
 
@@ -144,7 +141,7 @@ namespace terraindeformer
     }
   }
 
-  void NGLScene::generateTerrain(ngl::Real _width, ngl::Real _depth)
+  void NGLScene::generateTerrain()
   {
     // load our image and get size
     QImage image(m_imageName.c_str());
@@ -166,8 +163,14 @@ namespace terraindeformer
         gridPoints.push_back(ngl::Vec3(c.redF(), c.greenF(), c.blueF()));
       }
     }
+    
+    m_heightmap = new Heightmap(imageWidth, imageHeight, gridPoints);
+    m_terrain = new Terrain(m_heightmap);
+  }
 
-    m_terrain = new Terrain(new Heightmap(imageWidth, imageHeight, gridPoints));
+  void NGLScene::regenerateTerrain()
+  {
+    m_terrain = new Terrain(m_heightmap);
   }
 
   //----------------------------------------------------------------------------------------------------------------------
@@ -246,6 +249,30 @@ namespace terraindeformer
         m_terrainY -= m_moveSpeed;
       }
       break;
+    case Qt::Key_BracketLeft:
+      m_manager->setK(m_manager->K() - 1);
+      regenerateTerrain();
+      break;
+    case Qt::Key_BracketRight:
+      m_manager->setK(m_manager->K() + 1);
+      regenerateTerrain();
+      break;
+    case Qt::Key_Minus:
+      m_manager->setL(m_manager->L() - 1);
+      regenerateTerrain();
+      break;
+    case Qt::Key_Equal:
+      m_manager->setL(m_manager->L() + 1);
+      regenerateTerrain();
+      break;
+    case Qt::Key_9:
+      m_manager->setR(m_manager->R() - 1);
+      regenerateTerrain();
+      break;
+    case Qt::Key_0:
+      m_manager->setR(m_manager->R() + 1);
+      regenerateTerrain();
+      break;
     default:
       break;
     }
@@ -257,4 +284,4 @@ namespace terraindeformer
     // remove from our key set any keys that have been released
     m_keysPressed -= static_cast<Qt::Key>(_event->key());
   }
-} // end namespace terraindeformer
+} // end namespace geoclipmap
