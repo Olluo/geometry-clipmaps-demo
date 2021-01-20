@@ -26,8 +26,10 @@ int main(int argc, char **argv)
 	// now set the depth buffer to 24 bits
 	format.setDepthBufferSize(24);
 	// now we are going to create our scene window
-	// geoclipmap::NGLScene window("./img/FractalMap.bmp");
-	geoclipmap::NGLScene window("./img/MountainBig.bmp");
+	// geoclipmap::NGLScene window("./img/grand_canyon.png");
+	// geoclipmap::NGLScene window("./img/poole_harbour.png");
+	// geoclipmap::NGLScene window("./img/cheddar.png");
+	geoclipmap::NGLScene window("./img/ben_nevis.png");
 	// and set the OpenGL format
 	window.setFormat(format);
 	// we can now query the version to see if it worked

@@ -84,7 +84,7 @@ namespace geoclipmap
   {
     unsigned char L = Manager::getInstance()->L();
     unsigned char R = Manager::getInstance()->R();
-    unsigned char adjustedHeight = static_cast<unsigned char>(_camHeight / 100);
+    unsigned char adjustedHeight = static_cast<unsigned char>(_camHeight / 250);
 
     m_activeFinest = static_cast<unsigned char>(L - std::clamp(adjustedHeight, static_cast<unsigned char>(1), static_cast<unsigned char>(L)));
 

@@ -16,7 +16,7 @@ namespace geoclipmap
     size_t D = Manager::getInstance()->D();
     unsigned char L = Manager::getInstance()->L();
 
-    m_texture = std::vector<ngl::Real>(D * D);
+    m_texture = std::vector<ngl::Vec4>(D * D);
     m_scale = 1 << ((L - 1) - m_level);
   }
 
@@ -73,31 +73,31 @@ namespace geoclipmap
 
     glBindBuffer(GL_TEXTURE_BUFFER, m_textureName);
     glBindTexture(GL_TEXTURE_BUFFER, m_textureName);
-    glBufferData(GL_TEXTURE_BUFFER, m_texture.size() * sizeof(ngl::Real), &m_texture[0], GL_STATIC_DRAW);
-    glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, m_textureName);
+    glBufferData(GL_TEXTURE_BUFFER, m_texture.size() * sizeof(ngl::Vec4), &m_texture[0].m_x, GL_STATIC_DRAW);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, m_textureName);
   }
 
   // ======================================= Private methods =======================================
 
-  float ClipmapLevel::generatePixelAt(int _x, int _y) noexcept
+  ngl::Vec4 ClipmapLevel::generatePixelAt(int _x, int _y) noexcept
   {
     // for now just return the pixel in the heightmap
 
     // The value of the parent's pixel at this point which will be used in the shader for blending
-    float coarsePixel = 0.0f;
+    // ngl::Real coarsePixel = 0.0f;
 
     // Computation for getting the parent pixel data
     if (m_parent != nullptr)
     {
-      // TODO
+      // TODO: maybe wont get this working
     }
 
     // The value of the pixel for this clipmap level
-    float finePixel = m_heightmap->value(_x, _y);
+    ngl::Real finePixel = m_heightmap->value(_x, _y);
+    ngl::Vec3 fineColour = m_heightmap->colour(_x, _y); 
 
-    // Return a float where the decimal part is the fine pixel value and the integer part is the coarse
-    // return (coarsePixel * 512.0f + finePixel) / 512.0f;
-    return finePixel;
+    // Return a vec2 where m_x is the fine pixel value and m_y is the coarse
+    return ngl::Vec4(fineColour, finePixel);
   }
 
 } // end namespace geoclipmap

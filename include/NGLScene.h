@@ -146,7 +146,7 @@ namespace geoclipmap
     float m_fov = 90.0f;
     float m_near = 0.05f;
     float m_far = 5000.0f;
-    float m_moveSpeed = 1.0f;
+    float m_moveSpeed = 10.0f;
     Manager *m_manager;
     ViewAxis *m_viewAxis;
     std::unique_ptr<ngl::Text> m_text;

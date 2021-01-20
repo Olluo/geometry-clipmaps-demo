@@ -10,6 +10,8 @@
 #define CLIPMAP_LEVEL_H_
 
 #include <ngl/Vec2.h>
+#include <ngl/Vec3.h>
+#include <ngl/Vec4.h>
 
 #include "Heightmap.h"
 
@@ -65,7 +67,7 @@ namespace geoclipmap
     // The heightmap
     Heightmap *m_heightmap;
     // The texture for the ClipmapLevel - used for height data
-    std::vector<ngl::Real> m_texture;
+    std::vector<ngl::Vec4> m_texture;
     // The texture buffer
     GLuint m_textureName;
     // The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
@@ -81,9 +83,9 @@ namespace geoclipmap
      * 
      * @param _x The x location of the pixel
      * @param _y The y location of the pixel
-     * @return float The height at pixel (_x, _y)
+     * @return ngl::Vec2 The height at pixel (_x, _y) where m_x is the fine pixel, m_y is the coarse pixel
      */
-    ngl::Real generatePixelAt(int _x, int _y) noexcept;
+    ngl::Vec4 generatePixelAt(int _x, int _y) noexcept;
 
 #ifdef TERRAIN_TESTING
 #include <gtest/gtest.h>

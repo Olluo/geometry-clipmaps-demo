@@ -42,7 +42,7 @@ void main()
   // Calculate uv coordinates for height map lookup
   vec2 uv = inVert + footprintLocalPos;
   // sample the height map texture at the uv coordinates
-  float height = texelFetch(heightData, int(uv.y * clipmapD + uv.x)).r;
+  vec4 height = texelFetch(heightData, int(uv.y * clipmapD + uv.x));
 
   // Computation for blending heights at the edges of clipmap levels
   // The transition width where blending will take place at the edges of the clipmap levels
@@ -59,7 +59,7 @@ void main()
 
   // alpha.x = max(alpha.x, alpha.y);
   // float z = zf + alpha.x * zd;
-  float z = height;
+  float z = height.a;
   z = z * 50.0f;
 
   // output.pos = mul(float4(worldPos.x, worldPos.y, z, 1), WorldViewProjMatrix);
@@ -75,5 +75,5 @@ void main()
   // calculate the vertex position
   gl_Position = MVP * worldPosFinal;
   // pass the UV values to the frag shader
-  vertColour=vec3(height);
+  vertColour=vec3(height.rgb);
 }

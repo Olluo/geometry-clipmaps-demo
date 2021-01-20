@@ -22,7 +22,7 @@ namespace geoclipmap
   ngl::Real Heightmap::value(int _x, int _y) noexcept
   {
     // Just return red value for now
-    return colour(_x, _y).m_r;
+    return colour(_x, _y).lengthSquared();
   }
 
   ngl::Vec3 Heightmap::colour(int _x, int _y) noexcept

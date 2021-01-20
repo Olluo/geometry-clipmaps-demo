@@ -95,8 +95,9 @@ namespace geoclipmap
     m_viewAxis->initialise();
 
     // Initialise the text
-    m_text = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
-    m_text->setScreenSize(1024, 720);
+    // TODO: There is an issue here with text breaking my height texturing
+    // m_text = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
+    // m_text->setScreenSize(1024, 720);
 
     // Finally generate the terrain
     generateTerrain();
@@ -149,7 +150,7 @@ namespace geoclipmap
     m_viewAxis->draw();
 
     // Draw text
-    drawText();
+    // drawText();
   }
 
   void NGLScene::generateTerrain()

@@ -82,7 +82,7 @@ namespace geoclipmap
     static Manager *m_instance;
 
     // K - The level of detail (>3) - 4 for testing, 8 or 16 for final - tested values 4 to 9, any higher and program crashes
-    unsigned char m_K = 9;
+    unsigned char m_K = 8;
     // Minimum value K can take as it must be greater than 3
     unsigned char m_KMin = 4;
     // The maximum value K can take, any higher than this and there is too much computation
