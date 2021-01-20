@@ -13,6 +13,7 @@ struct WinParams
   int height = 720;
   bool wireframe = false;
   bool fullscreen = false;
+  bool showHelp = false;
 };
 
 #endif

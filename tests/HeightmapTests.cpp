@@ -4,10 +4,9 @@
 
 #include <gtest/gtest.h>
 
-#include "Constants.h"
 #include "Heightmap.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
   TEST(HeightmapTest, ctor)
   {
@@ -49,4 +48,4 @@ namespace terraindeformer
       }
     }
   }
-} // namespace terraindeformer
+} // end namespace geoclipmap

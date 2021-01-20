@@ -63,13 +63,15 @@ add_library(
   ${CMAKE_SOURCE_DIR}/src/FootprintVAO.cpp
   ${CMAKE_SOURCE_DIR}/src/Camera.cpp
   ${CMAKE_SOURCE_DIR}/src/Manager.cpp
+  ${CMAKE_SOURCE_DIR}/src/ViewAxis.cpp
   ${CMAKE_SOURCE_DIR}/include/Terrain.h
   ${CMAKE_SOURCE_DIR}/include/ClipmapLevel.h
   ${CMAKE_SOURCE_DIR}/include/Heightmap.h
   ${CMAKE_SOURCE_DIR}/include/Footprint.h
   ${CMAKE_SOURCE_DIR}/include/FootprintVAO.h
   ${CMAKE_SOURCE_DIR}/include/Camera.h
-  ${CMAKE_SOURCE_DIR}/include/Manager.h)
+  ${CMAKE_SOURCE_DIR}/include/Manager.h
+  ${CMAKE_SOURCE_DIR}/include/ViewAxis.h)
 
 set_target_properties(
   ${LIBRARY_NAME} PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME
@@ -130,6 +132,14 @@ add_custom_command(
     ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/img/tests
     $<TARGET_FILE_DIR:${TARGET_NAME}>/img)
 
+# Copy the font from the root directory to the build directory
+add_custom_command(
+  TARGET ${TARGET_NAME}
+  PRE_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/fonts
+    $<TARGET_FILE_DIR:${TARGET_NAME}>/fonts)
+
 # -----------------------------------------------------------------------------
 # Test
 # -----------------------------------------------------------------------------
@@ -142,8 +152,10 @@ enable_testing()
 
 # Files needed for the test executable
 target_sources(
-  ${TESTS_NAME} PRIVATE tests/TerrainTests.cpp tests/ClipmapLevelTests.cpp
-                        tests/HeightmapTests.cpp tests/FootprintTests.cpp)
+  ${TESTS_NAME}
+  PRIVATE tests/TerrainTests.cpp tests/ClipmapLevelTests.cpp
+          tests/HeightmapTests.cpp tests/FootprintTests.cpp
+          tests/ManagerTests.cpp tests/CameraTests.cpp)
 gtest_discover_tests(${TESTS_NAME})
 
 # Libraries needed for the test executable, our library at the top

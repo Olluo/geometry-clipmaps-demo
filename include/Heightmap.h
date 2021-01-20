@@ -15,14 +15,6 @@ namespace geoclipmap
 {
   class Heightmap
   {
-  private:
-    // The width of the heightmap (x axis)
-    ngl::Real m_width;
-    // The depth of the heightmap (y axis)
-    ngl::Real m_depth;
-    // The heightmap data
-    std::vector<ngl::Vec3> m_data;
-
   public:
     /**
      * @brief Construct a new Heightmap object from data
@@ -60,6 +52,14 @@ namespace geoclipmap
      * @return ngl::Vec3 
      */
     ngl::Vec3 colour(int _x, int _y) noexcept;
+
+  private:
+    // The width of the heightmap (x axis)
+    ngl::Real m_width;
+    // The depth of the heightmap (y axis)
+    ngl::Real m_depth;
+    // The heightmap data
+    std::vector<ngl::Vec3> m_data;
   };
 } // end namespace geoclipmap
 #endif // !HEIGHTMAP_H_

@@ -11,6 +11,7 @@
 #include "Heightmap.h"
 #include "Manager.h"
 #include "Terrain.h"
+#include "ViewAxis.h"
 #include "WindowParams.h"
 #include <QElapsedTimer>
 #include <QOpenGLWindow>
@@ -136,6 +137,7 @@ namespace geoclipmap
     //----------------------------------------------------------------------------------------------------------------------
     void generateTerrain();
     void regenerateTerrain();
+    void drawText();
     Terrain *m_terrain;
     Heightmap *m_heightmap;
     std::string m_shaderProgram;
@@ -146,6 +148,8 @@ namespace geoclipmap
     float m_far = 5000.0f;
     float m_moveSpeed = 1.0f;
     Manager *m_manager;
+    ViewAxis *m_viewAxis;
+    std::unique_ptr<ngl::Text> m_text;
   };
 
 } // end namespace geoclipmap

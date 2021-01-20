@@ -54,8 +54,6 @@ namespace geoclipmap
     m_yaw += _deltaX;
     m_pitch += _deltaY;
 
-    // std::cout << "Yaw: " << m_yaw << ", pitch: " << m_pitch << std::endl;
-
     updateViewMatrix();
   }
 
@@ -90,9 +88,14 @@ namespace geoclipmap
     m_view = ngl::lookAt(m_eye, m_look, m_up);
   }
 
-  ngl::Mat4 Camera::view() const noexcept
+  const ngl::Mat4& Camera::view() const noexcept
   {
     return m_view;
+  }
+
+  ngl::Real Camera::height() noexcept
+  {
+    return m_eye.m_y;
   }
 
 } // end namespace geoclipmap

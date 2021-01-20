@@ -12,7 +12,8 @@ namespace geoclipmap
 {
   NGLScene::NGLScene(std::string _fname)
   {
-    setTitle("Qt5 Simple NGL Demo");
+    std::string title = fmt::format("Geometry Clipmap Demo - {}", _fname);
+    setTitle(QString::fromStdString(title));
     m_imageName = _fname;
   }
 
@@ -26,6 +27,8 @@ namespace geoclipmap
     m_projection = ngl::perspective(m_fov, static_cast<float>(_w) / _h, m_near, m_far);
     m_win.width = static_cast<int>(_w * devicePixelRatio());
     m_win.height = static_cast<int>(_h * devicePixelRatio());
+    m_viewAxis->resize(static_cast<float>(_w) / _h);
+    m_text->setScreenSize(_w, _h);
   }
 
   void NGLScene::initializeGL()
@@ -74,22 +77,28 @@ namespace geoclipmap
     // now we have associated that data we can link the shader
     ngl::ShaderLib::linkProgramObject(m_shaderProgram);
 
-    // and make it active ready to load values
-    ngl::ShaderLib::use(m_shaderProgram);
+    // Construct an arcball camera object
+    m_cam = Camera({0.0f, 100.0f, 50.0f}, {0.0f, 100.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
 
-    // Now we will create a basic Camera from the graphics library
-    // This is a static camera so it only needs to be set once
-    // First create Values for the camera position
-    ngl::Vec3 from(0, 100, 50);
-    ngl::Vec3 to(0, 65, 0);
-    ngl::Vec3 up(0, 1, 0);
+    // Rotate so looking down on the terrain
+    m_cam.orbit(0.0f, -45.0f);
 
-    m_cam = Camera(from, to, up);
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
     m_projection = ngl::perspective(m_fov, m_win.width / m_win.height, m_near, m_far);
 
+    // Get an instance of the Geoclipmap-Constant Manager
     m_manager = Manager::getInstance();
+
+    // Initialise the view axis
+    m_viewAxis = new ViewAxis(m_cam.view());
+    m_viewAxis->initialise();
+
+    // Initialise the text
+    m_text = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
+    m_text->setScreenSize(1024, 720);
+
+    // Finally generate the terrain
     generateTerrain();
   }
 
@@ -97,16 +106,16 @@ namespace geoclipmap
   {
     // TODO: Lock camera above terrain
     // TODO: Colour terrain correctly
+    // TODO: Colour terrain based on clipmap level?
     // TODO: Show where looking
     // TODO: load in terrain from commandline
     // TODO: have 2 cameras first person and god camera
-    // TODO: have options adjustable on cmd line
     // clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_win.width, m_win.height);
 
     ngl::ShaderLib::use(m_shaderProgram);
-    m_transform.setRotation(90.0f, 135.0f, 0.0f);
+    m_transform.setRotation(90.0f, 0.0f, 0.0f);
 
     ngl::Mat4 MVP;
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();
@@ -116,7 +125,6 @@ namespace geoclipmap
 
     auto clipmaps = m_terrain->clipmaps();
 
-    // for (int l = static_cast<int>(CLIPMAP_L - 1); l >= 0; l--)
     for (int l = static_cast<int>(m_terrain->activeFinest()); l >= static_cast<int>(m_terrain->activeCoarsest()); l--)
     {
       auto currentLevel = clipmaps[l];
@@ -131,13 +139,17 @@ namespace geoclipmap
         ngl::ShaderLib::setUniform("clipmapScale", static_cast<ngl::Real>(currentLevel->scale()));
         ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(m_manager->D()));
 
-        // ngl::ShaderLib::setUniform("colour", static_cast<ngl::Real>(footprint->m_width + footprint->m_depth));
-
         footprint->draw();
       }
 
       glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
+
+    // Draw axis
+    m_viewAxis->draw();
+
+    // Draw text
+    drawText();
   }
 
   void NGLScene::generateTerrain()
@@ -162,9 +174,17 @@ namespace geoclipmap
         gridPoints.push_back(ngl::Vec3(c.redF(), c.greenF(), c.blueF()));
       }
     }
-    
+
+    // Create a heightmap from the image data
     m_heightmap = new Heightmap(imageWidth, imageHeight, gridPoints);
+
+    // Then generate a terrain from that heightmap
     m_terrain = new Terrain(m_heightmap);
+
+    // Now move the terrain so it is centred on the camera
+    m_terrainX = imageWidth / 2;
+    m_terrainY = imageHeight / 2;
+    m_terrain->move(m_terrainX, m_terrainY);
   }
 
   void NGLScene::regenerateTerrain()
@@ -174,25 +194,42 @@ namespace geoclipmap
 
   //----------------------------------------------------------------------------------------------------------------------
 
+  void NGLScene::drawText()
+  {
+    int textPos = 700;
+
+    m_text->setColour(1.0f, 1.0f, 0.0f);
+
+    if (!m_win.showHelp)
+    {
+      m_text->renderText(10, 700, "Press 'h' for controls...");
+    }
+
+    if (m_win.showHelp)
+    {
+      m_text->renderText(10, 700, "===== CONTROLS =====");
+      m_text->renderText(10, (textPos-=19), "= 'arrow keys' - move terrain (always follows world axes)");
+      m_text->renderText(10, (textPos-=19), "= '[' - reduce LoD, ']' - increase LoD (K)");
+      m_text->renderText(10, (textPos-=19), "= '-' - reduce clipmap count, '=' - increase clipmap count (L)");
+      m_text->renderText(10, (textPos-=19), "= '9' - reduce clipmap range, '0' - increase clipmap range (R)");
+      m_text->renderText(10, (textPos-=19), "= 'LMB' - orbit camera, 'MMB' - pedestal camera (up/down), 'RMB' - dolly camera (in/out)");
+      m_text->renderText(10, (textPos-=19), "= 'spacebar' - reset camera");
+      m_text->renderText(10, (textPos-=19), "= 'F11' - toggle fullscreen");
+      m_text->renderText(10, (textPos-=19), "= 'Esc' - quit");
+      m_text->renderText(10, (textPos-=19), "= 'w' - toggle wireframe");
+      m_text->renderText(10, (textPos-=19), "= 'h' - to hide these controls");
+      m_text->renderText(10, (textPos-=19), "====================");
+    }
+    textPos -= 19;
+
+    std::string text = fmt::format("Current values: K={}, L={}, R={}", m_manager->K(), m_manager->L(), m_manager->R());
+    m_text->renderText(10, (textPos-=19), text);
+  }
+
   void NGLScene::keyPressEvent(QKeyEvent *_event)
   {
     // add to our keypress set the values of any keys pressed
     m_keysPressed += static_cast<Qt::Key>(_event->key());
-    // // that method is called every time the main window recives a key event.
-    // // we then switch on the key value and set the camera in the GLWindow
-    // auto setLight = [](std::string _num, bool _mode) {
-    //   ngl::ShaderLib::use("PBR");
-    //   if (_mode == true)
-    //   {
-    //     ngl::Vec3 colour = {255.0f, 255.0f, 255.0f};
-    //     ngl::ShaderLib::setUniform(_num, colour);
-    //   }
-    //   else
-    //   {
-    //     ngl::Vec3 colour = {0.0f, 0.0f, 0.0f};
-    //     ngl::ShaderLib::setUniform(_num, colour);
-    //   }
-    // };
     switch (_event->key())
     {
     // escape key to quit
@@ -222,6 +259,10 @@ namespace geoclipmap
         showFullScreen();
       }
       m_win.fullscreen = !m_win.fullscreen;
+      break;
+    // Toggle help
+    case Qt::Key_H:
+      m_win.showHelp = !m_win.showHelp;
       break;
     case Qt::Key_Space:
       m_cam.reset();

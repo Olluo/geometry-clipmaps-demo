@@ -5,12 +5,13 @@
 #include <gtest/gtest.h>
 
 #include "ClipmapLevel.h"
-#include "Constants.h"
+#include "Manager.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
   TEST(ClipmapTest, ctor)
   {
+    Manager *manager = Manager::getInstance();
     std::vector<ngl::Vec3> heightmapData{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     ngl::Real hmWidth = 4;
     ngl::Real hmHeight = 4;
@@ -21,11 +22,11 @@ namespace terraindeformer
 
     EXPECT_EQ(c.m_heightmap, heightmap);
     EXPECT_EQ(c.m_level, 0);
-    EXPECT_EQ(c.scale(), 1 << ((CLIPMAP_L - 1) - 0));
+    EXPECT_EQ(c.scale(), 1 << ((manager->L() - 1) - 0));
     EXPECT_EQ(c.position(), ngl::Vec2{});
 
     std::vector<float> texture = c.m_texture;
-    EXPECT_EQ(texture.size(), CLIPMAP_D * CLIPMAP_D);
+    EXPECT_EQ(texture.size(), manager->D() * manager->D());
     // EXPECT_TRUE(c.left());
     // EXPECT_TRUE(c.bottom());
   } 
@@ -64,4 +65,4 @@ namespace terraindeformer
     // }
     
   // }
-} // namespace terraindeformer
+} // namespace geoclipmap

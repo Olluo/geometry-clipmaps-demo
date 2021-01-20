@@ -88,7 +88,7 @@ namespace geoclipmap
      * @brief Calculate the indices for a degenerate triangle ring Footprint
      */
     void calculateIndicesDegenerate() noexcept;
-    friend class NGLScene;
+    friend class NGLScene; // TODO
 
 #ifdef TERRAIN_TESTING
 #include <gtest/gtest.h>

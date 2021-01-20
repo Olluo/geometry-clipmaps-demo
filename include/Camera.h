@@ -55,13 +55,18 @@ namespace geoclipmap
      * 
      * @return ngl::Mat4 The view matrix of the camera
      */
-    ngl::Mat4 view() const noexcept;
+    const ngl::Mat4 &view() const noexcept;
     /**
      * @brief Reset the camera to the initial position
      * 
      */
     void reset() noexcept;
-    ngl::Real height() noexcept {return m_eye.m_y;}
+    /**
+     * @brief Return the height of the camera above sea level
+     * 
+     * @return ngl::Real The height of the camera
+     */
+    ngl::Real height() noexcept;
 
   private:
     /**
@@ -97,7 +102,16 @@ namespace geoclipmap
     ngl::Real m_sensitivity = 0.5f;
     // The speed to dolly the camera
     ngl::Real m_dolly_speed = 0.005f;
+
+#ifdef TERRAIN_TESTING
+#include <gtest/gtest.h>
+    FRIEND_TEST(CameraTest, ctor);
+    FRIEND_TEST(CameraTest, reset_camera);
+    FRIEND_TEST(CameraTest, pedestal_camera);
+    FRIEND_TEST(CameraTest, orbit_camera);
+    FRIEND_TEST(CameraTest, dolly_camera);
+#endif
   };
 } // end namespace geoclipmap
 
-#endif
+#endif // !CAMERA_H_

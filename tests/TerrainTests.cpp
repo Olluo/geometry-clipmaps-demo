@@ -4,10 +4,10 @@
 
 #include <gtest/gtest.h>
 
-#include "Constants.h"
+#include "Manager.h"
 #include "Terrain.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
   // TEST(TerrainTest, ctor_width_depth_tilesizeplus1)
   // {
@@ -140,4 +140,4 @@ namespace terraindeformer
   //   EXPECT_TRUE(t.resetColour(10, 10));
   //   EXPECT_EQ(t.colour(10, 10), ngl::Vec3(0.9f));
   // }
-} // end namespace terraindeformer
+} // end namespace geoclipmap

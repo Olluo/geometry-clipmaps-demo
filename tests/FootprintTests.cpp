@@ -5,10 +5,9 @@
 #include <gtest/gtest.h>
 #include <ngl/NGLInit.h>
 
-#include "Constants.h"
 #include "Footprint.h"
 
-namespace terraindeformer
+namespace geoclipmap
 {
   TEST(FootprintTest, ctor_width_depth)
   {
@@ -26,7 +25,7 @@ namespace terraindeformer
     EXPECT_EQ(expectedVertices.size(), f.m_vertexCount);
 
     std::vector<GLuint> expectedIndices =
-        {0, 2, 1, 3, 3, 2, 2, 4, 3, 5};
+        {0, 2, 1, 3, std::numeric_limits<GLuint>::max(), 2, 4, 3, 5, std::numeric_limits<GLuint>::max()};
     std::vector<GLuint> actualIndices = f.m_indices;
     EXPECT_EQ(actualIndices, expectedIndices);
     EXPECT_EQ(expectedIndices.size(), f.m_indexCount);
@@ -53,4 +52,4 @@ namespace terraindeformer
     EXPECT_EQ(expectedIndices.size(), f.m_indexCount);
   }
 
-} // end namespace terraindeformer
+} // end namespace geoclipmap
