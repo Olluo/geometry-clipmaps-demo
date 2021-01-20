@@ -41,7 +41,7 @@ namespace geoclipmap
       {
         EXPECT_EQ(
             h.value(static_cast<int>(x), static_cast<int>(y)),
-            data[y * width + x].m_r);
+            data[y * width + x].lengthSquared());
         EXPECT_EQ(
             h.colour(static_cast<int>(x), static_cast<int>(y)),
             data[y * width + x]);

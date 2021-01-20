@@ -1,6 +1,16 @@
-#include "FootprintVAO.h"
-
+/**
+ * @file FootprintVAO.cpp
+ * @author Ollie Nicholls
+ * @brief An implementation of the AbstractVAO. 
+ * Only made this as couldn't seem to get SimpleIndexVAO working even though 
+ * this is pretty much the same implementation.
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <iostream>
+
+#include "FootprintVAO.h"
 
 namespace geoclipmap
 {
@@ -57,7 +67,7 @@ namespace geoclipmap
     {
       std::cerr << "Warning trying to set vertex data on unbound Footprint VAO\n";
     }
-    
+
     m_indicesCount = _indexCount;
 
     GLuint iboID;
@@ -65,5 +75,4 @@ namespace geoclipmap
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(_data.m_size), &_data.m_data, _data.m_mode);
   }
-
 } // end namespace geoclipmap

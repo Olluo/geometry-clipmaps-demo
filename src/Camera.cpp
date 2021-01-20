@@ -1,15 +1,27 @@
-#include "Camera.h"
+/**
+ * @file Camera.cpp
+ * @author Ollie Nicholls
+ * @brief This class implements a basic arcball camera like the one used in Maya
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <iostream>
+
 #include <ngl/Quaternion.h>
 #include <ngl/Util.h>
 
+#include "Camera.h"
+
 namespace geoclipmap
 {
-  Camera::Camera(ngl::Vec3 _eye, ngl::Vec3 _look, ngl::Vec3 _up) noexcept : m_eye{_eye},
-                                                                            m_eyeInit{_eye},
-                                                                            m_look{_look},
-                                                                            m_lookInit{_look},
-                                                                            m_up{_up}
+  Camera::Camera(ngl::Vec3 _eye,
+                 ngl::Vec3 _look,
+                 ngl::Vec3 _up) noexcept : m_eye{_eye},
+                                           m_eyeInit{_eye},
+                                           m_look{_look},
+                                           m_lookInit{_look},
+                                           m_up{_up}
   {
     updateViewMatrix();
   }
@@ -25,10 +37,11 @@ namespace geoclipmap
 
   void Camera::orbit(ngl::Real _deltaX, ngl::Real _deltaY) noexcept
   {
-    // Left mouse moves camera around lookat keeping same distance, left and up change
+    // Left mouse moves camera around look at keeping same distance, left and up change
     _deltaX *= m_sensitivity;
     _deltaY *= m_sensitivity;
 
+    // Don't allow the camera to move beyond 90 degrees up or down
     if (m_pitch + _deltaY > 89.0f)
     {
       _deltaY = 0;
@@ -62,7 +75,8 @@ namespace geoclipmap
     // Right mouse moves camera towards lookat, distance > 0
     ngl::Vec3 dolly = m_look - m_eye;
 
-    // If the dolly length is greater than 1, or if it is less than 1 the deltaZ must be negative and moving the camera out
+    // If the dolly length is greater than 1, 
+    // or if it is less than 1 the deltaZ must be negative and moving the camera out
     if (dolly.lengthSquared() > 1 || _deltaZ < 0)
     {
       m_eye += _deltaZ * m_dolly_speed * dolly;
@@ -88,7 +102,7 @@ namespace geoclipmap
     m_view = ngl::lookAt(m_eye, m_look, m_up);
   }
 
-  const ngl::Mat4& Camera::view() const noexcept
+  const ngl::Mat4 &Camera::view() const noexcept
   {
     return m_view;
   }

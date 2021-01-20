@@ -31,7 +31,8 @@ namespace geoclipmap
      */
     Camera(ngl::Vec3 _eye, ngl::Vec3 _look, ngl::Vec3 _up) noexcept;
     /**
-     * @brief Move the camera in the Y plane (pedestal) but don't change rotation
+     * @brief Move the camera in the Y plane (pedestal) but don't change 
+     * rotation
      * 
      * @param _deltaY The change in Y 
      */
@@ -70,7 +71,8 @@ namespace geoclipmap
 
   private:
     /**
-     * @brief Recalculate the view matrix of the camera based on eye, look, and up
+     * @brief Recalculate the view matrix of the camera based on eye, look, and 
+     * up
      * 
      */
     void updateViewMatrix() noexcept;
@@ -89,10 +91,10 @@ namespace geoclipmap
     // The right vector of the camera
     ngl::Vec3 m_right{1.0f, 0.0f, 0.0f};
 
-    // The current yaw (X rotation) of the camera compared to the look at location
+    // The current yaw (X rotation) angle between camera and look at
     ngl::Real m_yaw = 0.0f;
     ngl::Real m_yawInit = 0.0f;
-    // The current pitch (Y rotation) of the camera compared to the look at location
+    // The current pitch (Y rotation) angle between camera and look at
     ngl::Real m_pitch = 0.0f;
     ngl::Real m_pitchInit = 0.0f;
 

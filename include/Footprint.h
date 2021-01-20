@@ -9,10 +9,10 @@
 #ifndef FOOTPRINT_H_
 #define FOOTPRINT_H_
 
-#include "FootprintVAO.h"
-
 #include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
+
+#include "FootprintVAO.h"
 
 namespace geoclipmap
 {
@@ -47,6 +47,10 @@ namespace geoclipmap
      * 
      */
     ~Footprint() noexcept;
+    /**
+     * @brief Draw the footprint (bind to correct buffer and draw)
+     * 
+     */
     void draw() noexcept;
 
   private:
@@ -62,8 +66,11 @@ namespace geoclipmap
     size_t m_vertexCount;
     // The number of indices
     size_t m_indexCount;
+    // Whether the VAO has been bound
     bool m_vaoBound = false;
+    // Whether the footprint vertex data has been bound
     bool m_dataBound = false;
+    // A pointer to this footprints VAO
     std::unique_ptr<FootprintVAO> m_vao;
 
     /**
@@ -88,7 +95,6 @@ namespace geoclipmap
      * @brief Calculate the indices for a degenerate triangle ring Footprint
      */
     void calculateIndicesDegenerate() noexcept;
-    friend class NGLScene; // TODO
 
 #ifdef TERRAIN_TESTING
 #include <gtest/gtest.h>
@@ -106,15 +112,19 @@ namespace geoclipmap
     // The footprint at (x, y)
     Footprint *footprint;
     /**
-     * @brief Construct a new Footprint Location object that represents where the footprint could be
+     * @brief Construct a new Footprint Location object that represents where 
+     * the footprint could be
      * 
      * @param _x The position in x
      * @param _y The position in y
-     * @param _footprint A reference to a footprint that will be at this location
+     * @param _footprint A reference to a footprint that will be at this 
+     * location
      */
-    FootprintLocation(int _x, int _y, Footprint *_footprint) : x{_x},
-                                                               y{_y},
-                                                               footprint{_footprint}
+    FootprintLocation(int _x,
+                      int _y,
+                      Footprint *_footprint) : x{_x},
+                                               y{_y},
+                                               footprint{_footprint}
     {
     }
   };

@@ -35,15 +35,21 @@ namespace geoclipmap
      * 
      * @param _level The level of detail of this clipmap
      * @param _heightmap The heightmap
-     * @param _parent The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
+     * @param _parent The parent ClipmapLevel (coarser detail) used to get pixel
+     *  from texture (caching)
      */
-    ClipmapLevel(int _level, Heightmap *_heightmap, ClipmapLevel *_parent, TrimLocation _trimLocation = TrimLocation::TopRight) noexcept;
+    ClipmapLevel(int _level,
+                 Heightmap *_heightmap,
+                 ClipmapLevel *_parent,
+                 TrimLocation _trimLocation = TrimLocation::TopRight) noexcept;
     /**
-     * @brief Set the position of the clipmap. This will recalculate the texture. TODO
+     * @brief Set the position of the clipmap and get the height data
      * 
      * @param _position 
      */
-    void setPosition(ngl::Vec2 _worldPosition, ngl::Vec2 _heightmapPosition, TrimLocation _trimLocation) noexcept;
+    void setPosition(ngl::Vec2 _worldPosition,
+                     ngl::Vec2 _heightmapPosition,
+                     TrimLocation _trimLocation) noexcept;
     /**
      * @brief Get the scale of this clipmap
      * 
@@ -70,20 +76,23 @@ namespace geoclipmap
     std::vector<ngl::Vec4> m_texture;
     // The texture buffer
     GLuint m_textureName;
-    // The parent ClipmapLevel (coarser detail) used to get pixel from texture (caching)
+    // Whether the texture had been allocated or not
+    bool m_allocated = false;
+    // The parent ClipmapLevel (coarser detail) used for blending
     ClipmapLevel *m_parent;
     // The position of this ClipmapLevel
     ngl::Vec2 m_worldPosition;
+    // The position of this ClipmapLevel on the heightmap
     ngl::Vec2 m_heightmapPosition;
+    // Where the trims are on this ClipmapLevel
     TrimLocation m_trimLocation;
-    bool m_allocated = false;
 
     /**
      * @brief Generate a pixel at location based on parent texture and heightmap
      * 
      * @param _x The x location of the pixel
      * @param _y The y location of the pixel
-     * @return ngl::Vec2 The height at pixel (_x, _y) where m_x is the fine pixel, m_y is the coarse pixel
+     * @return ngl::Vec4 A vector where rgb = colour, a = height
      */
     ngl::Vec4 generatePixelAt(int _x, int _y) noexcept;
 

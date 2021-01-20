@@ -19,12 +19,12 @@ namespace geoclipmap
   {
     Manager *manager = Manager::getInstance();
 
-    EXPECT_EQ(manager->K(), 9);
-    EXPECT_EQ(manager->D(), static_cast<size_t>(1) << 9);
-    EXPECT_EQ(manager->N(), (static_cast<size_t>(1) << 9) - 1);
-    EXPECT_EQ(manager->M(), (static_cast<size_t>(1) << 9) / 4);
-    EXPECT_EQ(manager->D2(), (static_cast<size_t>(1) << 9) / 2);
-    EXPECT_EQ(manager->H(), -2 * ((static_cast<size_t>(1) << 9) / 4) + 1);
+    EXPECT_EQ(manager->K(), 8);
+    EXPECT_EQ(manager->D(), static_cast<size_t>(1) << 8);
+    EXPECT_EQ(manager->N(), (static_cast<size_t>(1) << 8) - 1);
+    EXPECT_EQ(manager->M(), (static_cast<size_t>(1) << 8) / 4);
+    EXPECT_EQ(manager->D2(), (static_cast<size_t>(1) << 8) / 2);
+    EXPECT_EQ(manager->H(), -2 * ((static_cast<size_t>(1) << 8) / 4) + 1);
     EXPECT_EQ(manager->L(), 8);
     EXPECT_EQ(manager->R(), 4);
   }

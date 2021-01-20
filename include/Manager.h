@@ -1,7 +1,8 @@
 /**
  * @file Manager.h
  * @author Ollie Nicholls
- * @brief This class implements a singleton pattern to manage the constants used by the geoclipmap
+ * @brief This class implements a singleton pattern to manage the constants used
+ *  by the geoclipmap
  * 
  * @copyright Copyright (c) 2020
  * 
@@ -20,13 +21,15 @@ namespace geoclipmap
     void operator=(const Manager & /*other*/) = delete;
 
     /**
-     * @brief Get an instance of the manager if it exists or create one if it doesn't
+     * @brief Get an instance of the manager if it exists or create one if it 
+     * doesn't
      * 
      * @return Manager* a reference to the manager
      */
     static Manager *getInstance();
     /**
-     * @brief Set the K value (level of detail) and all other variables that rely on K
+     * @brief Set the K value (level of detail) and all other variables that 
+     * rely on K
      * 
      * @param _k The new K value
      */
@@ -81,11 +84,11 @@ namespace geoclipmap
     Manager(){};
     static Manager *m_instance;
 
-    // K - The level of detail (>3) - 4 for testing, 8 or 16 for final - tested values 4 to 9, any higher and program crashes
+    // K - The level of detail (>3)
     unsigned char m_K = 8;
-    // Minimum value K can take as it must be greater than 3
+    // Minimum value K can take (>3)
     unsigned char m_KMin = 4;
-    // The maximum value K can take, any higher than this and there is too much computation
+    // The maximum value K can take (<11 to avoid lag)
     unsigned char m_KMax = 10;
     // D - Equivalent of 2^K
     size_t m_D = static_cast<size_t>(1) << m_K;
@@ -97,15 +100,16 @@ namespace geoclipmap
     size_t m_D2 = m_D / 2;
     // H - How much to move the clipmap by to find center point
     long m_H = -2 * static_cast<int>(m_M) + 1;
-    // L - The number of levels of detail (>3) - 4 for testing 11 or higher final
+    // L - The number of levels of detail (>3)
     unsigned char m_L = 8;
-    // Minimum value of L any smaller than 4 and the program will crash
+    // Minimum value of L (>3 or program crash)
     unsigned char m_LMin = 4;
-    // The maximum value L can take, any higher than this and there is too much computation
+    // The maximum value L (<13 to avoid lag)
     unsigned char m_LMax = 12;
     // R - the number of levels to show between finest and coarsest
     unsigned char m_R = 4;
-    // The minimum value of R, can't have any less that 1 level of detail between coarsest and finest
+    // The minimum value of R
+    // can't have any less that 1 level of detail between coarsest and finest
     unsigned char m_RMin = 1;
     // The maximum value of R, any higher and the program can crash
     unsigned char m_RMax = 8;

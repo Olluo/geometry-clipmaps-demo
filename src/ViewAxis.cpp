@@ -1,14 +1,25 @@
-#include "ViewAxis.h"
-
+/**
+ * @file ViewAxis.cpp
+ * @author Ollie Nicholls - original from Constantinos Glynos
+ * @brief Displays the view axis in the bottom left like maya - modified from 
+ * Cos' demo at https://github.com/NCCA/MayaNGL
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <ngl/ShaderLib.h>
 #include <ngl/Util.h>
 #include <ngl/VAOFactory.h>
+
+#include "ViewAxis.h"
 
 namespace geoclipmap
 {
 
   ViewAxis::ViewAxis(const ngl::Mat4 &_sceneView) noexcept : m_sceneView{_sceneView},
-                                                             m_view{ngl::lookAt(ngl::Vec3::in(), ngl::Vec3::zero(), ngl::Vec3::up())},
+                                                             m_view{ngl::lookAt(ngl::Vec3::in(),
+                                                                                ngl::Vec3::zero(),
+                                                                                ngl::Vec3::up())},
                                                              m_vertices{ngl::Vec3::zero(),
                                                                         ngl::Vec3::right(),
                                                                         ngl::Vec3::zero(),
@@ -23,6 +34,7 @@ namespace geoclipmap
 
   void ViewAxis::initialise() noexcept
   {
+    // Create the VAO and bind data
     m_vao = ngl::VAOFactory::createVAO("simpleVAO", GL_LINES);
     m_vao->bind();
     m_vao->setData(ngl::AbstractVAO::VertexData(m_vertices.size() * sizeof(ngl::Vec3), m_vertices[0].m_x));

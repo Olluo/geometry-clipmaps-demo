@@ -23,7 +23,9 @@ namespace geoclipmap
      * @param _depth The height of the heightmap
      * @param _data The data of the heightmap
      */
-    Heightmap(ngl::Real _width, ngl::Real _depth, std::vector<ngl::Vec3> _data) noexcept;
+    Heightmap(ngl::Real _width,
+              ngl::Real _depth,
+              std::vector<ngl::Vec3> _data) noexcept;
     /**
      * @brief Get the width of the heightmap
      * 

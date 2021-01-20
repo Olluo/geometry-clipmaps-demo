@@ -2,7 +2,8 @@
  * @file FootprintVAO.h
  * @author Ollie Nicholls
  * @brief An implementation of the AbstractVAO. 
- * Only made this as couldn't seem to get SimpleIndexVAO working even though this is pretty much the same implementation.
+ * Only made this as couldn't seem to get SimpleIndexVAO working even though 
+ * this is pretty much the same implementation.
  * 
  * @copyright Copyright (c) 2020
  * 
@@ -16,12 +17,19 @@ namespace geoclipmap
 {
   class FootprintVAO : public ngl::AbstractVAO
   {
-  public:    
+  public:
+    /**
+     * @brief A structure to hold any index data as this didn't exist in the
+     * AbstractVAO class
+     * 
+     */
     struct IndexData
     {
-      IndexData(size_t _size, const GLuint &_data, GLenum _mode = GL_STATIC_DRAW) : m_size(_size),
-                                                                                    m_data(_data),
-                                                                                    m_mode(_mode)
+      IndexData(size_t _size,
+                const GLuint &_data,
+                GLenum _mode = GL_STATIC_DRAW) : m_size(_size),
+                                                 m_data(_data),
+                                                 m_mode(_mode)
       {
       }
 
@@ -73,11 +81,17 @@ namespace geoclipmap
      * 
      * @return GLuint The buffer ID
      */
-    GLuint getBufferID(unsigned int /*_index*/) { return m_buffer; }
+    GLuint getBufferID(unsigned int /*_index*/)
+    {
+      return m_buffer;
+    }
     /**
      * @brief Just return nullptr as this method is not needed
      */
-    ngl::Real *mapBuffer(unsigned int /*_index*/, GLenum /*_accessMode*/) { return nullptr; }
+    ngl::Real *mapBuffer(unsigned int /*_index*/, GLenum /*_accessMode*/)
+    {
+      return nullptr;
+    }
 
   protected:
     /**

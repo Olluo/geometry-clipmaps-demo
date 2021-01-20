@@ -9,12 +9,12 @@
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
+#include <ngl/Vec2.h>
+#include <ngl/Vec3.h>
+
 #include "ClipmapLevel.h"
 #include "Footprint.h"
 #include "Heightmap.h"
-
-#include <ngl/Vec2.h>
-#include <ngl/Vec3.h>
 
 namespace geoclipmap
 {
@@ -41,7 +41,8 @@ namespace geoclipmap
      */
     std::vector<Footprint *> &footprints() noexcept;
     /**
-     * @brief Return a selection of footprint locations based on the selection parameter
+     * @brief Return a selection of footprint locations based on the selection 
+     * parameter
      * 
      * @param _selection The footprints required
      * @return std::vector<FootprintLocation *> 
@@ -52,12 +53,41 @@ namespace geoclipmap
      * 
      */
     void initialize() noexcept;
+    /**
+     * @brief Move the terrain in X and Y and then recompute the terrain at that
+     * position
+     * 
+     * @param _x The amount to move in X
+     * @param _y The amount to move in Y
+     */
     void move(float _x, float _y) noexcept;
+    /**
+     * @brief Set the number of active LoD levels using the height of the camera
+     * 
+     * @param _camHeight The height of the camera
+     */
     void setActiveLevels(ngl::Real _camHeight);
-    unsigned char activeCoarsest() {return m_activeCoarsest;}
-    unsigned char activeFinest() {return m_activeFinest;}
+    /**
+     * @brief Get the active coarsest LoD level
+     * 
+     * @return unsigned char the active coarsest LoD level
+     */
+    unsigned char activeCoarsest()
+    {
+      return m_activeCoarsest;
+    }
+    /**
+     * @brief Get the active finest LoD level
+     * 
+     * @return unsigned char the active finest LoD level
+     */
+    unsigned char activeFinest()
+    {
+      return m_activeFinest;
+    }
 
   private:
+    // The heightmap to get height data from 
     Heightmap *m_heightmap;
     // The list of all clipmap levels
     std::vector<ClipmapLevel *> m_clipmaps;
@@ -67,10 +97,15 @@ namespace geoclipmap
     std::vector<FootprintLocation *> m_locations;
     // The position of the terrain
     ngl::Vec2 m_position;
+    // The previous position of the terrain
     ngl::Vec2 m_prevPosition;
+    // The active coarsest LoD level
     unsigned char m_activeCoarsest;
+    // The active finest LoD level
     unsigned char m_activeFinest;
+    // The previous active coarsest LoD level
     unsigned char m_prevActiveCoarsest;
+    // The previous active finest LoD level
     unsigned char m_prevActiveFinest;
 
     /**
@@ -88,6 +123,11 @@ namespace geoclipmap
      * 
      */
     void generateClipmaps() noexcept;
+    /**
+     * @brief Called when the terrain has moved and used to update all the 
+     * clipmap levels
+     * 
+     */
     void updatePosition() noexcept;
   };
 

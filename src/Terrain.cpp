@@ -269,5 +269,4 @@ namespace geoclipmap
     m_prevActiveFinest = m_activeFinest;
     m_prevActiveCoarsest = m_activeCoarsest;
   }
-
 } // end namespace geoclipmap

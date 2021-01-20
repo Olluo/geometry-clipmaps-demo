@@ -1,7 +1,15 @@
+/**
+ * @file ClipmapLevel.cpp
+ * @author Ollie Nicholls
+ * @brief This class implements a level of the geoclipmap
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+#include <cmath>
+
 #include "ClipmapLevel.h"
 #include "Manager.h"
-
-#include <cmath>
 
 namespace geoclipmap
 {
@@ -20,8 +28,11 @@ namespace geoclipmap
     m_scale = 1 << ((L - 1) - m_level);
   }
 
-  void ClipmapLevel::setPosition(ngl::Vec2 _worldPosition, ngl::Vec2 _heightmapPosition, TrimLocation _trimLocation) noexcept
+  void ClipmapLevel::setPosition(ngl::Vec2 _worldPosition,
+                                 ngl::Vec2 _heightmapPosition,
+                                 TrimLocation _trimLocation) noexcept
   {
+    // TODO: Ideally this would only update the needed data
     // When querying the heightmap, it is assumed the heightmap is always at 0,0
     // So to get the correct pixels for this clipmaps texture we take its position
     // and loop up to D and add this value to the position, then grab the pixel
@@ -62,7 +73,6 @@ namespace geoclipmap
 
   void ClipmapLevel::bindTextures() noexcept
   {
-    // TODO: set colour or implement default textures for rock, grass, snow etc.
     glActiveTexture(GL_TEXTURE0);
 
     if (!m_allocated)
@@ -94,7 +104,7 @@ namespace geoclipmap
 
     // The value of the pixel for this clipmap level
     ngl::Real finePixel = m_heightmap->value(_x, _y);
-    ngl::Vec3 fineColour = m_heightmap->colour(_x, _y); 
+    ngl::Vec3 fineColour = m_heightmap->colour(_x, _y);
 
     // Return a vec2 where m_x is the fine pixel value and m_y is the coarse
     return ngl::Vec4(fineColour, finePixel);

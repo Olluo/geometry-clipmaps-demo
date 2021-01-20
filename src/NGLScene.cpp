@@ -1,12 +1,21 @@
+/**
+ * @file NGLScene.cpp
+ * @author Ollie Nicholls - original from Jon Macey
+ * @brief A modified version of Jon's NGLScene that inherits from the Qt 
+ * OpenGLWindow and allows the use of NGL to draw OpenGL
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <QGuiApplication>
 #include <QMouseEvent>
-
-#include "NGLScene.h"
 
 #include <ngl/NGLInit.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/Transformation.h>
 #include <ngl/VAOPrimitives.h>
+
+#include "NGLScene.h"
 
 namespace geoclipmap
 {
@@ -24,7 +33,7 @@ namespace geoclipmap
 
   void NGLScene::resizeGL(int _w, int _h)
   {
-    m_projection = ngl::perspective(m_fov, static_cast<float>(_w) / _h, m_near, m_far);
+    m_projection = ngl::perspective(m_win.m_fov, static_cast<float>(_w) / _h, m_win.m_near, m_win.m_far);
     m_win.width = static_cast<int>(_w * devicePixelRatio());
     m_win.height = static_cast<int>(_h * devicePixelRatio());
     m_viewAxis->resize(static_cast<float>(_w) / _h);
@@ -85,7 +94,7 @@ namespace geoclipmap
 
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
-    m_projection = ngl::perspective(m_fov, m_win.width / m_win.height, m_near, m_far);
+    m_projection = ngl::perspective(m_win.m_fov, m_win.width / m_win.height, m_win.m_near, m_win.m_far);
 
     // Get an instance of the Geoclipmap-Constant Manager
     m_manager = Manager::getInstance();
@@ -105,32 +114,32 @@ namespace geoclipmap
 
   void NGLScene::paintGL()
   {
-    // TODO: Lock camera above terrain
-    // TODO: Colour terrain correctly
     // TODO: Colour terrain based on clipmap level?
-    // TODO: Show where looking
-    // TODO: load in terrain from commandline
-    // TODO: have 2 cameras first person and god camera
     // clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_win.width, m_win.height);
 
+    // Set the correct shader program for terrain drawing
     ngl::ShaderLib::use(m_shaderProgram);
     m_transform.setRotation(90.0f, 0.0f, 0.0f);
 
+    // Calculate the MVP matrix
     ngl::Mat4 MVP;
     MVP = m_projection * m_cam.view() * m_transform.getMatrix();
     ngl::ShaderLib::setUniform("MVP", MVP);
 
+    // Set the active LoD levels based on the camera height
     m_terrain->setActiveLevels(m_cam.height());
 
     auto clipmaps = m_terrain->clipmaps();
 
+    // Loop through each of the active levels
     for (int l = static_cast<int>(m_terrain->activeFinest()); l >= static_cast<int>(m_terrain->activeCoarsest()); l--)
     {
       auto currentLevel = clipmaps[l];
       currentLevel->bindTextures();
 
+      // Loop through each of the footprint locations of the current clipmap level
       for (auto location : m_terrain->selectLocations(currentLevel->trimLocation()))
       {
         auto footprint = location->footprint;
@@ -155,18 +164,19 @@ namespace geoclipmap
 
   void NGLScene::generateTerrain()
   {
-    // load our image and get size
     QImage image(m_imageName.c_str());
 
     // Convert image to 16-bit colour depth
     image = image.convertToFormat(QImage::Format_RGB16);
 
+    // Get the image sizes and output them to console
     int imageWidth = image.size().width();
     int imageHeight = image.size().height();
     std::cout << "Loading height map " << m_imageName << ", size " << imageWidth << "x" << imageHeight << "\n";
 
     std::vector<ngl::Vec3> gridPoints;
 
+    // Loop through all pixels of image and add them to the list of grid points
     for (int y = 0; y < imageHeight; y++)
     {
       for (int x = 0; x < imageWidth; x++)
@@ -192,8 +202,6 @@ namespace geoclipmap
   {
     m_terrain = new Terrain(m_heightmap);
   }
-
-  //----------------------------------------------------------------------------------------------------------------------
 
   void NGLScene::drawText()
   {
@@ -229,8 +237,6 @@ namespace geoclipmap
 
   void NGLScene::keyPressEvent(QKeyEvent *_event)
   {
-    // add to our keypress set the values of any keys pressed
-    m_keysPressed += static_cast<Qt::Key>(_event->key());
     switch (_event->key())
     {
     // escape key to quit
@@ -265,31 +271,34 @@ namespace geoclipmap
     case Qt::Key_H:
       m_win.showHelp = !m_win.showHelp;
       break;
+    // Reset camera position
     case Qt::Key_Space:
       m_cam.reset();
       break;
+    // Terrain movement
     case Qt::Key_Left:
-      m_terrain->move(m_moveSpeed, 0);
-      m_terrainX += m_moveSpeed;
+      m_terrain->move(m_win.m_moveSpeed, 0);
+      m_terrainX += m_win.m_moveSpeed;
       break;
     case Qt::Key_Up:
-      m_terrain->move(0, m_moveSpeed);
-      m_terrainY += m_moveSpeed;
+      m_terrain->move(0, m_win.m_moveSpeed);
+      m_terrainY += m_win.m_moveSpeed;
       break;
     case Qt::Key_Right:
       if (m_terrainX > 0)
       {
-        m_terrain->move(-m_moveSpeed, 0);
-        m_terrainX -= m_moveSpeed;
+        m_terrain->move(-m_win.m_moveSpeed, 0);
+        m_terrainX -= m_win.m_moveSpeed;
       }
       break;
     case Qt::Key_Down:
       if (m_terrainY > 0)
       {
-        m_terrain->move(0, -m_moveSpeed);
-        m_terrainY -= m_moveSpeed;
+        m_terrain->move(0, -m_win.m_moveSpeed);
+        m_terrainY -= m_win.m_moveSpeed;
       }
       break;
+    // K adjustment
     case Qt::Key_BracketLeft:
       m_manager->setK(m_manager->K() - 1);
       regenerateTerrain();
@@ -300,6 +309,7 @@ namespace geoclipmap
       regenerateTerrain();
       m_terrain->move(m_terrainX, m_terrainY);
       break;
+    // L adjustment
     case Qt::Key_Minus:
       m_manager->setL(m_manager->L() - 1);
       regenerateTerrain();
@@ -310,6 +320,7 @@ namespace geoclipmap
       regenerateTerrain();
       m_terrain->move(m_terrainX, m_terrainY);
       break;
+    // R adjustment
     case Qt::Key_9:
       m_manager->setR(m_manager->R() - 1);
       regenerateTerrain();
@@ -324,11 +335,5 @@ namespace geoclipmap
       break;
     }
     update();
-  }
-
-  void NGLScene::keyReleaseEvent(QKeyEvent *_event)
-  {
-    // remove from our key set any keys that have been released
-    m_keysPressed -= static_cast<Qt::Key>(_event->key());
   }
 } // end namespace geoclipmap

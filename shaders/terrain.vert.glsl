@@ -69,7 +69,6 @@ void main()
   // output.alpha = alpha.x;
 
   // vec4 worldPosFinal = vec4(worldPos.x, zf_zd, worldPos.y, 1.0f);
-  // TODO: negative z so image is correct way round 
   vec4 worldPosFinal = vec4(worldPos.x, worldPos.y, -z, 1.0f);
 
   // calculate the vertex position

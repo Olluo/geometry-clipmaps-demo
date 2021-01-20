@@ -1,13 +1,21 @@
-#include "NGLScene.h"
+/**
+ * @file NGLSceneMouseControls.cpp
+ * @author Ollie Nicholls - original from Jon Macey
+ * @brief Contains the computation for the mouse controls associated with the
+ * main NGLScene
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <QMouseEvent>
+
+#include "NGLScene.h"
 
 namespace geoclipmap
 {
   void NGLScene::mouseMoveEvent(QMouseEvent *_event)
   {
-    // note the method buttons() is the button state when event was called
-    // that is different from button() which is used to check which button was
-    // pressed when the mousePress/Release event is generated
+    // LMB orbits camera
     if (_event->buttons() == Qt::LeftButton)
     {
       int deltaX = _event->x() - m_win.origX;
@@ -18,6 +26,7 @@ namespace geoclipmap
       update();
     }
 
+    // RMB dollies camera
     if (_event->buttons() == Qt::RightButton)
     {
       int deltaY = _event->y() - m_win.origY;
@@ -26,6 +35,7 @@ namespace geoclipmap
       update();
     }
 
+    // MMB pedestals camera
     if (_event->buttons() == Qt::MiddleButton)
     {
       int deltaY = _event->y() - m_win.origY;
@@ -52,13 +62,5 @@ namespace geoclipmap
     {
       m_win.origY = _event->y();
     }
-  }
-
-  void NGLScene::mouseReleaseEvent(QMouseEvent *_event)
-  {
-  }
-
-  void NGLScene::wheelEvent(QWheelEvent *_event)
-  {
   }
 } // end namespace geoclipmap

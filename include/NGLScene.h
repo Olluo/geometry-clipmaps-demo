@@ -1,155 +1,133 @@
+/**
+ * @file NGLScene.h
+ * @author Ollie Nicholls - original from Jon Macey
+ * @brief A modified version of Jon's NGLScene that inherits from the Qt 
+ * OpenGLWindow and allows the use of NGL to draw OpenGL
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #ifndef NGLSCENE_H_
 #define NGLSCENE_H_
+
+#include <memory>
+
 #include <ngl/Mat4.h>
 #include <ngl/Text.h>
 #include <ngl/Transformation.h>
 #include <ngl/Vec3.h>
 
-#include "ClipmapLevel.h"
+#include <QElapsedTimer>
+#include <QOpenGLWindow>
+#include <QSet>
+
 #include "Camera.h"
+#include "ClipmapLevel.h"
 #include "Footprint.h"
 #include "Heightmap.h"
 #include "Manager.h"
 #include "Terrain.h"
 #include "ViewAxis.h"
 #include "WindowParams.h"
-#include <QElapsedTimer>
-#include <QOpenGLWindow>
-#include <QSet>
-#include <memory>
-
-//----------------------------------------------------------------------------------------------------------------------
-/// @file NGLScene.h
-/// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
-/// @author Jonathan Macey
-/// @version 1.0
-/// @date 10/9/13
-/// Revision History :
-/// This is an initial version used for the new NGL6 / Qt 5 demos
-/// @class NGLScene
-/// @brief our main glwindow widget for NGL applications all drawing elements are
-/// put in this file
-//----------------------------------------------------------------------------------------------------------------------
 
 namespace geoclipmap
 {
   class NGLScene : public QOpenGLWindow
   {
   public:
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief ctor for our NGL drawing class
-    /// @param [in] parent the parent window to the class
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Construct a new NGLScene object
+     * 
+     * @param _fname The heightmap file to load in and display
+     */
     NGLScene(std::string _fname);
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief dtor must close down ngl and release OpenGL resources
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Destroy the NGLScene object, close down NGL and releas OpenGL 
+     * resources
+     * 
+     */
     ~NGLScene() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the initialize class is called once when the window is created and we have a valid GL context
-    /// use this to setup any default GL stuff
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Initialise all class data before drawing. Has an OpenGL context so
+     *  any OpenGL computation can be done in here.
+     * 
+     */
     void initializeGL() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this is called everytime we want to draw the scene
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Contains any computation for drawing the scene
+     * 
+     */
     void paintGL() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this is called everytime we resize
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Used to resize the OpenGL window
+     * 
+     * @param _w The new width
+     * @param _h The new height
+     */
     void resizeGL(int _w, int _h) override;
 
   private:
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the windows params such as mouse and rotations etc
-    //----------------------------------------------------------------------------------------------------------------------
-    WinParams m_win;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief used to store the global mouse transforms
-    //----------------------------------------------------------------------------------------------------------------------
-    ngl::Mat4 m_mouseGlobalTX;
-    ngl::Mat4 m_projection;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief Our Camera
-    //----------------------------------------------------------------------------------------------------------------------
-    Camera m_cam;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the model position for mouse movement
-    //----------------------------------------------------------------------------------------------------------------------
-    ngl::Vec3 m_modelPos;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the model transformation
-    //----------------------------------------------------------------------------------------------------------------------
-    ngl::Transformation m_transform;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the keys being pressed
-    //----------------------------------------------------------------------------------------------------------------------
-    QSet<Qt::Key> m_keysPressed;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief vao created from the image
-    //----------------------------------------------------------------------------------------------------------------------
-    GLuint m_vaoID;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief number of verts to draw
-    //----------------------------------------------------------------------------------------------------------------------
-    unsigned int m_vertSize;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief name of the image to load
-    //----------------------------------------------------------------------------------------------------------------------
-    std::string m_imageName;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief Qt Event called when a key is pressed
-    /// @param [in] _event the Qt event to query for size etc
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief A Qt Event that is called whenever a key is pressed
+     * 
+     * @param _event the QKeyEvent used to query data about the keys pressed
+     */
     void keyPressEvent(QKeyEvent *_event) override;
-    void keyReleaseEvent(QKeyEvent *_event) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called every time a mouse is moved
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief A Qt Event that is called whenever the mouse is moved
+     * 
+     * @param _event the QMouseEvent used to query data about the mouse movement
+     */
     void mouseMoveEvent(QMouseEvent *_event) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse button is pressed
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief A Qt Event that is called whenever a mouse button is clicked
+     * 
+     * @param _event the QMouseEvent used to query data about the mouse buttons
+     */
     void mousePressEvent(QMouseEvent *_event) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse button is released
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void mouseReleaseEvent(QMouseEvent *_event) override;
-
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse wheel is moved
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void wheelEvent(QWheelEvent *_event) override;
-
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief build our VAO grid
-    //----------------------------------------------------------------------------------------------------------------------
-    void buildVAO();
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief generate our grid points in x,y (width / depth)
-    //----------------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief Loads the heightmap file into a terrain and sets up other terrain
+     * related computations
+     * 
+     */
     void generateTerrain();
+    /**
+     * @brief Regenerates the terrain using any new settings in the Manager
+     * 
+     */
     void regenerateTerrain();
+    /**
+     * @brief Draw the help text to the screen
+     * 
+     */
     void drawText();
-    Terrain *m_terrain;
-    Heightmap *m_heightmap;
-    std::string m_shaderProgram;
-    ngl::Real m_terrainX = 0;
-    ngl::Real m_terrainY = 0;
-    float m_fov = 90.0f;
-    float m_near = 0.05f;
-    float m_far = 5000.0f;
-    float m_moveSpeed = 10.0f;
+
+    // Contains window constants
+    WinParams m_win;
+    // A reference to the Clipmap Constant Manager
     Manager *m_manager;
+    // The heightmap image file to be loaded in
+    std::string m_imageName;
+    // The heightmap that the image is loaded into
+    Heightmap *m_heightmap;
+    // The generated terrain
+    Terrain *m_terrain;
+    // The location of the terrain in X
+    ngl::Real m_terrainX = 0;
+    // The location of the terrain in Y
+    ngl::Real m_terrainY = 0;
+    // The view axis that shows orientation of the world
     ViewAxis *m_viewAxis;
+    // Camera object for viewing the scene
+    Camera m_cam;
+    // The terrain shader program
+    std::string m_shaderProgram;
+    // The help text
     std::unique_ptr<ngl::Text> m_text;
+    // The projection matrix of the scene
+    ngl::Mat4 m_projection;
+    // The transformation matrix of the scene
+    ngl::Transformation m_transform;
   };
 
 } // end namespace geoclipmap

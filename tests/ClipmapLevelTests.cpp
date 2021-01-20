@@ -25,7 +25,7 @@ namespace geoclipmap
     EXPECT_EQ(c.scale(), 1 << ((manager->L() - 1) - 0));
     EXPECT_EQ(c.position(), ngl::Vec2{});
 
-    std::vector<float> texture = c.m_texture;
+    std::vector<ngl::Vec4> texture = c.m_texture;
     EXPECT_EQ(texture.size(), manager->D() * manager->D());
     // EXPECT_TRUE(c.left());
     // EXPECT_TRUE(c.bottom());

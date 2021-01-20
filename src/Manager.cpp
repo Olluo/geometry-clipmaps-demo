@@ -1,6 +1,15 @@
-#include "Manager.h"
-
+/**
+ * @file Manager.cpp
+ * @author Ollie Nicholls
+ * @brief This class implements a singleton pattern to manage the constants used
+ *  by the geoclipmap
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #include <algorithm>
+
+#include "Manager.h"
 
 namespace geoclipmap
 {
@@ -10,6 +19,7 @@ namespace geoclipmap
   {
     if (!m_instance)
     {
+      // If there isn't an instance, make a new manager object
       m_instance = new Manager();
       return m_instance;
     }
@@ -22,6 +32,8 @@ namespace geoclipmap
   void Manager::setK(unsigned char _k)
   {
     m_K = std::clamp(_k, m_KMin, m_KMax);
+
+    // All these other values are based on K so need to change too
     m_D = static_cast<size_t>(1) << m_K;
     m_N = m_D - 1;
     m_M = m_D / 4;
@@ -78,5 +90,4 @@ namespace geoclipmap
   {
     return m_R;
   }
-
 } // end namespace geoclipmap

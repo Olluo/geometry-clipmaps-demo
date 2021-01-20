@@ -1,8 +1,16 @@
-#include "Footprint.h"
+/**
+ * @file Footprint.cpp
+ * @author Ollie Nicholls
+ * @brief A class to represent a footprint as seen in https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+#include <iostream>
 
 #include <ngl/VAOFactory.h>
 
-#include <iostream>
+#include "Footprint.h"
 
 namespace geoclipmap
 {
@@ -99,7 +107,6 @@ namespace geoclipmap
   {
     for (int y = 0; y < m_depth - 1; y++)
     {
-      // Happens on all rows
       for (int x = 0; x < m_width; x++)
       {
         // One part of the triangle strip
