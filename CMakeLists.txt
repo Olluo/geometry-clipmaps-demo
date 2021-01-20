@@ -10,14 +10,14 @@ endif()
 # Project Details - Set up project, languages, and version number
 # -----------------------------------------------------------------------------
 project(
-  TerrainDeformer
+  GeoClipmapDemo
   VERSION 1.0
-  DESCRIPTION "Interactive terrain deformation and sculpting")
+  DESCRIPTION "Demonstration of the GeoClipmap algorithm")
 
 # Set the executable name
-set(TARGET_NAME TerrainDeformer)
+set(TARGET_NAME GeoClipmapDemo)
 set(TESTS_NAME ${TARGET_NAME}Tests)
-set(LIBRARY_OUTPUT_NAME terrain)
+set(LIBRARY_OUTPUT_NAME geoclipmap)
 set(LIBRARY_NAME lib${LIBRARY_OUTPUT_NAME})
 
 # Set C++ 17 standards

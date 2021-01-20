@@ -1,45 +1,161 @@
-# Ollie Nicholls - Interactive Terrain Deformation and Sculpting
+# Ollie Nicholls - Terrain Representation using Geometry Clipmaps
 
 <!-- ## Table of Contents -->
-- [Ollie Nicholls - Interactive Terrain Deformation and Sculpting](#ollie-nicholls---interactive-terrain-deformation-and-sculpting)
+- [Ollie Nicholls - Terrain Representation using Geometry Clipmaps](#ollie-nicholls---terrain-representation-using-geometry-clipmaps)
   - [About the Project](#about-the-project)
-    - [Code Design and Plan](#code-design-and-plan)
-      - [Representation](#representation)
-      - [Modification](#modification)
-      - [Creation](#creation)
-      - [High-Level Code Design](#high-level-code-design)
-      - [UML Diagram](#uml-diagram)
-  - [Getting Started](#getting-started)
   - [Installation](#installation)
+    - [Pre-requisites](#pre-requisites)
+    - [Building](#building)
   - [Usage](#usage)
-  - [References and Acknowledgement](#references-and-acknowledgement)
+    - [Settings](#settings)
+  - [Technical Design](#technical-design)
+    - [How the algorithm works](#how-the-algorithm-works)
+    - [Main Components](#main-components)
+      - [Manager.cpp](#managercpp)
+      - [Terrain.cpp](#terraincpp)
+      - [Heightmap.cpp](#heightmapcpp)
+      - [ClipmapLevel.cpp](#clipmaplevelcpp)
+      - [Footprint.cpp](#footprintcpp)
+    - [High-level UML Diagram](#high-level-uml-diagram)
+    - [CGI Techniques](#cgi-techniques)
+  - [References and Acknowledgements](#references-and-acknowledgements)
     - [Existing Tools](#existing-tools)
     - [Videos](#videos)
     - [Concepts and Papers](#concepts-and-papers)
 
 ## About the Project
 
-Creating large scale, realistic terrains for VFX is both a time and resource heavy task, with the need for many departments to iterate and adapt a design to suit the desired use.
+With GPU processing becoming more and more advanced each year, hundreds of algorithms  that  try  to  tackle  the  complex  task  of  3D-model  representation  have  been created.   These  algorithms,  often  referred  to  as  level-of-detail  (LOD)  systems,  have been created to try to tackle displaying terrains in the most efficient way.  
 
-This tool can *(will be able to)* be used by a user to build, sculpt, texture, interact, modify and iterate existing terrain geometry without the need of a full-scale team. The tool is *(will be)* fully interactive and allows the user to modify lots of terrain properties and also offers brush tools to either dig (adding holes, rivers, caves, or road tunnels) or add terrain (mountains, hills, buildings, or vegetation).
+My project implements one of these LOD algorithms, namely the [Geometry Clipmap Algorithm](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.146.3203&rep=rep1&type=pdf), and uses computer graphics techniques from this and the other papers mentioned in my report and at the bottom of this page.
 
-Once a terrain has been created, it can be *(will be)* saved to an either OBJ, FBX or USD file and can be loaded into Maya.
+Having a suitable and efficient LOD algorithm in place, paves the way for terrain modification and random generation on a massive scale, which this project could be used for in the future.
 
-<!-- As the process of film and VFX creation evolves, there is a growing need for the development, iteration and designing of assets to become faster and more interactive. One example of this is the sculpting and generation of large scale CG terrains to form sets or environments for worlds or shots.
+<!-- TODO: Add image(s) showing example terrain -->
 
-These terrains can vary from mountains and cities to deserts and jungles. Traditionally, making any changes to these terrains, preview and try different ideas, would involve many departments to build, sculpt and retexture the geometry, taking days to weeks for results. Your goal for this task is to create a terrain deformation and sculpting toolset that will allow users to directly interact, modify and iterate on existing terrain geometry. You will need to demonstrate a minimum of 2 environment types such as mountains and cities.
+## Installation
 
-The tools should allow them to modify a plethora of the terrains properties, including height, smoothness and material (sand, rock etc). It should also provide a digging tool for creation of holes, caves or rivers for example.
+### Pre-requisites
 
-Your system should ensure correct geometry, UVs and normals at all times and should also be able to export the terrain geometry into either OBJ, FBX or USD (if you feel experimental) so that it can be loaded back into Maya. Additionally, it should handle large scale terrains efficiently with good real time performance. The toolset can be developed inside a DCC (Digital Content Creation) tool, or as a standalone application. The only limitation is that Houdini may not be used. You are free to use third party libraries as long as they are open source. It is not required for the sake of this task for the toolset to work in AR/VR. However, if it is possible to do so with controller interaction, this would be very interesting. Note, the focus of this task is on the features, quality of the experience and the usability of each tool provided. Make sure you focus on the key features to produce a quality useable product and explain with accompanying documentation any features not implemented and why. There is always the risk that certain features are harder to implement than initially anticipated. If this is the case, explain in writing why these were hard to complete and provide a suggestion on what is required to complete their implementation. -->
+See the [NGL Pre-requisites and Building](https://github.com/NCCA/NGL#pre-requisites) chapters.
 
-### Code Design and Plan
+At a high level, install vcpkg, and run the following commands:
+
+```
+.\vcpkg install gtest:x64-windows
+.\vcpkg install glm:x64-windows
+.\vcpkg install glfw3:x64-windows
+.\vcpkg install openimageio:x64-windows
+.\vcpkg install rapidjson:x64-windows
+.\vcpkg install rapidxml:x64-windows
+.\vcpkg install fmt:x64-windows
+.\vcpkg install pybind11:x64-windows
+.\vcpkg install freetype:x64-windows
+.\vcpkg install ilmbase:x64-windows
+.\vcpkg install openexr:x64-windows
+```
+
+then install NGL as shown in the above link.
+
+### Building
+
+- Clone this repo
+- `cd ase-cgitech-Olluo`
+- Create a build directory (`mkdir build`)
+- `cd build`
+- Run `cmake ..`, this will build the project files
+- Run `cmake --build .`, this will build the project
+
+
+## Usage
+
+Once built using the instructions above
+
+- `cd Debug`
+- Run `./GeoClipmapDemo.exe <heightmap_image_file>`
+
+This will then display the heightmap at `<heightmap_image_file>` using the GeoClipmap algorithm.
+
+### Settings
+
+To display the settings press the 'h' key and the following settings will be displayed in the top left:
+
+```
+===== CONTROLS =====
+= 'arrow keys' - move terrain (always follows world axes)
+= '[' - reduce LoD, ']' - increase LoD (K)
+= '-' - reduce clipmap count, '=' - increase clipmap count (L)
+= '9' - reduce clipmap range, '0' - increase clipmap range (R)
+= 'LMB' - orbit camera, 'MMB' - pedestal camera (up/down), 'RMB' - dolly camera (in/out)
+= 'spacebar' - reset camera
+= 'F11' - toggle fullscreen
+= 'Esc' - quit
+= 'w' - toggle wireframe
+= 'h' - to hide these controls
+====================
+```
+
+The current GeoClipmap settings are always displayed in the top left, an example configuration is as follows:
+
+```
+Current values: K=8, L=10, R=4
+```
+
+which can be translated to:
+
+- The current resolution of all clipmap levels (LOD) is set to 8 meaning that each clipmap level is sized (2^8) - 1 in width and height
+- The current number of clipmap levels generate from finest to coarsest is 10 levels
+- The number of levels to display at a time is 4 levels (as only the required active levels need to be shown)
+
+## Technical Design
 
 See section 3 of the [report](docs/report.pdf) for a high-level description of the project specification.
 
-The project is split into three parts: Representation, Modification, and Creation. The main goal will be to get an efficient representation of the terrain, offer basic tools to change the heights/colours of the terrain, and options for saving to different object files for use in other modelling and VFX software.
+This project was originally going to include terrain *modification* and *creation* but this was too much work for the time frame. Therefore, only the *representation* of terrain has been tackled which was the main goal of the project.
 
-#### Representation
+### How the algorithm works
+
+TODO
+
+### Main Components
+
+The system is split into two main parts; the algorithm and associated parts that compiles into `geoclipmap.lib` and the computation for displaying the scene. I will only highlight the main components in the library.
+
+#### [Manager.cpp](src/Manager.cpp)
+
+TODO
+
+#### [Terrain.cpp](src/Terrain.cpp)
+
+TODO
+
+#### [Heightmap.cpp](src/Heightmap.cpp)
+
+TODO
+
+#### [ClipmapLevel.cpp](src/ClipmapLevel.cpp)
+
+TODO
+
+#### [Footprint.cpp](src/Footprint.cpp)
+
+TODO
+
+### High-level UML Diagram
+
+Based on the main components above, here is a high-level overview of the system:
+
+TODO
+
+### CGI Techniques
+
+This section outlines some of the CGI Techniques used in my project.
+
+TODO
+
+<!-- quaternions -->
+
+<!-- #### Representation
 
 This part of the project will rely on loading in a predefined heightmap. Basic **saving** and **loading** will also be available at this stage.
 
@@ -141,25 +257,13 @@ Ideas/scratch pad:
 - Geometric mip mapping
 - texture splatting
 - contours?
-- Lock mouse to height
+- Lock mouse to height -->
 
-#### UML Diagram
+<!-- #### UML Diagram
 
-![UML class diagram](img/ase_class_diagram.svg)
+![UML class diagram](img/ase_class_diagram.svg) -->
 
-## Getting Started
-
-TODO
-
-## Installation
-
-TODO
-
-## Usage
-
-TODO
-
-## References and Acknowledgement
+## References and Acknowledgements
 
 ### Existing Tools
 
