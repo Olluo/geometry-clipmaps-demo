@@ -265,6 +265,13 @@ namespace geoclipmap
       previousWorldPosition = newWorldPosition / 2.0f;
     }
 
+    // Update in reverse order
+    for (int l = m_activeCoarsest; l <= m_activeFinest; l++)
+    {
+      auto currentLevel = m_clipmaps[l];
+      currentLevel->updateTexture();
+    }
+
     m_prevPosition = m_position;
     m_prevActiveFinest = m_activeFinest;
     m_prevActiveCoarsest = m_activeCoarsest;

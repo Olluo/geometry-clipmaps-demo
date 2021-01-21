@@ -54,6 +54,12 @@ namespace geoclipmap
      * @return ngl::Vec3 
      */
     ngl::Vec3 colour(int _x, int _y) noexcept;
+    /**
+     * @brief Return the highest point in the heightmap
+     * 
+     * @return ngl::Real 
+     */
+    ngl::Real highestPoint() noexcept;
 
   private:
     // The width of the heightmap (x axis)
@@ -62,6 +68,8 @@ namespace geoclipmap
     ngl::Real m_depth;
     // The heightmap data
     std::vector<ngl::Vec3> m_data;
+    // The highest point in the clipmap
+    ngl::Real m_highestPoint;
   };
 } // end namespace geoclipmap
 #endif // !HEIGHTMAP_H_

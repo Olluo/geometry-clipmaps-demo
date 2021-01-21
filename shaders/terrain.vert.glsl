@@ -18,6 +18,10 @@ uniform vec2 clipmapOffsetPos;
 uniform float clipmapScale;
 // The width of the clipmap
 uniform float clipmapD;
+// The position of the camera (only x, y)
+// uniform vec2 viewerPos;
+// The highest point in the clipmap - used for colour
+uniform float highestPoint;
 
 // ==== Out Data ====
 out vec3 vertColour;
@@ -42,24 +46,29 @@ void main()
   // Calculate uv coordinates for height map lookup
   vec2 uv = inVert + footprintLocalPos;
   // sample the height map texture at the uv coordinates
-  vec4 height = texelFetch(heightData, int(uv.y * clipmapD + uv.x));
+  vec2 height = texelFetch(heightData, int(uv.y * clipmapD + uv.x)).rg;
 
-  // Computation for blending heights at the edges of clipmap levels
-  // The transition width where blending will take place at the edges of the clipmap levels
-  float w = clipmapD / 10.0f;
+  // Unpack the fine and coarse values into their own floats
+  float zf = height.r;
+  // TODO: Cant get this bit working correctly
+  // float zc = height.g;
 
-  // unpack to obtain zf and zd = (zc - zf)    
-  //  zf is elevation value in current (fine) level    
-  //  zc is elevation value in coarser level    
-  // float zf = floor(zf_zd);
-  // float zd = frac(zf_zd) * 512 - 256; // (zd = zc - zf) 
+  // // Computation for blending heights at the edges of clipmap levels
+  // // The transition width where blending will take place at the edges of the clipmap levels
+  // float w =  clipmapD / 10.0f;
 
+  // // The amount to offset when calculating the alpha = (((x,y) max - (x,y) min) / 2) - w - 1
+  // vec2 xyMin = clipmapOffsetPos * vec2(clipmapScale);
+  // vec2 xyMax = (clipmapOffsetPos + vec2(clipmapD) - vec2(1)) * vec2(clipmapScale);
+  // vec2 alphaOffset = ((xyMax - xyMin) / 2) - vec2(w - 1);
   // // compute alpha (transition parameter) and blend elevation    
-  // float2 alpha = clamp((abs(worldPos - ViewerPos) – AlphaOffset) * OneOverWidth, 0, 1);
+  // vec2 alpha = clamp(((abs(worldPos - viewerPos) - (alphaOffset)) / w), 0, 1);
+  // // float2 alpha = clamp((abs(worldPos - ViewerPos) – AlphaOffset) * OneOverWidth, 0, 1);
 
   // alpha.x = max(alpha.x, alpha.y);
-  // float z = zf + alpha.x * zd;
-  float z = height.a;
+  // // float z = zf + alpha.x * zd;
+  // float z = zf + alpha.x * zc;
+  float z = zf;
   z = z * 50.0f;
 
   // output.pos = mul(float4(worldPos.x, worldPos.y, z, 1), WorldViewProjMatrix);
@@ -74,5 +83,13 @@ void main()
   // calculate the vertex position
   gl_Position = MVP * worldPosFinal;
   // pass the UV values to the frag shader
-  vertColour=vec3(height.rgb);
+
+  if (height.r == 0.0f)
+  {
+    vertColour=vec3(0.0f, 0.0f, 0.0f);
+  }
+  else
+  {
+    vertColour=vec3(0.0f, (height.r / highestPoint), 0.0f);
+  }
 }

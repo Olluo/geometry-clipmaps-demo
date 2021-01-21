@@ -17,6 +17,12 @@ namespace geoclipmap
                                                                 m_depth{_height},
                                                                 m_data{_data}
   {
+    ngl::Real maxHeight = 0.0f;
+    for (auto pixel : m_data)
+    {
+      maxHeight = std::max(pixel.lengthSquared(), maxHeight);
+    }
+    m_highestPoint = maxHeight;
   }
 
   ngl::Real Heightmap::width() noexcept
@@ -49,5 +55,10 @@ namespace geoclipmap
     }
 
     return m_data[_y * static_cast<int>(m_width) + _x];
+  }
+
+  ngl::Real Heightmap::highestPoint() noexcept
+  {
+    return m_highestPoint;
   }
 } // end namespace geoclipmap

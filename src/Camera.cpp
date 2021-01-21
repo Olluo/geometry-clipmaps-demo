@@ -112,4 +112,9 @@ namespace geoclipmap
     return m_eye.m_y;
   }
 
+  ngl::Vec2 Camera::position() noexcept
+  {
+    return ngl::Vec2{m_eye.m_x, m_eye.m_z};
+  }
+
 } // end namespace geoclipmap

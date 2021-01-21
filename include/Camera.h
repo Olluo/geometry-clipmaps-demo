@@ -68,6 +68,12 @@ namespace geoclipmap
      * @return ngl::Real The height of the camera
      */
     ngl::Real height() noexcept;
+    /**
+     * @brief Return the postion of the camera
+     * 
+     * @return ngl::Vec2 The x, y position of the camera
+     */
+    ngl::Vec2 position() noexcept;
 
   private:
     /**

@@ -104,9 +104,8 @@ namespace geoclipmap
     m_viewAxis->initialise();
 
     // Initialise the text
-    // TODO: There is an issue here with text breaking my height texturing
-    // m_text = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
-    // m_text->setScreenSize(1024, 720);
+    m_text = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
+    m_text->setScreenSize(1024, 720);
 
     // Finally generate the terrain
     generateTerrain();
@@ -137,6 +136,8 @@ namespace geoclipmap
     for (int l = static_cast<int>(m_terrain->activeFinest()); l >= static_cast<int>(m_terrain->activeCoarsest()); l--)
     {
       auto currentLevel = clipmaps[l];
+
+      // Bind the height texture before drawing
       currentLevel->bindTextures();
 
       // Loop through each of the footprint locations of the current clipmap level
@@ -148,18 +149,21 @@ namespace geoclipmap
         ngl::ShaderLib::setUniform("clipmapOffsetPos", currentLevel->position());
         ngl::ShaderLib::setUniform("clipmapScale", static_cast<ngl::Real>(currentLevel->scale()));
         ngl::ShaderLib::setUniform("clipmapD", static_cast<ngl::Real>(m_manager->D()));
+        // ngl::ShaderLib::setUniform("viewerPos", m_cam.position());
+        ngl::ShaderLib::setUniform("highestPoint", m_heightmap->highestPoint());
 
         footprint->draw();
       }
 
-      glBindTexture(GL_TEXTURE_BUFFER, 0);
+      // Unbind as done
+      currentLevel->unbindTextures();
     }
 
     // Draw axis
     m_viewAxis->draw();
 
     // Draw text
-    // drawText();
+    drawText();
   }
 
   void NGLScene::generateTerrain()
