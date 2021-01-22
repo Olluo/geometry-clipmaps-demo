@@ -26,19 +26,6 @@ uniform float highestPoint;
 // ==== Out Data ====
 out vec3 vertColour;
 
-// uniform vec3 camPos;
-// struct OUTPUT {    
-//   vector pos   : POSITION;
-//   float2 uv    : TEXCOORD0; // coordinates for normal-map lookup    
-//   float  z     : TEXCOORD1; // coordinates for elevation-map lookup      
-//   float alpha  : TEXCOORD2; // transition blend on normal map  
-// };
-
-// uniform float4 ScaleFactor, FineBlockOrig;
-// uniform float2 ViewerPos, AlphaOffset, OneOverWidth;
-// uniform float  ZScaleFactor, ZTexScaleFactor;
-// uniform matrix WorldViewProjMatrix;
-
 void main()
 {
   // Calculate world coordinates by translating then scaling based on the position of the clipmap level
@@ -50,7 +37,10 @@ void main()
 
   // Unpack the fine and coarse values into their own floats
   float zf = height.r;
-  // TODO: Cant get this bit working correctly
+  // ==============================================================================
+  // This was the code that was supposed to blend the outer regions of each clipmap
+  // but unfortuantely I couldn't get it working.
+
   // float zc = height.g;
 
   // // Computation for blending heights at the edges of clipmap levels
@@ -66,30 +56,16 @@ void main()
   // // float2 alpha = clamp((abs(worldPos - ViewerPos) – AlphaOffset) * OneOverWidth, 0, 1);
 
   // alpha.x = max(alpha.x, alpha.y);
-  // // float z = zf + alpha.x * zd;
   // float z = zf + alpha.x * zc;
+  // ==============================================================================
   float z = zf;
   z = z * 50.0f;
-
-  // output.pos = mul(float4(worldPos.x, worldPos.y, z, 1), WorldViewProjMatrix);
-  
-  // output.uv = uv;
-  // output.z = z * ZTexScaleFactor;
-  // output.alpha = alpha.x;
 
   // vec4 worldPosFinal = vec4(worldPos.x, zf_zd, worldPos.y, 1.0f);
   vec4 worldPosFinal = vec4(worldPos.x, worldPos.y, -z, 1.0f);
 
   // calculate the vertex position
   gl_Position = MVP * worldPosFinal;
-  // pass the UV values to the frag shader
-
-  if (height.r == 0.0f)
-  {
-    vertColour=vec3(0.0f, 0.0f, 0.0f);
-  }
-  else
-  {
-    vertColour=vec3(0.0f, (height.r / highestPoint), 0.0f);
-  }
+  
+  vertColour=vec3(0.0f, (height.r / highestPoint), 0.0f);
 }

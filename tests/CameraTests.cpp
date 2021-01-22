@@ -42,6 +42,7 @@ namespace geoclipmap
     EXPECT_EQ(camera.view(), view);
 
     EXPECT_EQ(camera.height(), eye.m_y);
+    EXPECT_EQ(camera.position(), ngl::Vec2(eye.m_x, eye.m_z));
   }
 
   TEST(CameraTest, reset_camera)
@@ -73,6 +74,7 @@ namespace geoclipmap
     // ngl::mat4 doesn't implement != so need to do a boolean comp here
     EXPECT_FALSE(camera.view() == view);
     EXPECT_NE(camera.height(), eye.m_y);
+    EXPECT_NE(camera.position(), ngl::Vec2(eye.m_x, eye.m_z));
 
     // Initial values shouldn't have changed
     EXPECT_EQ(camera.m_eyeInit, eye);
@@ -92,6 +94,7 @@ namespace geoclipmap
     EXPECT_EQ(camera.m_pitch, pitch);
     EXPECT_EQ(camera.view(), view);
     EXPECT_EQ(camera.height(), eye.m_y);
+    EXPECT_EQ(camera.position(), ngl::Vec2(eye.m_x, eye.m_z));
   }
 
   TEST(CameraTest, pedestal_camera)
@@ -128,6 +131,7 @@ namespace geoclipmap
     ngl::Mat4 view = ngl::lookAt(eye, look, up);
     EXPECT_EQ(camera.view(), view);
     EXPECT_EQ(camera.height(), eye.m_y);
+    EXPECT_EQ(camera.position(), ngl::Vec2(eye.m_x, eye.m_z));
   }
 
   TEST(CameraTest, orbit_camera)

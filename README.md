@@ -83,7 +83,7 @@ To display the settings press the 'h' key and the following settings will be dis
 ```
 ===== CONTROLS =====
 = 'arrow keys' - move terrain (always follows world axes)
-= '[' - reduce LoD, ']' - increase LoD (K)
+= '[' - reduce LOD, ']' - increase LOD (K)
 = '-' - reduce clipmap count, '=' - increase clipmap count (L)
 = '9' - reduce clipmap range, '0' - increase clipmap range (R)
 = 'LMB' - orbit camera, 'MMB' - pedestal camera (up/down), 'RMB' - dolly camera (in/out)

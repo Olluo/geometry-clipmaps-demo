@@ -2,6 +2,8 @@
 #define TERRAIN_TESTING
 #endif
 
+#include <cmath>
+
 #include <gtest/gtest.h>
 
 #include "Heightmap.h"
@@ -47,5 +49,7 @@ namespace geoclipmap
             data[y * width + x]);
       }
     }
+
+    EXPECT_EQ(h.highestPoint(), pow(15.0f, 2) * 3);
   }
 } // end namespace geoclipmap

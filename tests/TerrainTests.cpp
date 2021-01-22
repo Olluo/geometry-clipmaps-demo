@@ -9,135 +9,43 @@
 
 namespace geoclipmap
 {
-  // TEST(TerrainTest, ctor_width_depth_tilesizeplus1)
-  // {
-  //   size_t width = 16;
-  //   size_t depth = 16;
-  //   Terrain t(width, depth);
-  //   // t.print();
-  //   // EXPECT_TRUE(false);
+  TEST(TerrainTest, ctor)
+  {
+    Manager *manager = Manager::getInstance();
+    std::vector<ngl::Vec3> heightmapData{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    ngl::Real hmWidth = 4;
+    ngl::Real hmHeight = 4;
+    Heightmap *heightmap = new Heightmap(hmWidth, hmHeight, heightmapData);
 
-  //   EXPECT_EQ(t.width(), width);
-  //   EXPECT_EQ(t.depth(), depth);
+    Terrain t(heightmap);
 
-  //   for (int y = 0; y < t.depth(); y++)
-  //   {
-  //     for (int x = 0; x < t.width(); x++)
-  //     {
-  //       auto height = t.height(x, y);
-  //       auto colour = t.colour(x, y);
-  //       EXPECT_EQ(height, 0.0f);
-  //       EXPECT_EQ(colour, ngl::Vec3(0.9f));
-  //     }
-  //   }
-  // }
+    // Check internal data
+    EXPECT_EQ(t.m_heightmap, heightmap);
+    EXPECT_EQ(t.m_footprints.size(), 6);
+    EXPECT_EQ(t.m_position, ngl::Vec2{});
+    EXPECT_EQ(t.m_clipmaps.size(), manager->L());
+    EXPECT_EQ(t.m_activeFinest, manager->L() - 1);
+    EXPECT_EQ(t.m_activeCoarsest, 0);
+    EXPECT_EQ(t.m_locations.size(), 25);
 
-  // TEST(TerrainTest, ctor_heightmap)
-  // {
-  //   std::vector<ngl::Vec3> heightMap{
-  //       ngl::Vec3(0, 0, 0),
-  //       ngl::Vec3(1, 0, 0),
-  //       ngl::Vec3(2, 0, 0),
-  //       ngl::Vec3(3, 0, 0),
-  //       ngl::Vec3(4, 0, 0),
-  //       ngl::Vec3(5, 0, 0),
-  //       ngl::Vec3(6, 0, 0),
-  //       ngl::Vec3(7, 0, 0),
-  //       ngl::Vec3(8, 0, 0),
-  //       ngl::Vec3(9, 0, 0),
-  //       ngl::Vec3(10, 0, 0),
-  //       ngl::Vec3(11, 0, 0),
-  //       ngl::Vec3(12, 0, 0),
-  //       ngl::Vec3(13, 0, 0),
-  //       ngl::Vec3(14, 0, 0),
-  //       ngl::Vec3(15, 0, 0),
-  //   };
-  //   size_t hmWidth = 4;
-  //   size_t hmHeight = 4;
-  //   Terrain t(hmWidth, hmHeight, heightMap);
+    // Check all footprints initialised correctly
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::Block)] != nullptr);
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::FixupHorizontal)] != nullptr);
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::FixupVertical)] != nullptr);
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::InteriorTrimHorizontal)] != nullptr);
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::InteriorTrimVertical)] != nullptr);
+    EXPECT_TRUE(t.m_footprints[static_cast<int>(FootprintType::OuterDegenerateRing)] != nullptr);
 
-  //   EXPECT_EQ(t.width(), hmWidth);
-  //   EXPECT_EQ(t.depth(), hmHeight);
+    // Check locations initialised correctly
+    for (auto location : t.m_locations)
+    {
+      EXPECT_TRUE(location != nullptr);
+    }
 
-  //   for (int y = 0; y < hmHeight; y++)
-  //   {
-  //     for (int x = 0; x < hmWidth; x++)
-  //     {
-  //       auto height = t.height(x, y);
-  //       auto colour = t.colour(x, y);
-  //       if (x < hmWidth && y < hmHeight)
-  //       {
-  //         EXPECT_EQ(height, heightMap[y * hmWidth + x].m_r);
-  //         EXPECT_EQ(colour, heightMap[y * hmWidth + x]);
-  //       }
-  //       else
-  //       {
-  //         EXPECT_EQ(height, DEFAULT_HEIGHT);
-  //         EXPECT_EQ(colour, ngl::Vec3(DEFAULT_COLOUR));
-  //       }
-  //     }
-  //   }
-  // }
-
-  // TEST(TerrainTest, setHeight_valid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   EXPECT_TRUE(t.setHeight(10, 10, 10.0f));
-
-  //   EXPECT_EQ(t.height(10, 10), 10.0f);
-  // }
-
-  // TEST(TerrainTest, setHeight_invalid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   EXPECT_FALSE(t.setHeight(100, 100, 10.0f));
-  // }
-
-  // TEST(TerrainTest, setColour_valid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   EXPECT_TRUE(t.setColour(10, 10, ngl::Vec3(1.0f)));
-
-  //   EXPECT_EQ(t.colour(10, 10), ngl::Vec3(1.0f));
-  // }
-
-  // TEST(TerrainTest, setColour_invalid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   EXPECT_FALSE(t.setColour(100, 100, ngl::Vec3(1.0f)));
-  // }
-
-  // TEST(TerrainTest, resetHeight_valid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   t.setHeight(10, 10, 10.0f);
-  //   EXPECT_TRUE(t.resetHeight(10, 10));
-  //   EXPECT_EQ(t.height(10, 10), 0.0f);
-  // }
-
-  // TEST(TerrainTest, resetColour_valid)
-  // {
-  //   size_t width = 64;
-  //   size_t depth = 64;
-  //   Terrain t(width, depth);
-
-  //   t.setColour(10, 10, ngl::Vec3(1.0f));
-  //   EXPECT_TRUE(t.resetColour(10, 10));
-  //   EXPECT_EQ(t.colour(10, 10), ngl::Vec3(0.9f));
-  // }
+    // Check clipmaps initialised correctly
+    for (auto clipmap : t.m_clipmaps)
+    {
+      EXPECT_TRUE(clipmap != nullptr);
+    }
+  }
 } // end namespace geoclipmap

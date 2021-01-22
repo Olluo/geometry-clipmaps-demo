@@ -20,49 +20,61 @@ namespace geoclipmap
 
     ClipmapLevel c(0, heightmap, parent);
 
-    EXPECT_EQ(c.m_heightmap, heightmap);
     EXPECT_EQ(c.m_level, 0);
+    EXPECT_EQ(c.m_heightmap, heightmap);
+    EXPECT_EQ(c.m_parent, parent);
+
+    std::vector<ngl::Vec2> texture = c.m_texture;
+    EXPECT_EQ(texture.size(), manager->D() * manager->D());
+
     EXPECT_EQ(c.scale(), 1 << ((manager->L() - 1) - 0));
     EXPECT_EQ(c.position(), ngl::Vec2{});
+    EXPECT_EQ(c.trimLocation(), TrimLocation::TopRight);
+  }
 
-    std::vector<ngl::Vec4> texture = c.m_texture;
+  TEST(ClipmapTest, ctor_specify_trimlocation)
+  {
+    Manager *manager = Manager::getInstance();
+    std::vector<ngl::Vec3> heightmapData{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    ngl::Real hmWidth = 4;
+    ngl::Real hmHeight = 4;
+    Heightmap *heightmap = new Heightmap(hmWidth, hmHeight, heightmapData);
+    ClipmapLevel *parent = nullptr;
+    TrimLocation trimLocation = TrimLocation::All;
+
+    ClipmapLevel c(0, heightmap, parent, trimLocation);
+
+    EXPECT_EQ(c.m_level, 0);
+    EXPECT_EQ(c.m_heightmap, heightmap);
+    EXPECT_EQ(c.m_parent, parent);
+
+    std::vector<ngl::Vec2> texture = c.m_texture;
     EXPECT_EQ(texture.size(), manager->D() * manager->D());
-    // EXPECT_TRUE(c.left());
-    // EXPECT_TRUE(c.bottom());
-  } 
 
-  // TEST(ClipmapTest, setPosition)
-  // {
-    // std::vector<ngl::Vec3> heightmapData{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    // ngl::Real hmWidth = 4;
-    // ngl::Real hmHeight = 4;
-    // Heightmap *heightmap = new Heightmap(hmWidth, hmHeight, heightmapData);
-    // ClipmapLevel *parent = nullptr;
+    EXPECT_EQ(c.scale(), 1 << ((manager->L() - 1) - 0));
+    EXPECT_EQ(c.position(), ngl::Vec2{});
+    EXPECT_EQ(c.trimLocation(), trimLocation);
+  }
 
-    // ClipmapLevel c(0, heightmap, parent);
+  TEST(ClipmapTest, setPosition)
+  {
+    Manager *manager = Manager::getInstance();
+    std::vector<ngl::Vec3> heightmapData{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    ngl::Real hmWidth = 4;
+    ngl::Real hmHeight = 4;
+    Heightmap *heightmap = new Heightmap(hmWidth, hmHeight, heightmapData);
+    ClipmapLevel *parent = nullptr;
 
-    // ngl::Vec2 position{10, 6};
-    // c.setPosition(position);
-    // EXPECT_EQ(c.position(), position);
-    // position = {-2, -2};
-    // c.setPosition(position);
-    // EXPECT_EQ(c.position(), position);
+    ClipmapLevel c(0, heightmap, parent);
 
-    // Expect correct parts of texture to equal the heightmap
-    // for (int y = 0; y < CLIPMAP_D; y++)
-    // {
-    //   for (int x = 0; x < CLIPMAP_D; x++)
-    //   {
-    //     if (x < hmWidth && y < hmHeight)
-    //     {
-    //       EXPECT_EQ(c.m_texture[y * CLIPMAP_D + x], heightmapData[static_cast<int>(y * hmWidth + x)].lengthSquared());
-    //     }
-    //     else
-    //     {
-    //       EXPECT_EQ(c.m_texture[y * CLIPMAP_D + x], 0.0f);
-    //     }
-    //   }
-    // }
-    
-  // }
-} // namespace geoclipmap
+    ngl::Vec2 worldPosition{1.0f, 2.0f};
+    ngl::Vec2 heightmapPosition{3.0f, 4.0f};
+    TrimLocation trimLocation = TrimLocation::TopLeft;
+
+    c.setPosition(worldPosition, heightmapPosition, trimLocation);
+
+    EXPECT_EQ(c.position(), worldPosition);
+    EXPECT_EQ(c.m_heightmapPosition, heightmapPosition);
+    EXPECT_EQ(c.trimLocation(), trimLocation);
+  }
+} // end namespace geoclipmap

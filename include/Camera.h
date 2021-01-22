@@ -10,6 +10,7 @@
 #define CAMERA_H_
 
 #include <ngl/Mat4.h>
+#include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
 
 namespace geoclipmap
@@ -17,11 +18,6 @@ namespace geoclipmap
   class Camera
   {
   public:
-    /**
-     * @brief Construct a default Camera object
-     * 
-     */
-    Camera() = default;
     /**
      * @brief Construct a new Camera object
      * 

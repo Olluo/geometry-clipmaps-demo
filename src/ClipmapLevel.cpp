@@ -39,7 +39,6 @@ namespace geoclipmap
 
   void ClipmapLevel::updateTexture() noexcept
   {
-    // TODO: Ideally this would only update the needed data
     // When querying the heightmap, it is assumed the heightmap is always at 0,0
     // So to get the correct pixels for this clipmaps texture we take its position
     // and loop up to D and add this value to the position, then grab the pixel
@@ -103,25 +102,26 @@ namespace geoclipmap
     glBindBuffer(GL_TEXTURE_BUFFER, 0);
   }
 
-  ngl::Real ClipmapLevel::getPixelAt(int _x, int _y) noexcept
-  {
-    size_t D = Manager::getInstance()->D();
+  // This wasn't working as mentioned in the vertex shader
+  // ngl::Real ClipmapLevel::getPixelAt(int _x, int _y) noexcept
+  // {
+  //   size_t D = Manager::getInstance()->D();
 
-    // Get the integer part of the position as heightmap pixels are located at whole numbers
-    int xPosInt = static_cast<int>(floor(m_heightmapPosition.m_x));
-    int yPosInt = static_cast<int>(floor(m_heightmapPosition.m_y));
+  //   // Get the integer part of the position as heightmap pixels are located at whole numbers
+  //   int xPosInt = static_cast<int>(floor(m_heightmapPosition.m_x));
+  //   int yPosInt = static_cast<int>(floor(m_heightmapPosition.m_y));
 
-    int xLoc = _x - xPosInt;
-    int yLoc = _y - yPosInt;
+  //   int xLoc = _x - xPosInt;
+  //   int yLoc = _y - yPosInt;
 
-    if (xLoc < 0 || xLoc > D - 1 || yLoc < 0 || yLoc > D - 1)
-    {
-      return 0.0f;
-    }
+  //   if (xLoc < 0 || xLoc > D - 1 || yLoc < 0 || yLoc > D - 1)
+  //   {
+  //     return 0.0f;
+  //   }
 
-    // Only want to return fine pixel data
-    return m_texture[(yLoc) * D + (xLoc)].m_x;
-  }
+  //   // Only want to return fine pixel data
+  //   return m_texture[(yLoc) * D + (xLoc)].m_x;
+  // }
 
   // ======================================= Private methods =======================================
 
@@ -130,49 +130,47 @@ namespace geoclipmap
     // The value of the parent's pixel at this point which will be used in the shader for blending
     ngl::Real coarsePixel{0.0f};
 
-    // Computation for getting the parent pixel data
-    if (m_parent != nullptr)
-    {
-      if (_x % 2 == 0)
-      {
-        // X is even
-        if (_y % 2 == 0)
-        {
-          // Y is even
-          // TODO: This causes an issue because the parent clipmap is not in the right position when this is called so it cant
-          // TODO: get the correct value
-          // TODO: Just a thought, why not artificially make the value here as we have access to the entire heightmap anyway
-          coarsePixel = m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(0.5f * _y));
-        }
-        else
-        {
-          // Y is odd
-          coarsePixel = m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(floor(0.5f * _y))) +
-                        m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(ceil(0.5f * _y)));
-          coarsePixel *= 0.5; // Average of two values
-        }
-      }
-      else
-      {
-        // X is odd
-        if (_y % 2 == 0)
-        {
-          // Y is even
-          coarsePixel = m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(0.5f * _y)) +
-                        m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(0.5f * _y));
-          coarsePixel *= 0.5; // Average of two values
-        }
-        else
-        {
-          // Y is odd
-          coarsePixel = m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(floor(0.5f * _y))) +
-                        m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(ceil(0.5f * _y))) +
-                        m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(ceil(0.5f * _y))) +
-                        m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(floor(0.5f * _y)));
-          coarsePixel *= 0.25; // Average of four values
-        }
-      }
-    }
+    // This wasn't working as mentioned in the vertex shader
+    // // Computation for getting the parent pixel data
+    // if (m_parent != nullptr)
+    // {
+    //   if (_x % 2 == 0)
+    //   {
+    //     // X is even
+    //     if (_y % 2 == 0)
+    //     {
+    //       // Y is even
+    //       coarsePixel = m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(0.5f * _y));
+    //     }
+    //     else
+    //     {
+    //       // Y is odd
+    //       coarsePixel = m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(floor(0.5f * _y))) +
+    //                     m_parent->getPixelAt(static_cast<int>(0.5f * _x), static_cast<int>(ceil(0.5f * _y)));
+    //       coarsePixel *= 0.5; // Average of two values
+    //     }
+    //   }
+    //   else
+    //   {
+    //     // X is odd
+    //     if (_y % 2 == 0)
+    //     {
+    //       // Y is even
+    //       coarsePixel = m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(0.5f * _y)) +
+    //                     m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(0.5f * _y));
+    //       coarsePixel *= 0.5; // Average of two values
+    //     }
+    //     else
+    //     {
+    //       // Y is odd
+    //       coarsePixel = m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(floor(0.5f * _y))) +
+    //                     m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(ceil(0.5f * _y))) +
+    //                     m_parent->getPixelAt(static_cast<int>(floor(0.5f * _x)), static_cast<int>(ceil(0.5f * _y))) +
+    //                     m_parent->getPixelAt(static_cast<int>(ceil(0.5f * _x)), static_cast<int>(floor(0.5f * _y)));
+    //       coarsePixel *= 0.25; // Average of four values
+    //     }
+    //   }
+    // }
 
     // The value of the pixel for this clipmap level
     ngl::Real finePixel = m_heightmap->value(_x, _y);

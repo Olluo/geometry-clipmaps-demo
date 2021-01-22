@@ -15,12 +15,11 @@
 
 int main(int argc, char **argv)
 {
-	// TODO: loading in from command line
-	// if(argc <2 )
-	// {
-	// 	std::cerr <<"Usage ImageGrid [name]\n";
-	// 	exit(EXIT_FAILURE);
-	// }
+	if(argc <2 )
+	{
+		std::cerr <<"Usage: GeoClipmapDemo.exe <heightmap_file>\n";
+		exit(EXIT_FAILURE);
+	}
 
 	QGuiApplication app(argc, argv);
 	QSurfaceFormat format;
@@ -34,8 +33,8 @@ int main(int argc, char **argv)
 	// geoclipmap::NGLScene window("./img/grand_canyon.png");
 	// geoclipmap::NGLScene window("./img/poole_harbour.png");
 	// geoclipmap::NGLScene window("./img/cheddar.png");
-	geoclipmap::NGLScene window("./img/ben_nevis.png");
-	// geoclipmap::NGLScene window(argv[1]);
+	// geoclipmap::NGLScene window("./img/ben_nevis.png");
+	geoclipmap::NGLScene window(argv[1]);
 	
 	window.setFormat(format);
 

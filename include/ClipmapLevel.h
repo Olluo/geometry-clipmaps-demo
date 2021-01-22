@@ -83,14 +83,15 @@ namespace geoclipmap
      * 
      */
     void unbindTextures() noexcept;
-    /**
-     * @brief Get the stored pixel at (_x, _y)
-     * 
-     * @param _x The X coordinate
-     * @param _y The Y coordinate
-     * @return ngl::Vec4 The pixel data
-     */
-    ngl::Real getPixelAt(int _x, int _y) noexcept;
+    // This wasn't working as mentioned in the vertex shader
+    // /**
+    //  * @brief Get the stored pixel at (_x, _y)
+    //  * 
+    //  * @param _x The X coordinate
+    //  * @param _y The Y coordinate
+    //  * @return ngl::Vec4 The pixel data
+    //  */
+    // ngl::Real getPixelAt(int _x, int _y) noexcept;
 
   private:
     // The level of the clipmap
@@ -128,6 +129,7 @@ namespace geoclipmap
 #ifdef TERRAIN_TESTING
 #include <gtest/gtest.h>
     FRIEND_TEST(ClipmapTest, ctor);
+    FRIEND_TEST(ClipmapTest, ctor_specify_trimlocation);
     FRIEND_TEST(ClipmapTest, setPosition);
 #endif
   };

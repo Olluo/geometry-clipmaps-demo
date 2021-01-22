@@ -129,6 +129,11 @@ namespace geoclipmap
      * 
      */
     void updatePosition() noexcept;
+
+#ifdef TERRAIN_TESTING
+#include <gtest/gtest.h>
+    FRIEND_TEST(TerrainTest, ctor);
+#endif
   };
 
 } // end namespace geoclipmap

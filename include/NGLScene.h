@@ -119,7 +119,7 @@ namespace geoclipmap
     // The view axis that shows orientation of the world
     ViewAxis *m_viewAxis;
     // Camera object for viewing the scene
-    Camera m_cam;
+    Camera *m_cam;
     // The terrain shader program
     std::string m_shaderProgram;
     // The help text

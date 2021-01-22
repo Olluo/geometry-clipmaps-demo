@@ -22,7 +22,7 @@ namespace geoclipmap
       int deltaY = _event->y() - m_win.origY;
       m_win.origX = _event->x();
       m_win.origY = _event->y();
-      m_cam.orbit(deltaX, -deltaY);
+      m_cam->orbit(deltaX, -deltaY);
       update();
     }
 
@@ -31,7 +31,7 @@ namespace geoclipmap
     {
       int deltaY = _event->y() - m_win.origY;
       m_win.origY = _event->y();
-      m_cam.dolly(deltaY);
+      m_cam->dolly(deltaY);
       update();
     }
 
@@ -40,7 +40,7 @@ namespace geoclipmap
     {
       int deltaY = _event->y() - m_win.origY;
       m_win.origY = _event->y();
-      m_cam.pedestal(deltaY);
+      m_cam->pedestal(deltaY);
       update();
     }
   }

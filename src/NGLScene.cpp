@@ -87,10 +87,10 @@ namespace geoclipmap
     ngl::ShaderLib::linkProgramObject(m_shaderProgram);
 
     // Construct an arcball camera object
-    m_cam = Camera({0.0f, 100.0f, 50.0f}, {0.0f, 100.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+    m_cam = new Camera({0.0f, 100.0f, 50.0f}, {0.0f, 100.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
 
     // Rotate so looking down on the terrain
-    m_cam.orbit(0.0f, -45.0f);
+    m_cam->orbit(0.0f, -45.0f);
 
     // set the shape using FOV 45 Aspect Ratio based on Width and Height
     // The final two are near and far clipping planes of 0.5 and 10
@@ -100,7 +100,7 @@ namespace geoclipmap
     m_manager = Manager::getInstance();
 
     // Initialise the view axis
-    m_viewAxis = new ViewAxis(m_cam.view());
+    m_viewAxis = new ViewAxis(m_cam->view());
     m_viewAxis->initialise();
 
     // Initialise the text
@@ -124,11 +124,11 @@ namespace geoclipmap
 
     // Calculate the MVP matrix
     ngl::Mat4 MVP;
-    MVP = m_projection * m_cam.view() * m_transform.getMatrix();
+    MVP = m_projection * m_cam->view() * m_transform.getMatrix();
     ngl::ShaderLib::setUniform("MVP", MVP);
 
     // Set the active LoD levels based on the camera height
-    m_terrain->setActiveLevels(m_cam.height());
+    m_terrain->setActiveLevels(m_cam->height());
 
     auto clipmaps = m_terrain->clipmaps();
 
@@ -222,7 +222,7 @@ namespace geoclipmap
     {
       m_text->renderText(10, 700, "===== CONTROLS =====");
       m_text->renderText(10, (textPos-=19), "= 'arrow keys' - move terrain (always follows world axes)");
-      m_text->renderText(10, (textPos-=19), "= '[' - reduce LoD, ']' - increase LoD (K)");
+      m_text->renderText(10, (textPos-=19), "= '[' - reduce LOD, ']' - increase LOD (K)");
       m_text->renderText(10, (textPos-=19), "= '-' - reduce clipmap count, '=' - increase clipmap count (L)");
       m_text->renderText(10, (textPos-=19), "= '9' - reduce clipmap range, '0' - increase clipmap range (R)");
       m_text->renderText(10, (textPos-=19), "= 'LMB' - orbit camera, 'MMB' - pedestal camera (up/down), 'RMB' - dolly camera (in/out)");
@@ -277,7 +277,7 @@ namespace geoclipmap
       break;
     // Reset camera position
     case Qt::Key_Space:
-      m_cam.reset();
+      m_cam->reset();
       break;
     // Terrain movement
     case Qt::Key_Left:
