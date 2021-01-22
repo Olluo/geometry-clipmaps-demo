@@ -98,7 +98,7 @@ namespace geoclipmap
     size_t m_M = m_D / 4;
     // D/2
     size_t m_D2 = m_D / 2;
-    // H - How much to move the clipmap by to find center point
+    // H - How much to move the clipmap by to find centre point
     long m_H = -2 * static_cast<int>(m_M) + 1;
     // L - The number of levels of detail (>3)
     unsigned char m_L = 8;

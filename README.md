@@ -31,7 +31,13 @@ My project implements one of these LOD algorithms, namely the [Geometry Clipmap 
 
 Having a suitable and efficient LOD algorithm in place, paves the way for terrain modification and random generation on a massive scale, which this project could be used for in the future.
 
-<!-- TODO: Add image(s) showing example terrain -->
+Grand Canyon (K = 9) | Grand Canyon (K = 9, wireframe)
+:-:|:-:
+![grand_canyon_example](img/grand_canyon_example.png) | ![grand_canyon_example_wireframe](img/grand_canyon_example_wireframe.png)
+
+Grand Canyon (K = 5) | Grand Canyon (K = 5, wireframe)
+:-:|:-:
+![grand_canyon_example](img/grand_canyon_example_low_res.png) | ![grand_canyon_example_wireframe](img/grand_canyon_example_low_res_wireframe.png)
 
 ## Installation
 
@@ -41,7 +47,7 @@ See the [NGL Pre-requisites and Building](https://github.com/NCCA/NGL#pre-requis
 
 At a high level, install vcpkg, and run the following commands:
 
-```
+```bash
 .\vcpkg install gtest:x64-windows
 .\vcpkg install glm:x64-windows
 .\vcpkg install glfw3:x64-windows
@@ -76,11 +82,18 @@ Once built using the instructions above
 
 This will then display the heightmap at `<heightmap_image_file>` using the GeoClipmap algorithm.
 
+There are 4 heightmaps included (inside the `img/tests` directory):
+
+- `ben_nevis.png` - 10x10km from Ben Nevis to Fort William
+- `cheddar.png` - 10x10km area centred around Cheddar Reservoir (where I went to school)
+- `grand_canyon.png` - 10x10km area centred around the Grand Canyon Village
+- `poole_harbour.png` - 10x10km area of Poole Harbour near Bournemouth
+
 ### Settings
 
 To display the settings press the 'h' key and the following settings will be displayed in the top left:
 
-```
+```bash
 ===== CONTROLS =====
 = 'arrow keys' - move terrain (always follows world axes)
 = '[' - reduce LOD, ']' - increase LOD (K)
@@ -97,7 +110,7 @@ To display the settings press the 'h' key and the following settings will be dis
 
 The current GeoClipmap settings are always displayed in the top left, an example configuration is as follows:
 
-```
+```bash
 Current values: K=8, L=10, R=4
 ```
 
@@ -115,7 +128,19 @@ This project was originally going to include terrain *modification* and *creatio
 
 ### How the algorithm works
 
-TODO
+At a high level, here is how the algorithm works - take from [my report](docs/report.pdf).
+
+![GeoClipmap Footprints](img/report/geoclipmapping_footprints.png)
+
+In geometry clipmaps, the X-Z coordinates are represented by a few vertices and indices, with terrain data being cached in a set of nested grids centred around the viewer.  
+
+Each grid is stored as a constant vertex buffer made up of four different “footprints” in video memory, whilst the height data is stored as a texture buffer to be read in the vertex shader.  
+
+The terrain is filtered into a power-of-two mipmap pyramid, with the mipmap being rendered at each pixel being a function of screen-space and parametric derivatives based on the view parameters, not the actual content of the image.
+
+The texture clipmap is then updated in fast incremental stages allowing massive landscapes to be traversed with no drop in frames. The LOD level for each clipmap is selected based on the viewer height. This makes every triangle the same amount of pixels on screen, as each clipmap is just the finest clipmap but at power-of-two scales.
+
+Geoclipmaps have several advantages over  other LOD  methods. These advantages include them being moderately simple to implement, having an optimal rendering throughput, retaining visual continuity across clipmaps, and providing complexity throttling that prevents GPU throttling.  This works by rendering from the coarsest detail to finest, dropping the finest level if the viewer has moved before rendering.
 
 ### Main Components
 
@@ -123,23 +148,45 @@ The system is split into two main parts; the algorithm and associated parts that
 
 #### [Manager.cpp](src/Manager.cpp)
 
-TODO
+This class handles the storing and management of the main variables in the GeoClipmap algorithm. It is a singleton class and can be used to get a certain parameter when needed in a calculation. The list of parameters are as follows:
+
+Parameter | Description
+:--------:|----------------------------------------------------------------------
+`K`       | The level of detail
+`D`       | The equivalent of 2^K
+`N`       | The grid size for each clipmap level
+`M`       | The equivalent of D / 4 and the width of the footprints
+`D2`      | The equivalent of D / 2
+`H`       | How much to move from the clipmap level edge to find the centre point
+`L`       | The number of clipmap levels
+`R`       | The number of clipmap levels to show from finest to coarsest
+
+These parameters can be adjusted using the keybindings stated in [Settings](#settings).
 
 #### [Terrain.cpp](src/Terrain.cpp)
 
-TODO
+The main GeoClipmap class that manages all the subcomponents and creates the whole clipmap. This is the class that is made in the main NGLScene.cpp.
+
+It is constructed from a Heightmap.
 
 #### [Heightmap.cpp](src/Heightmap.cpp)
 
-TODO
+A class that stores a heightmap image (like the ones mentioned in [Usage](#usage)) and can be queried by the clipmap levels to generate their textures.
 
 #### [ClipmapLevel.cpp](src/ClipmapLevel.cpp)
 
-TODO
+Represents one level of the GeoClipmap and has a scale and position based on where the viewer is in the world.
 
 #### [Footprint.cpp](src/Footprint.cpp)
 
-TODO
+Represents one of the four different footprints in the algorithm:
+
+Footprint             | Dimension                | Use
+:--------------------:|:------------------------:|-----------------------------------------------------------------------
+Block                 | `M` by `M`               | 12 used as the main building blocks of the clipmap level
+Fixup                 | `M` by `3`               | 4 used between the blocks to space them correctly
+Interior Trim         | `(2M + 1)` by `2`        | 2 used on most level, 4 on finest level to space finer level correctly
+Outer Degenerate Ring | `(4M - 1)` by `(4M - 1)` | 1 per level, serves as the outer border
 
 ### High-level UML Diagram
 
@@ -261,7 +308,7 @@ Ideas/scratch pad:
 
 <!-- #### UML Diagram
 
-![UML class diagram](img/ase_class_diagram.svg) -->
+<![UML class diagram](img/ase_class_diagram.svg) -->
 
 ## References and Acknowledgements
 
